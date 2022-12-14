@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class CreateHouseAccount extends StatefulWidget {
   const CreateHouseAccount({super.key});
@@ -8,12 +11,12 @@ class CreateHouseAccount extends StatefulWidget {
 }
 
 class _CreateHouseAccountState extends State<CreateHouseAccount> {
-  TextEditingController name = TextEditingController();
+  TextEditingController houseName = TextEditingController();
   TextEditingController phone = TextEditingController();
+  String memberRole1 = "role";
 
   @override
   Widget build(BuildContext context) {
-    String memberRole1 = "role";
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -58,7 +61,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                     children: <Widget>[
                       const Text('*اسم المنزل', textAlign: TextAlign.right),
                       TextFormField(
-                        controller: name,
+                        controller: houseName,
                         maxLength: 20,
                         textAlign: TextAlign.right,
                         decoration: InputDecoration(
@@ -157,9 +160,9 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                 Radio(
                   value: "editor",
                   groupValue: memberRole1,
-                  onChanged: (T) {
+                  onChanged: (str) {
                     setState(() {
-                      memberRole1 = T!;
+                      memberRole1 = str!;
                     });
                   },
                 ),
@@ -171,10 +174,10 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                 Radio(
                   value: "viewer",
                   groupValue: memberRole1,
-                  onChanged: (T) {
+                  onChanged: (str) {
                     //print(T);
                     setState(() {
-                      memberRole1 = T!;
+                      memberRole1 = str!;
                     });
                   },
                 ),
@@ -203,7 +206,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                 padding: const EdgeInsets.fromLTRB(45, 10, 45, 0),
                 child: ElevatedButton(
                   onPressed: () {
-                    if (name.text.isEmpty) {
+                    if (houseName.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                             content: Text(
@@ -240,5 +243,19 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
         ),
       ),
     );
+  }
+
+  void setData() {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    FirebaseFirestore.instance.collection('houseAccount').add({
+      'OwnerID': userId,
+      'dashboardID': '',
+      'houseID': '',
+      'houseName': houseName,
+      'houseOwner': '',
+    });
+    //FirebaseFirestore.instance.collection('userAccount').snapshots(
   }
 }
