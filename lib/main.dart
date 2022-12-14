@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'Devices/housesDevices.dart';
 import 'Devices/listOfDevices.dart';
 import 'Firebase/firebase_options.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //! Firebase
   await Firebase.initializeApp(
-    // name: 'rashd',
+    name: 'Rashd',
     options: DefaultFirebaseOptions.currentPlatform,
   );
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -23,12 +24,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'رشد',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.blue,
       ),
-      home: const devicesList(),
+      localizationsDelegates: const [
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale("ar", "SA"), // OR Locale('ar', 'AE') OR Other RTL locales
+      ],
+      locale: Locale("ar", "SA"), // OR Locale('ar', 'AE') OR Other RTL locales,
+
+      home: const listOfDevices(),
     );
   }
 }
