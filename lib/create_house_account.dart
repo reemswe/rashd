@@ -160,9 +160,9 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                 Radio(
                   value: "editor",
                   groupValue: memberRole1,
-                  onChanged: (str) {
+                  onChanged: (T) {
                     setState(() {
-                      memberRole1 = str!;
+                      memberRole1 = T!;
                     });
                   },
                 ),
@@ -174,10 +174,10 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                 Radio(
                   value: "viewer",
                   groupValue: memberRole1,
-                  onChanged: (str) {
+                  onChanged: (T) {
                     //print(T);
                     setState(() {
-                      memberRole1 = str!;
+                      memberRole1 = T!;
                     });
                   },
                 ),
@@ -216,6 +216,9 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                             backgroundColor: Colors.redAccent),
                       );
                     } else {
+                      print(houseName.text);
+                      setData();
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                             content: Text(
@@ -245,17 +248,35 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
     );
   }
 
-  void setData() {
-    String userId = FirebaseAuth.instance.currentUser!.uid;
-    FirebaseFirestore db = FirebaseFirestore.instance;
+  Future<void> setData() async {
+    CollectionReference houses =
+        FirebaseFirestore.instance.collection('houseAccount');
 
-    FirebaseFirestore.instance.collection('houseAccount').add({
-      'OwnerID': userId,
+    //User? user = FirebaseAuth.instance.currentUser;
+    //String userId = user!.uid;
+    if (houses != '') {
+      print('2');
+    }
+
+    //FirebaseFirestore db = FirebaseFirestore.instance;
+    String houseId = '';
+    DocumentReference docReference = await houses.add({
+      'OwnerID': '',
       'dashboardID': '',
       'houseID': '',
-      'houseName': houseName,
+      'houseName': houseName.text,
       'houseOwner': '',
     });
+    print('2');
+    houseId = docReference.id;
+    houses.doc(houseId).update({'houseID': houseId});
+    if (memberRole1 != 'role') {
+      houses
+          .doc(houseId)
+          .collection('houseMember')
+          .add({'memberID': 'later', 'privilege': memberRole1});
+    }
+    print('successful');
     //FirebaseFirestore.instance.collection('userAccount').snapshots(
   }
 }
