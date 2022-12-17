@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class listOfDevices extends StatefulWidget {
   const listOfDevices({super.key});
@@ -15,6 +16,14 @@ class listOfDevices extends StatefulWidget {
 }
 
 class listOfDevicesState extends State<listOfDevices> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  TextEditingController phoneController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
@@ -28,132 +37,7 @@ class listOfDevicesState extends State<listOfDevices> {
         ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        // leading: //Icon(Icons.more_vert)
-        // PopupMenuButton(
-        //   onSelected: (value) {
-        //     if (value == 'share') {
-        //       showDialog(
-        //         context: context,
-        //         builder: (ctx) => AlertDialog(
-        //           title: const Text(
-        //             "مشاركة لوحة المعلومات",
-        //             textAlign: TextAlign.center,
-        //           ),
-        //           content: const Text(
-        //             'رجاء ادخل رقم جوال لمشاركة لوحة المعلومات',
-        //             textAlign: TextAlign.right,
-        //           ),
-        //           actions: <Widget>[
-        //             TextFormField(
-        //               textAlign: TextAlign.right,
-        //               keyboardType: TextInputType.number,
-        //               inputFormatters: <TextInputFormatter>[
-        //                 LengthLimitingTextInputFormatter(10),
-        //                 FilteringTextInputFormatter.digitsOnly
-        //               ],
-        //               decoration: InputDecoration(
-        //                 contentPadding: const EdgeInsets.symmetric(
-        //                     vertical: 13.0, horizontal: 15),
-        //                 border: OutlineInputBorder(
-        //                   borderRadius: BorderRadius.circular(30.0),
-        //                 ),
-        //                 filled: true,
-        //                 hintStyle: TextStyle(color: Colors.grey[800]),
-        //                 hintText: " رقم الهاتف",
-        //               ),
-        //               // The validator receives the text that the user has entered.
-        //               validator: (value) {
-        //                 if (value == null || value.isEmpty) {
-        //                   return '  رجاء ادخل رقم هاتف';
-        //                 }
-        //                 if (value.length < 10) {
-        //                   return '  رجاء ادخل رقم هاتف صحيح';
-        //                 }
-        //                 return null;
-        //               },
-        //             ),
-        //             TextButton(
-        //               onPressed: () {
-        //                 Navigator.of(ctx).pop();
-        //               },
-        //               child: Container(
-        //                 padding: const EdgeInsets.all(14),
-        //                 child: const Text("الغاء"),
-        //               ),
-        //             ),
-        //             //log in ok button
-        //             TextButton(
-        //               onPressed: () {
-        //                 // pop out
-        //               },
-        //               child: Container(
-        //                 padding: const EdgeInsets.all(14),
-        //                 child: const Text("مشاركة",
-        //                     style: TextStyle(
-        //                         color: Color.fromARGB(255, 35, 129, 6))),
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       );
-        //       // Navigator.push(
-        //       //   context,
-        //       //   MaterialPageRoute(builder: (context) => const Share()),
-        //       // );
-        //     }
-        //     if (value == 'delete') {
-        //       showDialog(
-        //         context: context,
-        //         builder: (ctx) => AlertDialog(
-        //           title: const Text(
-        //             "حذف المنزل",
-        //             textAlign: TextAlign.center,
-        //           ),
-        //           content: const Text(
-        //             "هل أنت متأكد من حذف حساب المنزل ؟",
-        //             textAlign: TextAlign.right,
-        //           ),
-        //           actions: <Widget>[
-        //             TextButton(
-        //               onPressed: () {
-        //                 Navigator.of(ctx).pop();
-        //               },
-        //               child: Container(
-        //                 padding: const EdgeInsets.all(14),
-        //                 child: const Text("الغاء"),
-        //               ),
-        //             ),
-        //             //log in ok button
-        //             TextButton(
-        //               onPressed: () {
-        //                 // pop out
-        //               },
-        //               child: Container(
-        //                 padding: const EdgeInsets.all(14),
-        //                 child: const Text("حذف",
-        //                     style: TextStyle(
-        //                         color: Color.fromARGB(255, 164, 10, 10))),
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       );
-        //     }
-        //   },
-        //   itemBuilder: (BuildContext bc) {
-        //     return const [
-        //       PopupMenuItem(
-        //         child: Text("مشاركة لوحة المعلومات "),
-        //         value: 'share',
-        //       ),
-        //       PopupMenuItem(
-        //         child: Text("حذف حساب المنرل",
-        //             style: TextStyle(color: Color.fromARGB(255, 167, 32, 32))),
-        //         value: 'delete',
-        //       ),
-        //     ];
-        //   },
-        // ),
+        actions: [morePopupMenu(height, width)],
         // actions: [
         //   IconButton(
         //     icon: const Icon(Icons.arrow_forward_ios),
@@ -164,7 +48,7 @@ class listOfDevicesState extends State<listOfDevices> {
         //   ),
         // ],
 
-        elevation: 105,
+        elevation: 1.5,
       ),
       body: Column(children: [
         SizedBox(height: height * 0.01),
@@ -196,7 +80,243 @@ class listOfDevicesState extends State<listOfDevices> {
             ]),
         buildDevicesList(),
       ]),
-      bottomNavigationBar: buildBottomNavigation(),
+      bottomNavigationBar: buildBottomNavigation(height),
+    );
+  }
+
+  Widget morePopupMenu(height, width) {
+    return PopupMenuButton(
+      itemBuilder: (BuildContext bc) {
+        return const [
+          PopupMenuItem(
+            child: Text("مشاركة لوحة المعلومات "),
+            value: 'share',
+          ),
+          PopupMenuItem(
+            child: Text("حذف حساب المنزل",
+                style: TextStyle(color: Color.fromARGB(255, 167, 32, 32))),
+            value: 'delete',
+          ),
+        ];
+      },
+      onSelected: (value) {
+        if (value == 'share') {
+          showModalBottomSheet(
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              context: context,
+              builder: (context) =>
+                  ShareDashboard('ffDQbRQQ8k9RzlGQ57FL', height, width));
+        }
+        if (value == 'delete') {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text(
+                "حذف حساب المنزل",
+                textAlign: TextAlign.center,
+              ),
+              content: const Text(
+                "هل أنت متأكد من حذف حساب المنزل ؟",
+                textAlign: TextAlign.right,
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    // pop out
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(0),
+                    child: const Text("حذف",
+                        style:
+                            TextStyle(color: Color.fromARGB(255, 164, 10, 10))),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    child: const Text("إلغاء"),
+                  ),
+                ),
+                //log in ok button
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget ShareDashboard(houseID, height, width) {
+    return Padding(
+      padding: MediaQuery.of(context).viewInsets,
+      child: DraggableScrollableSheet(
+          maxChildSize: 0.45,
+          minChildSize: 0.45,
+          initialChildSize: 0.45,
+          builder: (_, controller) => Container(
+                decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(20))),
+                child: SingleChildScrollView(
+                    padding: MediaQuery.of(context).viewInsets,
+                    child: Form(
+                        key: _formKey,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(25, 18, 20, 0),
+                          child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(height: height * 0.01),
+                                Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      const Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                        child: Text(
+                                          "مشاركة لوحة المعلومات",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 22),
+                                        ),
+                                      ),
+                                      Padding(
+                                          padding:
+                                              EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                          child: IconButton(
+                                            color: Colors.grey.shade700,
+                                            iconSize: 30,
+                                            icon: const Icon(Icons.cancel),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                          )),
+                                    ]),
+                                SizedBox(height: height * 0.01),
+                                Text(
+                                    'الرجاء إدخال رقم هاتف الشخص لمشاركة لوحة المعلومات ',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 18)),
+                                SizedBox(height: height * 0.05),
+
+                                //phone number field
+                                TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    maxLength: 10,
+                                    controller: phoneController,
+                                    decoration: const InputDecoration(
+                                      hintText: '05XXXXXXXX',
+                                      contentPadding:
+                                          EdgeInsets.only(bottom: 3),
+                                      labelText: 'رقم الهاتف',
+                                      // floatingLabelBehavior: FloatingLabelBehavior.always,
+                                    ),
+                                    autovalidateMode:
+                                        AutovalidateMode.onUserInteraction,
+                                    validator: (value) {
+                                      if (value == null ||
+                                          value.trim().isEmpty) {
+                                        return "الرجاء إدخال رقم الهاتف";
+                                      } else if (value.length != 10) {
+                                        return "الرجاء إدخال رقم هاتف صالح";
+                                      }
+                                    }),
+                                SizedBox(height: height * 0.03),
+
+                                //button
+                                Center(
+                                    child: Container(
+                                  width: width * 0.5,
+                                  decoration: BoxDecoration(
+                                    boxShadow: const [
+                                      BoxShadow(
+                                          color: Colors.black26,
+                                          offset: Offset(0, 4),
+                                          blurRadius: 5.0)
+                                    ],
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      stops: [0.1, 1.0],
+                                      colors: [
+                                        Colors.blue.shade200,
+                                        Colors.blue.shade400,
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      fixedSize:
+                                          Size(width * 0.5, height * 0.03),
+                                    ),
+                                    onPressed: () {
+                                      if (_formKey.currentState!.validate()) {
+                                        // Fluttertoast.showToast(
+                                        //     msg: "This is Center Short Toast",
+                                        //     toastLength: Toast.LENGTH_SHORT,
+                                        //     gravity: ToastGravity.CENTER,
+                                        //     timeInSecForIosWeb: 1,
+                                        //     backgroundColor: Colors.red,
+                                        //     textColor: Colors.white,
+                                        //     fontSize: 16.0);
+                                        Navigator.of(context).pop();
+                                      }
+                                    },
+                                    child: const Text('مشاركة'),
+                                  ),
+                                )),
+
+                                ElevatedButton(
+                                  onPressed: () {
+                                    // if (name.text.isEmpty) {
+                                    //   ScaffoldMessenger.of(context).showSnackBar(
+                                    //     const SnackBar(
+                                    //         content: Text(
+                                    //           '  الرجاء إدخال اسم للمنزل',
+                                    //           textAlign: TextAlign.center,
+                                    //         ),
+                                    //         backgroundColor: Colors.redAccent),
+                                    //   );
+                                    // } else {
+                                    //   ScaffoldMessenger.of(context).showSnackBar(
+                                    //     const SnackBar(
+                                    //         content: Text(
+                                    //           '  تم اضافة المنزل بنجاح',
+                                    //           textAlign: TextAlign.center,
+                                    //         ),
+                                    //         backgroundColor: Colors.green),
+                                    //   );
+                                    //   // Navigator.push(
+                                    //   //     context,
+                                    //   //     MaterialPageRoute(
+                                    //   //       builder: (context) => const ListOfHouseAccounts(),
+                                    //   //     ));
+                                    // }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
+                                  child: const Text('إنشاء'),
+                                ),
+                              ]),
+                        ))),
+              )),
     );
   }
 
@@ -297,40 +417,61 @@ class listOfDevicesState extends State<listOfDevices> {
     );
   }
 
-  Widget buildBottomNavigation() {
+  Widget buildBottomNavigation(height) {
     return BottomNavyBar(
-      selectedIndex: 0,
+      containerHeight: height * 0.07,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      selectedIndex: global.index,
+      iconSize: 28,
       onItemSelected: (index) {
-        // setState(
-        //   () => global.index = index,
-        // );
-        // if (global.index == 0) {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => const devicesList()),
-        //   );
-        // } else if (global.index == 1) {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => const dashboard()),
-        //   );
-        // } else if (global.index == 2) {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //         builder: (context) => const ListOfHouseAccounts()),
-        //   );
-        // }
+        setState(
+          () => global.index = index,
+        );
+        if (global.index == 0) {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => const devicesList()),
+          // );
+        } else if (global.index == 1) {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => const dashboard()),
+          // );
+        } else if (global.index == 2) {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //       builder: (context) => const ListOfHouseAccounts()),
+          // );
+        }
       },
       items: <BottomNavyBarItem>[
         BottomNavyBarItem(
-          icon: const Icon(Icons.electrical_services_rounded),
-          // icon: IconButton(
-          //     icon: const Icon(Icons.person_outline_rounded),
-          //     onPressed: () {
-          //       setState(
-          //         () => this.index = index,
-          //       );
+            icon: IconButton(
+                icon: const Icon(Icons.bar_chart_rounded),
+                onPressed: () {
+                  // setState(
+                  //   () => this.index = index,
+                  // );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       builder: (context) => const ListOfHouseAccounts()),
+                  // );
+                }),
+            title: const Text(
+              'لوحة المعلومات',
+              textAlign: TextAlign.center,
+            ),
+            activeColor: Colors.lightBlue),
+        BottomNavyBarItem(
+          icon: IconButton(
+              icon: const Icon(Icons.electrical_services_rounded),
+              onPressed: () {
+                setState(
+                  () => global.index = 1,
+                );
+              }),
           //       Navigator.push(
           //         context,
           //         MaterialPageRoute(
@@ -338,53 +479,36 @@ class listOfDevicesState extends State<listOfDevices> {
           //       );
           //     }),
           title: const Text(
-            ' اجهزتي',
+            'الأجهزة',
             textAlign: TextAlign.center,
           ),
+
           activeColor: Colors.lightBlue,
         ),
         BottomNavyBarItem(
-            icon: const Icon(Icons.auto_graph_outlined),
-            // icon: IconButton(
-            //     icon: const Icon(Icons.holiday_village_rounded),
-            //     onPressed: () {
-
-            //       setState(
-            //         () => this.index = index,
-            //       );
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //             builder: (context) => const ListOfHouseAccounts()),
-            //       );
-            //     }),
-            title: const Text(
-              'لوحة المعلومات',
-              textAlign: TextAlign.center,
-            ),
-            activeColor: Colors.lightBlue),
-        // BottomNavyBarItem(
-        //     icon: const Icon(Icons.holiday_village_rounded),
-        //     // icon: IconButton(
-        //     //     icon: const Icon(Icons.holiday_village_rounded),
-        //     //     onPressed: () {
-
-        //     //       setState(
-        //     //         () => this.index = index,
-        //     //       );
-        //     //       Navigator.push(
-        //     //         context,
-        //     //         MaterialPageRoute(
-        //     //             builder: (context) => const ListOfHouseAccounts()),
-        //     //       );
-        //     //     }),
-        //     title: const Text(
-        //       'منازلي',
-        //       textAlign: TextAlign.center,
-        //     ),
-        //     activeColor: Colors.lightBlue),
+          icon: IconButton(
+              icon: const Icon(Icons.people_alt_rounded),
+              onPressed: () {
+                setState(
+                  () => global.index = 2,
+                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) => const CreateHouseAccount()),
+                // );
+              }),
+          title: const Text(
+            'اعضاء المنزل',
+            style: TextStyle(fontSize: 12),
+            textAlign: TextAlign.center,
+          ),
+        ),
       ],
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
     );
   }
+}
+
+class global {
+  static var index = 0;
 }

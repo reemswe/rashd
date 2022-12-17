@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'Devices/housesDevices.dart';
 import 'Devices/listOfDevices.dart';
 import 'Firebase/firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -28,6 +27,38 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        backgroundColor: Colors.white,
+        textTheme: TextTheme(
+          button: TextStyle(
+            wordSpacing: 3,
+            letterSpacing: 1,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        inputDecorationTheme: const InputDecorationTheme(
+            enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey)),
+            contentPadding: EdgeInsets.fromLTRB(20, 12, 20, 12),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.blue, width: 2)),
+            errorBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2.0)),
+            focusedErrorBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2.0)),
+            floatingLabelStyle: TextStyle(fontSize: 22, color: Colors.blue),
+            helperStyle: TextStyle(fontSize: 14)),
+        // labelStyle: TextStyle(fontSize: 4, color: Colors.blue)),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            
+              backgroundColor: Colors.transparent,
+              foregroundColor: const Color(0xFFfcfffe),
+              shadowColor: Colors.transparent,
+              padding: const EdgeInsets.all(5),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0))),
+        ),
       ),
       localizationsDelegates: const [
         GlobalCupertinoLocalizations.delegate,
@@ -37,8 +68,8 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale("ar", "SA"), // OR Locale('ar', 'AE') OR Other RTL locales
       ],
-      locale: Locale("ar", "SA"), // OR Locale('ar', 'AE') OR Other RTL locales,
-
+      locale: const Locale(
+          "ar", "SA"), // OR Locale('ar', 'AE') OR Other RTL locales,
       home: const listOfDevices(),
     );
   }
@@ -127,4 +158,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+class global {
+  static var index = 0;
 }

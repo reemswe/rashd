@@ -41,6 +41,7 @@ dependencies:
   firebase_core: ^2.4.0
   bottom_navy_bar: ^6.0.0
   lite_rolling_switch: ^1.0.0
+  fluttertoast: ^8.1.2
 
 dev_dependencies:
   flutter_test:
