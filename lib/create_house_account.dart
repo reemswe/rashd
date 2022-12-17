@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class CreateHouseAccount extends StatefulWidget {
   const CreateHouseAccount({super.key});
@@ -12,10 +10,17 @@ class CreateHouseAccount extends StatefulWidget {
 
 class _CreateHouseAccountState extends State<CreateHouseAccount> {
   TextEditingController houseName = TextEditingController();
-  TextEditingController phone = TextEditingController();
   String memberRole1 = "role";
   List<Widget> addMembers = [];
-  List<TextEditingController> membersInfo = [];
+  TextEditingController membersPhoneNumber1 = TextEditingController();
+  TextEditingController membersPhoneNumber2 = TextEditingController();
+  TextEditingController membersPhoneNumber3 = TextEditingController();
+  TextEditingController membersPhoneNumber4 = TextEditingController();
+  TextEditingController membersPhoneNumber5 = TextEditingController();
+  List<TextEditingController> membersPhones = [];
+
+  List roles = ['role', 'role', 'role', 'role', 'role'];
+
   List indexes = ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس'];
   int num = 0;
   void addMemberWidget() {
@@ -24,8 +29,34 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
     });
   }
 
+  void createList() {
+    setState(() {
+      membersPhones.add(membersPhoneNumber1);
+      membersPhones.add(membersPhoneNumber2);
+      membersPhones.add(membersPhoneNumber3);
+      membersPhones.add(membersPhoneNumber4);
+      membersPhones.add(membersPhoneNumber5);
+    });
+  }
+
   Widget members() {
     num++;
+
+    int i = 1;
+    switch (num) {
+      case 1:
+        i = 1;
+        break;
+      case 2:
+        i = 2;
+        break;
+      case 3:
+        i = 3;
+        break;
+      case 4:
+        i = 4;
+        break;
+    }
     String place = indexes[num];
     return Container(
         padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
@@ -59,7 +90,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
             height: 20,
           ),
           TextFormField(
-            // maxLength: 20,
+            controller: membersPhones[i],
             maxLength: 10,
             textAlign: TextAlign.right,
             decoration: InputDecoration(
@@ -81,7 +112,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
             keyboardType: TextInputType.number,
           ),
           Row(
-            //mainAxisAlignment: MainAxisAlignment.end,
             children: [
               const Expanded(
                 child: Text(
@@ -91,10 +121,12 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
               ),
               Radio(
                 value: "editor",
-                groupValue: memberRole1,
+                groupValue: roles[i],
                 onChanged: (T) {
                   setState(() {
-                    memberRole1 = T!;
+                    //memberRole1 = T!;
+                    roles[i] = T;
+                    print(roles[i]);
                   });
                 },
               ),
@@ -105,11 +137,13 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
               )),
               Radio(
                 value: "viewer",
-                groupValue: memberRole1,
+                groupValue: roles[i],
                 onChanged: (T) {
                   //print(T);
                   setState(() {
-                    memberRole1 = T!;
+                    // memberRole1 = T!;
+                    roles[i] = T;
+                    print(roles[i]);
                   });
                 },
               ),
@@ -119,6 +153,12 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
   }
 
   final _formKey = GlobalKey<FormState>();
+
+  void init() {
+    setState(() {
+      createList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -236,6 +276,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                         ),
                         TextFormField(
                           // maxLength: 20,
+                          controller: membersPhoneNumber1,
                           maxLength: 10,
                           textAlign: TextAlign.right,
                           decoration: InputDecoration(
@@ -272,10 +313,12 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                             ),
                             Radio(
                               value: "editor",
-                              groupValue: memberRole1,
+                              groupValue: roles[0],
                               onChanged: (T) {
                                 setState(() {
-                                  memberRole1 = T!;
+                                  // memberRole1 = T!;
+                                  roles[num] = T;
+                                  print(roles[num]);
                                 });
                               },
                             ),
@@ -286,11 +329,13 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                             )),
                             Radio(
                               value: "viewer",
-                              groupValue: memberRole1,
+                              groupValue: roles[0],
                               onChanged: (T) {
                                 //print(T);
                                 setState(() {
-                                  memberRole1 = T!;
+                                  // memberRole1 = T!;
+                                  roles[0] = T;
+                                  print(roles[0]);
                                 });
                               },
                             ),
@@ -312,30 +357,16 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                           content: Text(
-                            ' تم تجاوز الحد الأقصى وهو ٥ افراد',
+                            'يمكنك إضافة المزيد لاحقًا من لوحة المعلومات',
                             textAlign: TextAlign.center,
                           ),
                           backgroundColor: Color.fromARGB(255, 241, 63, 63)),
                     );
                   } else {
+                    createList();
                     addMemberWidget();
                   }
                 },
-                // if (addMembers.length > 5) {
-                //   print(addMembers.length);
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     const SnackBar(
-                //         content: Text(
-                //           ' تم تجاوز الحد الأقصى وهو ٥ افراد',
-                //           textAlign: TextAlign.center,
-                //         ),
-                //         backgroundColor: Color.fromARGB(255, 241, 63, 63)),
-                //   );
-                // } else {
-                //print(addMembers.length);
-
-                // }
-
                 child: const Text(
                   ' إضافة عضو آخر',
                   textAlign: TextAlign.right,
@@ -395,10 +426,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
     CollectionReference houses =
         FirebaseFirestore.instance.collection('houseAccount');
 
-    if (houses != '') {
-      print('2');
-    }
-
     String houseId = '';
     DocumentReference docReference = await houses.add({
       'OwnerID': '',
@@ -407,15 +434,18 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
       'houseName': houseName.text,
       'houseOwner': '',
     });
-    print('2');
+
     houseId = docReference.id;
     houses.doc(houseId).update({'houseID': houseId});
-    if (memberRole1 != 'role') {
+    print('0' + membersPhones[0].text);
+    print('num $num');
+    for (int i = 0; i <= num; i++) {
+      print('phone' + membersPhones[i].text);
+      print('privilege' + roles[i]);
       houses
           .doc(houseId)
           .collection('houseMember')
-          .add({'memberID': 'later', 'privilege': memberRole1});
+          .add({'memberID': membersPhones[i].text, 'privilege': roles[i]});
     }
-    print('successful');
   }
 }
