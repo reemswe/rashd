@@ -1,5 +1,4 @@
 import 'package:toggle_switch/toggle_switch.dart';
-
 import 'main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,15 +16,36 @@ class add_house_member extends StatefulWidget {
   @override
   add_house_memberState createState() => add_house_memberState();
 }
+CollectionReference DisabilityType =
+    FirebaseFirestore.instance.collection('UserDisabilityType');
 
 TextEditingController nameController = TextEditingController();
 TextEditingController phoneController = TextEditingController();
 //TextEditingController privilegeController = TextEditingController();
 
 String privilege_edit = 'مشاهد', privilege = '';
-var privilege_index = 0;
+var privilege_index = 1;
+
+void clearText() {
+  nameController.clear();
+  phoneController.clear();
+  setState() {
+    privilege_index = 1;
+    privilege_edit = 'مشاهد';
+    privilege = 'مشاهد';
+  }
+}
 
 class add_house_memberState extends State<add_house_member> {
+  @override
+  initState() {
+    // ignore: avoid_print
+    print("!! initState Called !!");
+    privilege_index = 1;
+    privilege_edit = 'مشاهد';
+    privilege = 'مشاهد';
+  }
+
   @override
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
@@ -200,6 +220,7 @@ class add_house_memberState extends State<add_house_member> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
                     child: TextFormField(
+                      controller: nameController,
                       textAlign: TextAlign.right,
                       decoration: InputDecoration(
                         hintText: 'الاسم',
@@ -236,6 +257,7 @@ class add_house_memberState extends State<add_house_member> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
                     child: TextFormField(
+                      controller: phoneController,
                       textAlign: TextAlign.right,
                       keyboardType: TextInputType.number,
                       inputFormatters: <TextInputFormatter>[
@@ -274,9 +296,9 @@ class add_house_memberState extends State<add_house_member> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(180, 15, 180, 15),
+                    padding: const EdgeInsets.fromLTRB(0, 35, 45, 15),
                     child: ToggleSwitch(
-                      minWidth: 180.0,
+                      minWidth: 150.0,
                       minHeight: 45.0,
                       borderWidth: 1,
                       borderColor: const [
@@ -334,9 +356,12 @@ class add_house_memberState extends State<add_house_member> {
                       child: ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
+                              add_member();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text('تم اضافة عضو للمنزل ')),
+                                    content: Text('تم اضافة عضو للمنزل ',
+                                    textAlign: TextAlign.center,
+                                  ), backgroundColor: Colors.green,),
                               );
                             }
                           },
@@ -349,7 +374,7 @@ class add_house_memberState extends State<add_house_member> {
                           child: const Padding(
                               padding: EdgeInsets.fromLTRB(90, 15, 90, 15),
                               child: Text(
-                                'أضف الجهاز',
+                                'أضف العضو',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 15),
                               )))),
@@ -370,12 +395,14 @@ Future<void> add_member() async {
   String memberId = '';
   DocumentReference docReference = await members.add({
     'name': nameController.text,
-    'phone': nameController.text,
+    'phone': phoneController.text,
     'privilege': privilege,
-    'memberId': '',
+    'memberID': '',
+    'accountID': 'xxx'
   });
   print('done');
   memberId = docReference.id;
-  members.doc(memberId).update({'houseID': memberId});
+  members.doc(memberId).update({'memberID': memberId});
   print('successful');
+  clearText();
 }

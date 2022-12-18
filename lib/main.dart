@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:rashd/account.dart';
 import 'package:rashd/add_house_member.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:path/path.dart' as Path;
+import 'profile.dart';
 import 'main.dart';
 import 'firebase_options.dart';
 
@@ -13,6 +15,7 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -20,9 +23,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Rashd',
       theme: ThemeData(),
-      home: add_house_member(),
+      home: Account(),
     );
   }
 }
