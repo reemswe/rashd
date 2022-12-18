@@ -42,6 +42,10 @@ dependencies:
   bottom_navy_bar: ^6.0.0
   lite_rolling_switch: ^1.0.0
   fluttertoast: ^8.1.2
+  flutter_share: ^2.0.0
+  flutter_contacts: ^1.1.5+1
+  permission_handler: ^10.2.0
+  uuid: ^3.0.7
 
 dev_dependencies:
   flutter_test:

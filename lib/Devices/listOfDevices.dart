@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:math';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,10 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_share/flutter_share.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:uuid/uuid.dart';
 
 class listOfDevices extends StatefulWidget {
   const listOfDevices({super.key});
@@ -19,6 +24,26 @@ class listOfDevicesState extends State<listOfDevices> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> share() async {
+    var uuid = Uuid();
+    uuid.v1();
+    var value = new Random();
+    var codeNumber = value.nextInt(900000) + 100000;
+
+    await FlutterShare.share(
+        title: 'Share Dashboard',
+        text:
+            'لعرض لوحة المعلومات المشتركة ادخل الرمز ${codeNumber} في صفحة عرض لوحة المعلومات المشتركة',
+        linkUrl: 'https://flutter.dev/',
+        chooserTitle: 'Example Chooser Title'); //expired
+
+    await FirebaseFirestore.instance.collection('shared_user').add({
+      'dashId': 'inXOD5QBJgPbjje7vMn3',
+      'code': codeNumber,
+      'isExpired': false
+    });
   }
 
   TextEditingController phoneController = TextEditingController();
@@ -66,7 +91,7 @@ class listOfDevicesState extends State<listOfDevices> {
                     ),
                   )),
               Padding(
-                  padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+                  padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
                   child: IconButton(
                     iconSize: 33,
                     icon: const Icon(Icons.add),
@@ -75,6 +100,7 @@ class listOfDevicesState extends State<listOfDevices> {
                       //     context,
                       //     MaterialPageRoute(builder: (context) => {},//add_device(),
                       //         ));
+                      share();
                     },
                   )),
             ]),
@@ -101,12 +127,13 @@ class listOfDevicesState extends State<listOfDevices> {
       },
       onSelected: (value) {
         if (value == 'share') {
-          showModalBottomSheet(
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              context: context,
-              builder: (context) =>
-                  ShareDashboard('ffDQbRQQ8k9RzlGQ57FL', height, width));
+          share();
+          // showModalBottomSheet(
+          //     isScrollControlled: true,
+          //     backgroundColor: Colors.transparent,
+          //     context: context,
+          //     builder: (context) =>
+          //         ShareDashboard('ffDQbRQQ8k9RzlGQ57FL', height, width));
         }
         if (value == 'delete') {
           showDialog(
@@ -167,7 +194,7 @@ class listOfDevicesState extends State<listOfDevices> {
                     child: Form(
                         key: _formKey,
                         child: Padding(
-                          padding: EdgeInsets.fromLTRB(25, 18, 20, 0),
+                          padding: const EdgeInsets.fromLTRB(25, 18, 20, 0),
                           child: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,8 +217,8 @@ class listOfDevicesState extends State<listOfDevices> {
                                         ),
                                       ),
                                       Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                          padding: const EdgeInsets.fromLTRB(
+                                              0, 0, 0, 0),
                                           child: IconButton(
                                             color: Colors.grey.shade700,
                                             iconSize: 30,
@@ -202,7 +229,7 @@ class listOfDevicesState extends State<listOfDevices> {
                                           )),
                                     ]),
                                 SizedBox(height: height * 0.01),
-                                Text(
+                                const Text(
                                     'الرجاء إدخال رقم هاتف الشخص لمشاركة لوحة المعلومات ',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w400,
@@ -263,7 +290,7 @@ class listOfDevicesState extends State<listOfDevices> {
                                       fixedSize:
                                           Size(width * 0.5, height * 0.03),
                                     ),
-                                    onPressed: () {
+                                    onPressed: () async {
                                       if (_formKey.currentState!.validate()) {
                                         // Fluttertoast.showToast(
                                         //     msg: "This is Center Short Toast",
@@ -273,7 +300,25 @@ class listOfDevicesState extends State<listOfDevices> {
                                         //     backgroundColor: Colors.red,
                                         //     textColor: Colors.white,
                                         //     fontSize: 16.0);
-                                        Navigator.of(context).pop();
+                                        if (await FlutterContacts
+                                            .requestPermission()) {
+                                          // Get all contacts (lightly fetched)
+                                          List<Contact> contacts =
+                                              await FlutterContacts
+                                                  .getContacts();
+                                          print('contacts');
+
+                                          // Get all contacts (fully fetched)
+                                          contacts =
+                                              await FlutterContacts.getContacts(
+                                                  withProperties: true,
+                                                  withPhoto: true);
+                                          print('contacts');
+                                          final contact = await FlutterContacts
+                                              .openExternalPick();
+
+                                          Navigator.of(context).pop();
+                                        }
                                       }
                                     },
                                     child: const Text('مشاركة'),
@@ -358,7 +403,7 @@ class listOfDevicesState extends State<listOfDevices> {
                 splashColor: Colors.transparent,
                 child: Container(
                     margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    padding: EdgeInsets.fromLTRB(10, 10, 20, 10),
+                    padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
                     // height: height * 0.05,
                     decoration: BoxDecoration(
                         color: Colors.white,
@@ -376,7 +421,7 @@ class listOfDevicesState extends State<listOfDevices> {
                           devices.docs[index]['name'],
                           textDirection: TextDirection.rtl,
                           textAlign: TextAlign.right,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 24,
                           ),
