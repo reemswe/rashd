@@ -1,6 +1,7 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:ffi';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -18,18 +19,14 @@ class Account extends StatefulWidget {
   AccountState createState() => AccountState();
 }
 
-String name_edit = '',
-    phone_edit = '',
-    DOB_edit = '',
-    userName = ''; //For diability
-//***************** */
-
+String name_edit = '', phone_edit = '', DOB = '', DOB_edit = '', userName = '';
+TextEditingController DOBController = new TextEditingController();
 var outDate;
 bool Editing = false;
 bool Viewing = true;
 
 class AccountState extends State<Account> {
-  void genderIndex(String D) {
+  void SetDate(String D) {
     outDate = D;
   }
 
@@ -45,26 +42,77 @@ class AccountState extends State<Account> {
 
   @override
   Widget build(BuildContext context) {
-    Stream<QuerySnapshot> users =
-        FirebaseFirestore.instance.collection('Users').snapshots();
     var userData;
     final _formKey = GlobalKey<FormState>();
     return Scaffold(
       appBar: AppBar(
-        title: const SizedBox(
-          width: double.infinity,
-          child: Text('My Account',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              )),
+        title: const Text(
+          ' حسابي  ',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(10),
-          ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        leading: //Icon(Icons.more_vert)
+            PopupMenuButton(
+          onSelected: (value) {
+            if (value == 'logout') {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text(
+                    " تسجيل خروج",
+                    textAlign: TextAlign.center,
+                  ),
+                  content: const Text(
+                    "هل أنت متأكد من تسجيل الخروج ؟",
+                    textAlign: TextAlign.right,
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        child: const Text("الغاء"),
+                      ),
+                    ),
+                    //log in ok button
+                    TextButton(
+                      onPressed: () {
+                        // pop out
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //       builder: (context) => const loginPage()),
+                        // );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        child: const Text("خروج",
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 164, 10, 10))),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            // your logic
+          },
+          itemBuilder: (BuildContext bc) {
+            return const [
+              PopupMenuItem(
+                child: Text("  تسجيل الخروج",
+                    textAlign: TextAlign.right,
+                    style: TextStyle(color: Color.fromARGB(255, 167, 32, 32))),
+                value: 'logout',
+              ),
+            ];
+          },
         ),
+        actions: [],
       ),
       body: FutureBuilder<Map<String, dynamic>>(
           future: readUserData(),
@@ -74,20 +122,24 @@ class AccountState extends State<Account> {
               userName = userData['user_name'];
               name_edit = userData['full_name'];
               phone_edit = userData['phone_number'];
-              DOB_edit = userData['DOB'];
-              // genderIndex(DOB_edit);
-              DateTime iniDOB = DateTime.parse(userData['DOB']);
+              DOB = userData['DOB'];
+              DOBController.text = userData['DOB'];
+              SetDate(DOB);
               return SingleChildScrollView(
                   child: Form(
                 key: _formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    const SizedBox(
+                      height: 40,
+                    ),
+
                     Align(
                       alignment: Alignment.center,
                       child: Text(
-                        'مرحبًا ' + userName,
+                        ' ! ' + userName + '  مرحبًا  ',
                         style: TextStyle(
                             fontSize: 30, fontWeight: FontWeight.bold),
                       ),
@@ -96,17 +148,87 @@ class AccountState extends State<Account> {
                     const SizedBox(
                       height: 25,
                     ),
+                    //name field
                     Padding(
-                        padding: const EdgeInsets.fromLTRB(30, 12, 30, 12),
+                      padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
+                      child: Text('الاسم الكامل'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 0, 30, 10),
+                      child: Column(children: [
+                        TextFormField(
+                          enabled: Editing,
+                          textAlign: TextAlign.right,
+                          controller: TextEditingController()
+                            ..text = userData['full_name'],
+                          onChanged: (text) => {name_edit = text},
+                          decoration: const InputDecoration(
+                            alignLabelWithHint: true,
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFF06283D)),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blue),
+                            ),
+                            contentPadding: EdgeInsets.only(bottom: 3),
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                          ),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if ((value != null && value.length < 2) ||
+                                value == null ||
+                                value.isEmpty ||
+                                (value.trim()).isEmpty) {
+                              return "Enter a valid name";
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
+                      ]),
+                    ),
+
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
+                      child: Text(
+                        'تاريخ الميلاد',
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                    //DOB field
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(30, 0, 30, 10),
                         child: Column(
                           children: [
-                            //name field
                             TextFormField(
+                              textAlign: TextAlign.right,
                               enabled: Editing,
-                              controller: TextEditingController()
-                                ..text = userData['full_name'],
-                              onChanged: (text) => {name_edit = text},
-                              decoration: const InputDecoration(
+                              controller: DOBController,
+                              readOnly: true,
+                              onTap: () async {
+                                DateTime? newDate = await showDatePicker(
+                                  context: context,
+                                  initialDate:
+                                      DateTime.parse(DOBController.text),
+                                  firstDate: DateTime(1922),
+                                  lastDate: DateTime.now(),
+                                );
+                                if(newDate != null) {
+                                  setState(() {
+                                    DOBController.text =
+                                        DateFormat('yyyy-MM-dd')
+                                            .format(newDate);
+                                    print(newDate);
+                                    print('controller :' + DOBController.text);
+                                  });
+                                } else {
+                                  print("Date is not selected");
+                                }
+                              },
+                              decoration: InputDecoration(
                                 enabledBorder: UnderlineInputBorder(
                                   borderSide:
                                       BorderSide(color: Color(0xFF06283D)),
@@ -115,88 +237,31 @@ class AccountState extends State<Account> {
                                   borderSide: BorderSide(color: Colors.blue),
                                 ),
                                 contentPadding: EdgeInsets.only(bottom: 3),
-                                labelText: 'Name',
+                                hintText: DOBController.text,
+                                hintStyle: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                ),
                                 floatingLabelBehavior:
                                     FloatingLabelBehavior.always,
                               ),
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
-                              validator: (value) {
-                                if ((value != null && value.length < 2) ||
-                                    value == null ||
-                                    value.isEmpty ||
-                                    (value.trim()).isEmpty) {
-                                  return "Enter a valid name";
-                                } else {
-                                  return null;
-                                }
-                              },
                             ),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            //DOB field
-                            // TextFormField(
-                            //   enabled: Editing,
-                            //   // controller: TextEditingController()
-                            //   //   ..text = outDate,
-                            //   readOnly: true,
-                            //   onChanged: (text) => {
-                            //     outDate = text,
-                            //     iniDOB = DateTime.parse(text)
-                            //   },
-                            //   onTap: () async {
-                            //     DateTime? newDate = await showDatePicker(
-                            //       context: context,
-                            //       initialDate: iniDOB,
-                            //       firstDate: DateTime(1922),
-                            //       lastDate: DateTime.now(),
-                            //     );
-                            //     if (newDate != null) {
-                            //       setState(() {
-                            //         seting_outDate(DateFormat('yyyy-MM-dd')
-                            //             .format(newDate));
-                            //         outDate = DateFormat('yyyy-MM-dd')
-                            //             .format(newDate);
-                            //         print(newDate);
-                            //         iniDOB = newDate;
-                            //         DOB_edit = outDate;
-                            //         print(DOB_edit);
-                            //       });
-                            //     } else {
-                            //       print("Date is not selected");
-                            //     }
-                            //   },
-                            //   decoration: InputDecoration(
-                            //     enabledBorder: UnderlineInputBorder(
-                            //       borderSide:
-                            //           BorderSide(color: Color(0xFF06283D)),
-                            //     ),
-                            //     focusedBorder: UnderlineInputBorder(
-                            //       borderSide: BorderSide(color: Colors.blue),
-                            //     ),
-                            //     contentPadding: EdgeInsets.only(bottom: 3),
-                            //     labelText: 'Date Of Birth',
-                            //     hintText: outDate,
-                            //     hintStyle: const TextStyle(
-                            //       fontSize: 18,
-                            //       color: Colors.black,
-                            //     ),
-                            //     floatingLabelBehavior:
-                            //         FloatingLabelBehavior.always,
-                            //   ),
-                            // ),
                           ],
                         )),
+                    SizedBox(
+                      height: 30,
+                    ),
                     Padding(
-                        padding: const EdgeInsets.fromLTRB(30, 12, 30, 0),
+                      padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
+                      child: Text('رقم الهاتف'),
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(30, 0, 30, 10),
                         child: Column(
                           children: [
                             //phone number field
                             TextFormField(
+                              textAlign: TextAlign.right,
                               enabled: Editing,
                               keyboardType: TextInputType.number,
                               inputFormatters: <TextInputFormatter>[
@@ -204,7 +269,7 @@ class AccountState extends State<Account> {
                               ],
                               maxLength: 10,
                               controller: TextEditingController()
-                                ..text = userData['phone number'],
+                                ..text = userData['phone_number'],
                               onChanged: (text) => {phone_edit = text},
                               decoration: const InputDecoration(
                                 enabledBorder: UnderlineInputBorder(
@@ -215,7 +280,6 @@ class AccountState extends State<Account> {
                                   borderSide: BorderSide(color: Colors.blue),
                                 ),
                                 contentPadding: EdgeInsets.only(bottom: 3),
-                                labelText: 'Phone Number',
                                 floatingLabelBehavior:
                                     FloatingLabelBehavior.always,
                               ),
@@ -223,19 +287,23 @@ class AccountState extends State<Account> {
                                   AutovalidateMode.onUserInteraction,
                               validator: (value) {
                                 if (value == null) {
-                                  return "Please enter a phone number";
+                                  return "الرجاء ادخال رقم هاتف";
                                 } else if (value.length != 10) {
-                                  return "Please enter a valid phone number";
+                                  return "الرجاء ادخال رقم هاتف صحيح";
                                 }
                               },
                             ),
                           ],
                         )),
+
+                    const SizedBox(
+                      height: 50,
+                    ),
                     //Editing buttons :
                     Visibility(
                         visible: Viewing,
                         child: Padding(
-                            padding: const EdgeInsets.fromLTRB(30, 20, 0, 0),
+                            padding: const EdgeInsets.fromLTRB(40, 20, 0, 0),
                             child: Row(
                               children: [
                                 ElevatedButton(
@@ -249,96 +317,82 @@ class AccountState extends State<Account> {
                                       backgroundColor: Colors
                                           .transparent, // background (button) color
                                       foregroundColor:
-                                          const Color.fromARGB(255, 79, 83, 83),
+                                          Color.fromARGB(255, 3, 3, 3),
                                       side: const BorderSide(
                                           width: 1, // the thickness
                                           color: Colors
                                               .black // the color of the border
                                           ),
                                       padding: const EdgeInsets.fromLTRB(
-                                          90, 18, 90, 18),
+                                          110, 15, 110, 15),
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(10.0))),
-                                  child: const Text('Edit Profile',
+                                  child: const Text('تحرير',
                                       style: TextStyle(fontSize: 22)),
                                 ),
                                 const SizedBox(
                                   width: 10,
                                 ),
-                                Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: const Color.fromARGB(
-                                              255, 15, 15, 17)),
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(
-                                              5.0) //                 <--- border radius here
-                                          ),
-                                    ),
-                                    child: IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      iconSize: 37,
-                                      color: const Color.fromARGB(
-                                          255, 194, 98, 98),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (ctx) => AlertDialog(
-                                            title: const Text("Are You Sure ?"),
-                                            content: const Text(
-                                              "Are You Sure You want to delete your Account? , This procces can't be undone",
-                                              textAlign: TextAlign.center,
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  iconSize: 70,
+                                  color: Color.fromARGB(255, 149, 37, 37),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: const Text(
+                                          "هل أنت متأكد ؟",
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        content: const Text(
+                                          "هل أنت متأكد من حدف حسابك ؟ لا يمكنك استرجاع الحساب بعد الحذف",
+                                          textAlign: TextAlign.end,
+                                        ),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(ctx).pop();
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(14),
+                                              child: const Text("إلغاء"),
                                             ),
-                                            actions: <Widget>[
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(ctx).pop();
-                                                },
-                                                child: Container(
-                                                  padding:
-                                                      const EdgeInsets.all(14),
-                                                  child: const Text("cancel"),
-                                                ),
-                                              ),
-                                              TextButton(
-                                                onPressed: () {
-                                                  // FirebaseFirestore.instance
-                                                  //     .collection("users")
-                                                  //     .doc(userData['id'])
-                                                  //     .delete()
-                                                  //     .then((_) {
-                                                  //   print(
-                                                  //       "success!, user deleted");
-                                                  // });
-                                                  // Navigator.of(ctx).pop();
-                                                  print(
-                                                      "success!, user deleted");
-                                                },
-                                                child: Container(
-                                                  padding:
-                                                      const EdgeInsets.all(14),
-                                                  child: const Text("Delete",
-                                                      style: TextStyle(
-                                                          color: Color.fromARGB(
-                                                              255,
-                                                              194,
-                                                              98,
-                                                              98))),
-                                                ),
-                                              ),
-                                            ],
                                           ),
-                                        );
-                                      },
-                                    ))
+                                          TextButton(
+                                            onPressed: () {
+                                              // FirebaseFirestore.instance
+                                              //     .collection("users")
+                                              //     .doc(userData['id'])
+                                              //     .delete()
+                                              //     .then((_) {
+                                              //   print(
+                                              //       "success!, user deleted");
+                                              // });
+                                              // Navigator.of(ctx).pop();
+                                              print("success!, user deleted");
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(14),
+                                              child: const Text("حذف",
+                                                  style: TextStyle(
+                                                      color: Color.fromARGB(
+                                                          255, 124, 18, 18))),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
                               ],
                             ))),
                     //Save and cancel buttons
                     Visibility(
                         visible: Editing,
                         child: Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 20, 0, 0),
+                            padding: const EdgeInsets.fromLTRB(30, 20, 0, 0),
                             child: Row(
                               children: [
                                 ElevatedButton(
@@ -347,9 +401,12 @@ class AccountState extends State<Account> {
                                       showDialog(
                                         context: context,
                                         builder: (ctx) => AlertDialog(
-                                          title: const Text("Are You Sure ?"),
+                                          title: const Text(
+                                            "هل أنت متأكد ؟",
+                                            textAlign: TextAlign.center,
+                                          ),
                                           content: const Text(
-                                            "Are You Sure You want to Save changes ?",
+                                            "هل أنت متأكد من أنك تريد حفظ التغييرات؟",
                                             textAlign: TextAlign.center,
                                           ),
                                           actions: <Widget>[
@@ -360,7 +417,7 @@ class AccountState extends State<Account> {
                                               child: Container(
                                                 padding:
                                                     const EdgeInsets.all(14),
-                                                child: const Text("cancel",
+                                                child: const Text("إلغاء",
                                                     style: TextStyle(
                                                         color: Color.fromARGB(
                                                             255, 194, 98, 98))),
@@ -372,7 +429,7 @@ class AccountState extends State<Account> {
                                                     .showSnackBar(
                                                   const SnackBar(
                                                       content: Text(
-                                                          'Changes have been Saved !')),
+                                                          '! تم حفظ التغييرات')),
                                                 );
                                                 UpdateDB();
                                                 setState(() {
@@ -385,7 +442,7 @@ class AccountState extends State<Account> {
                                                 padding:
                                                     const EdgeInsets.all(14),
                                                 child: const Text(
-                                                  "Save",
+                                                  "حفظ",
                                                 ),
                                               ),
                                             ),
@@ -396,20 +453,20 @@ class AccountState extends State<Account> {
 
                                     //*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*
                                   },
-                                  child: const Text('Save',
+                                  child: const Text('حفظ',
                                       style: TextStyle(fontSize: 20)),
                                   style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors
-                                          .transparent, // background (button) color
+                                      backgroundColor: Color.fromARGB(0, 30,
+                                          255, 0), // background (button) color
                                       foregroundColor:
-                                          const Color.fromARGB(255, 79, 83, 83),
+                                          Color.fromARGB(255, 0, 0, 0),
                                       side: const BorderSide(
                                           width: 1, // the thickness
                                           color: Colors
                                               .black // the color of the border
                                           ),
                                       padding: const EdgeInsets.fromLTRB(
-                                          60, 18, 60, 18),
+                                          70, 15, 70, 15),
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(10.0))),
@@ -423,9 +480,12 @@ class AccountState extends State<Account> {
                                     showDialog(
                                       context: context,
                                       builder: (ctx) => AlertDialog(
-                                        title: const Text("Are You Sure ?"),
+                                        title: const Text(
+                                          "هل أنت متأكد ؟",
+                                          textAlign: TextAlign.center,
+                                        ),
                                         content: const Text(
-                                          "Are You Sure You want to Cancel changes ?",
+                                          "هل أنت متأكد من أنك تريد إلغاء التغييرات؟",
                                           textAlign: TextAlign.center,
                                         ),
                                         actions: <Widget>[
@@ -439,7 +499,7 @@ class AccountState extends State<Account> {
                                             },
                                             child: Container(
                                               padding: const EdgeInsets.all(14),
-                                              child: const Text("Yes",
+                                              child: const Text("نعم",
                                                   style: TextStyle(
                                                       color: Color.fromARGB(
                                                           255, 194, 98, 98))),
@@ -452,7 +512,7 @@ class AccountState extends State<Account> {
                                             child: Container(
                                               padding: const EdgeInsets.all(14),
                                               child: const Text(
-                                                "No",
+                                                "لا",
                                               ),
                                             ),
                                           ),
@@ -460,7 +520,7 @@ class AccountState extends State<Account> {
                                       ),
                                     );
                                   },
-                                  child: const Text('Cancel',
+                                  child: const Text('إلغاء',
                                       style: TextStyle(
                                           fontSize: 20,
                                           color:
@@ -469,14 +529,14 @@ class AccountState extends State<Account> {
                                       backgroundColor: Colors
                                           .transparent, // background (button) color
                                       foregroundColor:
-                                          const Color.fromARGB(255, 79, 83, 83),
+                                          Color.fromARGB(255, 0, 0, 0),
                                       side: const BorderSide(
                                           width: 1, // the thickness
                                           color: Colors
                                               .black // the color of the border
                                           ),
                                       padding: const EdgeInsets.fromLTRB(
-                                          60, 18, 60, 18),
+                                          70, 15, 70, 15),
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(10.0))),
@@ -487,40 +547,9 @@ class AccountState extends State<Account> {
                 ),
               ));
             } else {
-              return const Text('Loading !');
+              return const Text('جاري التحميل !');
             }
           }),
-    );
-  }
-
-  Widget buildTextField(String labelText, String placeholder) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(30, 12, 30, 22),
-      child: TextField(
-        enabled: Editing,
-        minLines: 1,
-        maxLines: 6,
-        decoration: InputDecoration(
-            enabledBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF06283D)),
-            ),
-            focusedBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.blue),
-            ),
-            contentPadding: const EdgeInsets.only(bottom: 3),
-            labelText: labelText,
-            labelStyle: const TextStyle(
-              fontWeight: FontWeight.w400,
-              fontSize: 22,
-              color: Colors.blue,
-            ),
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            hintText: placeholder,
-            hintStyle: const TextStyle(
-              fontSize: 18,
-              color: Colors.black,
-            )),
-      ),
     );
   }
 }
@@ -531,9 +560,9 @@ Future<void> UpdateDB() async {
       .collection('userAccount')
       .doc('xd4GxeUvyyYTDO9iaMo2oaNg7qd2');
   Edit_info.update({
-    'name': name_edit,
-    'phone number': phone_edit,
-    //'DOB': DOB_edit,
+    'full_name': name_edit,
+    'phone_number': phone_edit,
+    'DOB': DOB_edit,
   });
   print('profile edited');
 }

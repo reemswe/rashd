@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Rashd',
       theme: ThemeData(),
-      home: Account(),
+      home: profile(),
     );
   }
 }
