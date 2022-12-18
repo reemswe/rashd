@@ -30,6 +30,8 @@ String confirm_password = "";
 
 bool invalidEmail = false;
 String emailErrorMessage = '';
+bool invalidPhone = false;
+String phoneErrorMessage = '';
 
 void clearForm() {
   emailController.text = "";
@@ -41,6 +43,8 @@ void clearForm() {
 
   invalidEmail = false;
   emailErrorMessage = '';
+  bool invalidPhone = false;
+  String phoneErrorMessage = '';
 }
 
 class _registerState extends State<register> {
@@ -167,39 +171,39 @@ class registerFormState extends State<registerForm> {
               }
             },
           ),
-          Container(
-              padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-              child: TextFormField(
-                // maxLength: 20,
-                textAlign: TextAlign.right,
-                controller: usernameController,
-                decoration: InputDecoration(
-                  hintText: 'اسم المستخدم',
-                  contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide: const BorderSide(color: Colors.grey)),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide: BorderSide(color: Colors.grey.shade400)),
-                  errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide:
-                          const BorderSide(color: Colors.red, width: 2.0)),
-                  focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide:
-                          const BorderSide(color: Colors.red, width: 2.0)),
-                ),
-                validator: (value) {
-                  if (value == null ||
-                      value.isEmpty ||
-                      (value.trim()).isEmpty) {
-                    return 'الرجاء ادخال اسم المستخدم';
-                  }
-                  return null;
-                },
-              )),
+          // Container(
+          //     padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
+          //     child: TextFormField(
+          //       // maxLength: 20,
+          //       textAlign: TextAlign.right,
+          //       controller: usernameController,
+          //       decoration: InputDecoration(
+          //         hintText: 'اسم المستخدم',
+          //         contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+          //         focusedBorder: OutlineInputBorder(
+          //             borderRadius: BorderRadius.circular(100.0),
+          //             borderSide: const BorderSide(color: Colors.grey)),
+          //         enabledBorder: OutlineInputBorder(
+          //             borderRadius: BorderRadius.circular(100.0),
+          //             borderSide: BorderSide(color: Colors.grey.shade400)),
+          //         errorBorder: OutlineInputBorder(
+          //             borderRadius: BorderRadius.circular(100.0),
+          //             borderSide:
+          //                 const BorderSide(color: Colors.red, width: 2.0)),
+          //         focusedErrorBorder: OutlineInputBorder(
+          //             borderRadius: BorderRadius.circular(100.0),
+          //             borderSide:
+          //                 const BorderSide(color: Colors.red, width: 2.0)),
+          //       ),
+          //       validator: (value) {
+          //         if (value == null ||
+          //             value.isEmpty ||
+          //             (value.trim()).isEmpty) {
+          //           return 'الرجاء ادخال اسم المستخدم';
+          //         }
+          //         return null;
+          //       },
+          //     )),
           Container(
               padding: EdgeInsets.fromLTRB(6, 12, 6, 12),
               child: TextFormField(
@@ -374,6 +378,7 @@ class registerFormState extends State<registerForm> {
                     if (value.length > 10 || value.length < 3) {
                       return 'الرجاء ادخال رقم جوال ';
                     }
+                    if (invalidPhone) return phoneErrorMessage;
                   }
                   return null;
                 },
@@ -383,12 +388,14 @@ class registerFormState extends State<registerForm> {
               child: ElevatedButton(
             onPressed: () async {
               await checkEmail();
-              await checkPhoneNum();
+              //  await checkPhoneNum();
+              await isDuplicatePhoneNum();
               if ((_formKey.currentState!.validate())) {
-                if (await checkEmail()) {
+                if (await checkEmail() && await isDuplicatePhoneNum()) {
                   await signUp();
                   // if (await checkPhoneNum()) {
-                  //   await signUp();}
+                  //   //   await signUp();
+                  // }
                 }
               }
 
@@ -447,46 +454,20 @@ class registerFormState extends State<registerForm> {
 //     }
 //   }
 
-// Returns true if phone number is not in use.
-  Future<bool> checkPhoneNum() async {
-    bool exists = false;
-    String strexixts = 'phone num doesnt exixt';
-    print(exists);
-    Stream<QuerySnapshot<Map<String, dynamic>>> users = FirebaseFirestore
-        .instance
+// this function checks if uniqueName already exists
+//Returns true if phone number is not in use.
+  Future<bool> isDuplicatePhoneNum() async {
+    QuerySnapshot query = await FirebaseFirestore.instance
         .collection('userAccount')
         .where('phone_number', isEqualTo: PhoneNumController.text)
-        .snapshots();
-    print(users.isEmpty);
-    if (await users.isEmpty) {
-      print('phone num doesnt exixt');
-    } else {
-      print('phone num exixts');
-    }
+        .get();
+    if (query.docs.isNotEmpty) {
+      invalidPhone = true;
+      phoneErrorMessage = 'رقم الجوال قد سجل به، الرجاء ادخال رقم آخر';
+    } else
+      invalidPhone = false;
 
-    // if (users.docs == 'undefined') {
-    //   // DO SOMETHING HERE when yourField doesn't exist
-    // }
-    // // final List<DocumentSnapshot> documents = users.;
-    // return documents.length == 1;
-
-    FirebaseFirestore.instance
-        .collection('userAccount')
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        if (doc["phone_number"].toString().compareTo(PhoneNumController.text) ==
-            0) {
-          //   print('phone num exixts');
-          strexixts = 'phone num exixts';
-          exists = true;
-        }
-      });
-    });
-    print('exists');
-    print(exists);
-    // print(strexixts);
-    return exists;
+    return query.docs.isEmpty;
   }
 
 // Returns false if email address is in use.
@@ -540,7 +521,7 @@ class registerFormState extends State<registerForm> {
 
       clearForm();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Welcome To Rashd')),
+        const SnackBar(content: Text('مرحبًا بك لرشد')),
       );
       // Navigator.pushNamed(context, "/homePage");
       Navigator.push(
@@ -571,7 +552,7 @@ class registerFormState extends State<registerForm> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   saveUser() async {
     String email = emailController.text;
-    String username = usernameController.text;
+    //String username = usernameController.text;
     String fullname = fullNameController.text;
     String dob = DOBController.text;
     String number = PhoneNumController.text;
@@ -581,7 +562,8 @@ class registerFormState extends State<registerForm> {
     final userRef = db.collection("userAccount").doc(user.uid);
     if (!((await userRef.get()).exists)) {
       await userRef.set({
-        "user_name": username,
+        //   "user_name": username,
+        "email": email,
         "userId": userId,
         "full_name": fullname,
         "DOB": dob,
