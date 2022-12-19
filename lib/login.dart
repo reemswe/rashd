@@ -89,7 +89,7 @@ class loginFormState extends State<loginForm> {
                 textAlign: TextAlign.right,
                 controller: emailController,
                 decoration: InputDecoration(
-                  hintText: 'البريد الإلكترني',
+                  hintText: 'البريد الإلكتروني',
                   contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(100.0),
