@@ -1,5 +1,5 @@
 // ignore_for_file: prefer_const_constructors, avoid_print, unused_import
-
+import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'dart:ffi';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
@@ -13,12 +13,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 
 class profile extends StatefulWidget {
-  initState() {
-    // ignore: avoid_print
-    print("initState Called");
-  }
-
-  // final String userId;
   const profile({super.key});
   @override
   profileState createState() => profileState();
@@ -27,7 +21,7 @@ class profile extends StatefulWidget {
 String name_edit = '', phone_edit = '', DOB = '', DOB_edit = '', userName = '';
 TextEditingController DOBController = new TextEditingController();
 TextEditingController nameController = new TextEditingController();
-TextEditingController U_nameController = new TextEditingController();
+TextEditingController EmailContrller = new TextEditingController();
 TextEditingController phoneController = new TextEditingController();
 
 bool Editing = false;
@@ -40,11 +34,11 @@ class profileState extends State<profile> {
     print("++++++++++++ initState! ++++++++++++");
     FirebaseFirestore.instance
         .collection("userAccount")
-        .doc('xd4GxeUvyyYTDO9iaMo2oaNg7qd2')
+        .doc('uoInwRTOLtM4eph0LwgPI1ULzc12')
         .get()
         .then((value) {
       nameController.text = value.data()!["full_name"];
-      U_nameController.text = value.data()!["user_name"];
+      EmailContrller.text = value.data()!["email"];
       phoneController.text = value.data()!["phone_number"];
       DOBController.text = value.data()!["DOB"];
       print("++++++++++++ Document! ++++++++++++");
@@ -128,19 +122,41 @@ class profileState extends State<profile> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             const SizedBox(
-              height: 40,
+              height: 20,
             ),
 
             Align(
               alignment: Alignment.center,
-              child: Text(
-                ' ! ' + U_nameController.text + '  مرحبًا  ',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              child: Icon(
+                Icons.person_pin,
+                color: Color.fromARGB(255, 108, 141, 94),
+                size: 140,
               ),
             ),
-            //Form
-            const SizedBox(
-              height: 25,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(30, 5, 30, 0),
+              child: Text('الايميل '),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(30, 0, 30, 10),
+              child: TextFormField(
+                enabled: false,
+                textAlign: TextAlign.right,
+                controller: EmailContrller,
+                decoration: const InputDecoration(
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 0, 0, 0),
+                    ),
+                  ),
+                  contentPadding: EdgeInsets.only(bottom: 3),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                ),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+              ),
+            ),
+            SizedBox(
+              height: 10,
             ),
             //name field
             Padding(
@@ -150,6 +166,7 @@ class profileState extends State<profile> {
             Padding(
               padding: EdgeInsets.fromLTRB(30, 0, 30, 10),
               child: Column(children: [
+                //Name
                 TextFormField(
                   enabled: Editing,
                   textAlign: TextAlign.right,
@@ -158,10 +175,11 @@ class profileState extends State<profile> {
                     hintText: 'الاسم',
                     alignLabelWithHint: true,
                     enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF06283D)),
+                      borderSide: BorderSide(
+                          width: 2, color: Color.fromARGB(255, 60, 182, 8)),
                     ),
                     focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue),
+                      borderSide: BorderSide(width: 2, color: Colors.blue),
                     ),
                     contentPadding: EdgeInsets.only(bottom: 3),
                     floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -172,7 +190,7 @@ class profileState extends State<profile> {
                         value == null ||
                         value.isEmpty ||
                         (value.trim()).isEmpty) {
-                      return "Enter a valid name";
+                      return "ادخل اسم صحيح";
                     } else {
                       return null;
                     }
@@ -182,7 +200,7 @@ class profileState extends State<profile> {
             ),
 
             SizedBox(
-              height: 30,
+              height: 10,
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
@@ -221,10 +239,11 @@ class profileState extends State<profile> {
                       },
                       decoration: InputDecoration(
                         enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFF06283D)),
+                          borderSide: BorderSide(
+                              width: 2, color: Color.fromARGB(255, 60, 182, 8)),
                         ),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.blue),
+                          borderSide: BorderSide(width: 2, color: Colors.blue),
                         ),
                         contentPadding: EdgeInsets.only(bottom: 3),
                         hintText: DOBController.text,
@@ -238,7 +257,7 @@ class profileState extends State<profile> {
                   ],
                 )),
             SizedBox(
-              height: 30,
+              height: 10,
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
@@ -261,10 +280,13 @@ class profileState extends State<profile> {
                       decoration: const InputDecoration(
                         hintText: 'رقم الهاتف',
                         enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFF06283D)),
+                          borderSide: BorderSide(
+                            width: 2,
+                            color: Color.fromARGB(255, 60, 182, 8),
+                          ),
                         ),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.blue),
+                          borderSide: BorderSide(width: 2, color: Colors.blue),
                         ),
                         contentPadding: EdgeInsets.only(bottom: 3),
                         floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -282,13 +304,13 @@ class profileState extends State<profile> {
                 )),
 
             const SizedBox(
-              height: 50,
+              height: 10,
             ),
             //Editing buttons :
             Visibility(
                 visible: Viewing,
                 child: Padding(
-                    padding: const EdgeInsets.fromLTRB(40, 20, 0, 0),
+                    padding: const EdgeInsets.fromLTRB(40, 10, 0, 0),
                     child: Row(
                       children: [
                         ElevatedButton(
@@ -299,15 +321,13 @@ class profileState extends State<profile> {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors
-                                  .transparent, // background (button) color
                               foregroundColor: Color.fromARGB(255, 3, 3, 3),
                               side: const BorderSide(
                                   width: 1, // the thickness
                                   color: Colors.black // the color of the border
                                   ),
                               padding:
-                                  const EdgeInsets.fromLTRB(110, 12, 110, 12),
+                                  const EdgeInsets.fromLTRB(110, 10, 110, 10),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0))),
                           child: const Text('تحرير',
@@ -318,7 +338,7 @@ class profileState extends State<profile> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete),
-                          iconSize: 60,
+                          iconSize: 55,
                           color: Color.fromARGB(255, 149, 37, 37),
                           onPressed: () {
                             showDialog(
@@ -339,7 +359,12 @@ class profileState extends State<profile> {
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.all(14),
-                                      child: const Text("إلغاء"),
+                                      child: const Text(
+                                        "إلغاء",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   TextButton(
@@ -359,6 +384,7 @@ class profileState extends State<profile> {
                                       padding: const EdgeInsets.all(14),
                                       child: const Text("حذف",
                                           style: TextStyle(
+                                              fontSize: 18,
                                               color: Color.fromARGB(
                                                   255, 124, 18, 18))),
                                     ),
@@ -400,6 +426,7 @@ class profileState extends State<profile> {
                                         padding: const EdgeInsets.all(14),
                                         child: const Text("إلغاء",
                                             style: TextStyle(
+                                                fontSize: 18,
                                                 color: Color.fromARGB(
                                                     255, 194, 98, 98))),
                                       ),
@@ -423,6 +450,9 @@ class profileState extends State<profile> {
                                         padding: const EdgeInsets.all(14),
                                         child: const Text(
                                           "حفظ",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -433,20 +463,21 @@ class profileState extends State<profile> {
 
                             //*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*
                           },
-                          child:
-                              const Text('حفظ', style: TextStyle(fontSize: 20)),
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromARGB(
-                                  0, 30, 255, 0), // background (button) color
                               foregroundColor: Color.fromARGB(255, 0, 0, 0),
                               side: const BorderSide(
                                   width: 1, // the thickness
                                   color: Colors.black // the color of the border
                                   ),
                               padding:
-                                  const EdgeInsets.fromLTRB(70, 15, 70, 15),
+                                  const EdgeInsets.fromLTRB(70, 10, 70, 10),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0))),
+                          child: const Text('حفظ',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              )),
                         ),
                         const SizedBox(
                           width: 10,
@@ -471,13 +502,13 @@ class profileState extends State<profile> {
                                       setState(() {
                                         FirebaseFirestore.instance
                                             .collection("userAccount")
-                                            .doc('xd4GxeUvyyYTDO9iaMo2oaNg7qd2')
+                                            .doc('uoInwRTOLtM4eph0LwgPI1ULzc12')
                                             .get()
                                             .then((value) {
                                           nameController.text =
                                               value.data()!["full_name"];
-                                          U_nameController.text =
-                                              value.data()!["user_name"];
+                                          EmailContrller.text =
+                                              value.data()!["email"];
                                           phoneController.text =
                                               value.data()!["phone_number"];
                                           DOBController.text =
@@ -494,6 +525,7 @@ class profileState extends State<profile> {
                                       padding: const EdgeInsets.all(14),
                                       child: const Text("نعم",
                                           style: TextStyle(
+                                              fontSize: 18,
                                               color: Color.fromARGB(
                                                   255, 194, 98, 98))),
                                     ),
@@ -504,39 +536,106 @@ class profileState extends State<profile> {
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.all(14),
-                                      child: const Text(
-                                        "لا",
-                                      ),
+                                      child: const Text("لا",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                          )),
                                     ),
                                   ),
                                 ],
                               ),
                             );
                           },
-                          child: const Text('إلغاء',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Color.fromARGB(255, 15, 12, 12))),
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors
-                                  .transparent, // background (button) color
                               foregroundColor: Color.fromARGB(255, 0, 0, 0),
                               side: const BorderSide(
                                   width: 1, // the thickness
                                   color: Colors.black // the color of the border
                                   ),
                               padding:
-                                  const EdgeInsets.fromLTRB(70, 15, 70, 15),
+                                  const EdgeInsets.fromLTRB(70, 10, 70, 10),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0))),
+                          child: const Text('إلغاء',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20,
+                                  color: Color.fromARGB(255, 15, 12, 12))),
                         ),
                       ],
                     ))),
           ],
         ),
       )),
+      //bottomNavigationBar: buildBottomNavigation(),
     );
   }
+  // int index = 0;
+  // Widget buildBottomNavigation() {
+  //   return BottomNavyBar(
+  //     selectedIndex: global.index,
+  //     onItemSelected: (index) {
+  //       setState(
+  //         () => global.index = index,
+  //       );
+  //       if (global.index == 0) {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(builder: (context) => const profile()),
+  //         );
+  //       } else if (global.index == 1) {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(
+  //               builder: (context) => const ListOfHouseAccounts()),
+  //         );
+  //       }
+  //     },
+  //     items: <BottomNavyBarItem>[
+  //       BottomNavyBarItem(
+  //         icon: const Icon(Icons.person_outline_rounded),
+  //         // icon: IconButton(
+  //         //     icon: const Icon(Icons.person_outline_rounded),
+  //         //     onPressed: () {
+  //         //       setState(
+  //         //         () => this.index = index,
+  //         //       );
+  //         //       Navigator.push(
+  //         //         context,
+  //         //         MaterialPageRoute(
+  //         //             builder: (context) => const CreateHouseAccount()),
+  //         //       );
+  //         //     }),
+  //         title: const Text(
+  //           'الملف الشخصي',
+  //           textAlign: TextAlign.center,
+  //         ),
+  //         activeColor: Colors.lightBlue,
+  //       ),
+  //       BottomNavyBarItem(
+  //           icon: const Icon(Icons.holiday_village_rounded),
+  //           // icon: IconButton(
+  //           //     icon: const Icon(Icons.holiday_village_rounded),
+  //           //     onPressed: () {
+
+  //           //       setState(
+  //           //         () => this.index = index,
+  //           //       );
+  //           //       Navigator.push(
+  //           //         context,
+  //           //         MaterialPageRoute(
+  //           //             builder: (context) => const ListOfHouseAccounts()),
+  //           //       );
+  //           //     }),
+  //           title: const Text(
+  //             'منازلي',
+  //             textAlign: TextAlign.center,
+  //           ),
+  //           activeColor: Colors.lightBlue),
+  //     ],
+  //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //   );
+  // }
 }
 
 Future<void> UpdateDB() async {
