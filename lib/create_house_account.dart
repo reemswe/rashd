@@ -18,7 +18,14 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
   TextEditingController membersPhoneNumber3 = TextEditingController();
   TextEditingController membersPhoneNumber4 = TextEditingController();
   TextEditingController membersPhoneNumber5 = TextEditingController();
+  TextEditingController membersNames1 = TextEditingController();
+  TextEditingController membersNames2 = TextEditingController();
+  TextEditingController membersNames3 = TextEditingController();
+  TextEditingController membersNames4 = TextEditingController();
+  TextEditingController membersNames5 = TextEditingController();
   List<TextEditingController> membersPhones = [];
+  List<TextEditingController> membersNames = [];
+
   ScrollController list = ScrollController();
 
   //toggle swithc
@@ -28,10 +35,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
   var privilege_index2 = 1;
   //toggle switch
 
-  List roles = ['role', 'role', 'role', 'role', 'role'];
-  String role1 = "role";
-  String role2 = "role";
-  String role3 = "role";
+  List roles = ['viewer', 'viewer', 'viewer', 'viewer', 'viewer'];
 
   List indexes = ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس'];
   int num = 0;
@@ -48,6 +52,11 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
       membersPhones.add(membersPhoneNumber3);
       membersPhones.add(membersPhoneNumber4);
       membersPhones.add(membersPhoneNumber5);
+      membersNames.add(membersNames1);
+      membersNames.add(membersNames2);
+      membersNames.add(membersNames3);
+      membersNames.add(membersNames4);
+      membersNames.add(membersNames5);
     });
   }
 
@@ -59,14 +68,12 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
     privilege2 = 'viewer';
     return Container(
         padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <
-                Widget>[
+        child: Column(children: <Widget>[
           Text('  عضو المنزل $place ', textAlign: TextAlign.right),
           TextFormField(
             // maxLength: 20,
             maxLength: 20,
-
+            controller: membersNames[num],
             textAlign: TextAlign.right,
             decoration: InputDecoration(
               hintText: ' الاسم ',
@@ -185,6 +192,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                   privilege_edit2 = 'editor';
                   setState(() {
                     privilege2 = 'editor';
+                    roles[num] = 'editor';
                   });
                   print('switched to: editor');
                   print(privilege2);
@@ -193,6 +201,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                   privilege_edit2 = 'viewer';
                   setState(() {
                     privilege2 = 'viewer';
+                    roles[num] = 'viewer';
                   });
                   print('switched to: viewer');
                   print(privilege2);
@@ -215,7 +224,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
   void init() {
     setState(() {
       createList();
-      clearText();
+      //clearText();
       //toggle switch
       privilege_index = 1;
       privilege_edit = 'viewer';
@@ -229,6 +238,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
 
   @override
   Widget build(BuildContext context) {
+    createList();
     return Scaffold(
         appBar: AppBar(
           title: const Text(
@@ -322,171 +332,178 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                               ])),
                       Container(
                           padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: <Widget>[
-                                const Text('اعضاء المنزل ',
-                                    textAlign: TextAlign.right),
-                                TextFormField(
-                                  // maxLength: 20,
-                                  maxLength: 20,
+                          child: Column(children: <Widget>[
+                            const Text('اعضاء المنزل ',
+                                textAlign: TextAlign.right),
+                            TextFormField(
+                              // maxLength: 20,
+                              maxLength: 20,
+                              controller: membersNames[0],
+                              textAlign: TextAlign.right,
+                              decoration: InputDecoration(
+                                hintText: ' الاسم ',
+                                contentPadding:
+                                    const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    borderSide:
+                                        const BorderSide(color: Colors.grey)),
+                                enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    borderSide: BorderSide(
+                                        color: Colors.grey.shade400)),
+                                errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.red, width: 2.0)),
+                                focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.red, width: 2.0)),
+                              ),
+                              validator: (value) {
+                                if (membersPhones[0].text != '' &&
+                                    value == '') {
+                                  return 'اختر إسمًا للعضو ';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
 
-                                  textAlign: TextAlign.right,
-                                  decoration: InputDecoration(
-                                    hintText: ' الاسم ',
-                                    contentPadding: const EdgeInsets.fromLTRB(
-                                        20, 10, 20, 10),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(100.0),
-                                        borderSide: const BorderSide(
-                                            color: Colors.grey)),
-                                    enabledBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(100.0),
-                                        borderSide: BorderSide(
-                                            color: Colors.grey.shade400)),
-                                    errorBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(100.0),
-                                        borderSide: const BorderSide(
-                                            color: Colors.red, width: 2.0)),
-                                    focusedErrorBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(100.0),
-                                        borderSide: const BorderSide(
-                                            color: Colors.red, width: 2.0)),
+                            TextFormField(
+                              // maxLength: 20,
+
+                              controller: membersPhones[0],
+                              maxLength: 10,
+
+                              textAlign: TextAlign.right,
+                              decoration: InputDecoration(
+                                hintText: ' رقم الجوال ',
+                                contentPadding:
+                                    const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    borderSide:
+                                        const BorderSide(color: Colors.grey)),
+                                enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    borderSide: BorderSide(
+                                        color: Colors.grey.shade400)),
+                                errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.red, width: 2.0)),
+                                focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.red, width: 2.0)),
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value!.length < 10) {
+                                  return 'ادخل رقمًا صحيحًا مكونًا من ١٠ أرقام';
+                                }
+                                return null;
+                              },
+                            ),
+                            // Row(
+                            //   //mainAxisAlignment: MainAxisAlignment.end,
+                            //   children: [
+                            //     const Expanded(
+                            //       child: Text(
+                            //         '  محرر',
+                            //         textAlign: TextAlign.right,
+                            //       ),
+                            //     ),
+                            //     Radio(
+                            //       value: "editor",
+                            //       groupValue: role1,
+                            //       onChanged: (T) {
+                            //         setState(() {
+                            //           // memberRole1 = T!;
+                            //           role1 = T!;
+                            //           print(role1);
+                            //         });
+                            //       },
+                            //     ),
+                            //     const Expanded(
+                            //         child: Text(
+                            //       ' مشاهد',
+                            //       textAlign: TextAlign.right,
+                            //     )),
+                            //     Radio(
+                            //       value: "viewer",
+                            //       groupValue: role1,
+                            //       onChanged: (T) {
+                            //         //print(T);
+                            //         setState(() {
+                            //           // memberRole1 = T!;
+                            //           role1 = T!;
+                            //           print(role1);
+                            //         });
+                            //       },
+                            //     ),
+                            //   ],
+                            // ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                              child: ToggleSwitch(
+                                minWidth: 150.0,
+                                minHeight: 45.0,
+                                borderWidth: 1,
+                                borderColor: const [
+                                  Color.fromARGB(255, 149, 149, 149),
+                                  Color.fromARGB(255, 149, 149, 149)
+                                ],
+                                customTextStyles: const [
+                                  TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                TextFormField(
-                                  // maxLength: 20,
-                                  controller: membersPhoneNumber1,
-                                  maxLength: 10,
-                                  textAlign: TextAlign.right,
-                                  decoration: InputDecoration(
-                                    hintText: ' رقم الجوال ',
-                                    contentPadding: const EdgeInsets.fromLTRB(
-                                        20, 10, 20, 10),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(100.0),
-                                        borderSide: const BorderSide(
-                                            color: Colors.grey)),
-                                    enabledBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(100.0),
-                                        borderSide: BorderSide(
-                                            color: Colors.grey.shade400)),
-                                    errorBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(100.0),
-                                        borderSide: const BorderSide(
-                                            color: Colors.red, width: 2.0)),
-                                    focusedErrorBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(100.0),
-                                        borderSide: const BorderSide(
-                                            color: Colors.red, width: 2.0)),
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                ),
-                                // Row(
-                                //   //mainAxisAlignment: MainAxisAlignment.end,
-                                //   children: [
-                                //     const Expanded(
-                                //       child: Text(
-                                //         '  محرر',
-                                //         textAlign: TextAlign.right,
-                                //       ),
-                                //     ),
-                                //     Radio(
-                                //       value: "editor",
-                                //       groupValue: role1,
-                                //       onChanged: (T) {
-                                //         setState(() {
-                                //           // memberRole1 = T!;
-                                //           role1 = T!;
-                                //           print(role1);
-                                //         });
-                                //       },
-                                //     ),
-                                //     const Expanded(
-                                //         child: Text(
-                                //       ' مشاهد',
-                                //       textAlign: TextAlign.right,
-                                //     )),
-                                //     Radio(
-                                //       value: "viewer",
-                                //       groupValue: role1,
-                                //       onChanged: (T) {
-                                //         //print(T);
-                                //         setState(() {
-                                //           // memberRole1 = T!;
-                                //           role1 = T!;
-                                //           print(role1);
-                                //         });
-                                //       },
-                                //     ),
-                                //   ],
-                                // ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                  child: ToggleSwitch(
-                                    minWidth: 150.0,
-                                    minHeight: 45.0,
-                                    borderWidth: 1,
-                                    borderColor: const [
-                                      Color.fromARGB(255, 149, 149, 149),
-                                      Color.fromARGB(255, 149, 149, 149)
-                                    ],
-                                    customTextStyles: const [
-                                      TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                      ),
-                                      TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                      )
-                                    ],
-                                    initialLabelIndex: privilege_index,
-                                    cornerRadius: 10.0,
-                                    activeFgColor: const Color.fromARGB(
-                                        255, 255, 255, 255),
-                                    inactiveBgColor: Colors.white,
-                                    inactiveFgColor: Colors.black,
-                                    totalSwitches: 2,
-                                    labels: const ['محرر', 'مشاهد'],
-                                    activeBgColors: const [
-                                      [Color.fromARGB(255, 160, 189, 166)],
-                                      [Color.fromARGB(255, 160, 189, 166)]
-                                    ],
-                                    onToggle: (index) {
-                                      if (index == 0) {
-                                        privilege_index = 0;
-                                        privilege_edit = 'editor';
-                                        setState(() {
-                                          privilege = 'editor';
-                                        });
-                                        print('switched to: editor');
-                                        print(privilege);
-                                      } else {
-                                        privilege_index = 1;
-                                        privilege_edit = 'viewer';
-                                        setState(() {
-                                          privilege = 'viewer';
-                                        });
-                                        print('switched to: viewer');
-                                        print(privilege);
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ])),
+                                  TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  )
+                                ],
+                                initialLabelIndex: privilege_index,
+                                cornerRadius: 10.0,
+                                activeFgColor:
+                                    const Color.fromARGB(255, 255, 255, 255),
+                                inactiveBgColor: Colors.white,
+                                inactiveFgColor: Colors.black,
+                                totalSwitches: 2,
+                                labels: const ['محرر', 'مشاهد'],
+                                activeBgColors: const [
+                                  [Color.fromARGB(255, 160, 189, 166)],
+                                  [Color.fromARGB(255, 160, 189, 166)]
+                                ],
+                                onToggle: (index) {
+                                  if (index == 0) {
+                                    privilege_index = 0;
+                                    privilege_edit = 'editor';
+                                    setState(() {
+                                      privilege = 'editor';
+                                      roles[0] = 'editor';
+                                    });
+                                    print('switched to: editor');
+                                    print(privilege);
+                                  } else {
+                                    privilege_index = 1;
+                                    privilege_edit = 'viewer';
+                                    setState(() {
+                                      privilege = 'viewer';
+                                      roles[0] = 'viewer';
+                                    });
+                                    print('switched to: viewer');
+                                    print(privilege);
+                                  }
+                                },
+                              ),
+                            ),
+                          ])),
                       ListView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
@@ -585,15 +602,19 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
 
     houseId = docReference.id;
     houses.doc(houseId).update({'houseID': houseId});
-    print('0' + membersPhones[0].text);
+
     print('num $num');
+
     for (int i = 0; i <= num; i++) {
-      print('phone' + membersPhones[i].text);
-      print('privilege' + roles[i]);
-      houses
-          .doc(houseId)
-          .collection('houseMember')
-          .add({'memberID': membersPhones[i].text, 'privilege': roles[i]});
+      if (membersPhones[i].text != '') {
+        print('phone: ' + membersPhones[i].text);
+        print('privilege: ' + roles[i]);
+        houses.doc(houseId).collection('houseMember').add({
+          'memberID': membersPhones[i].text,
+          'privilege': roles[i],
+          'nickName': membersNames[i].text
+        });
+      }
     }
   }
 }
