@@ -41,6 +41,7 @@ dependencies:
   firebase_auth: ^4.2.0
   syncfusion_flutter_charts: ^20.3.61
   toggle_switch: ^2.0.1
+  bottom_navy_bar: ^6.0.0
 
 dev_dependencies:
   flutter_test:
