@@ -1,17 +1,8 @@
 import 'dart:core';
 
-import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:hackathon/profile.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:flutter/src/widgets/framework.dart';
-
-import 'create_house_account.dart';
-import 'goal.dart';
-import 'houseDevicesList.dart';
-import 'list_of_house_accounts.dart';
 
 class dashboard extends StatefulWidget {
   const dashboard({super.key});
@@ -27,7 +18,7 @@ class _dashboardState extends State<dashboard> {
       'فاتورة الكهرباء\n\n500.25 SR',
       '500.25 SR',
       '\t',
-      Color.fromARGB(255, 92, 226, 233),
+      const Color.fromARGB(255, 92, 226, 233),
       Colors.black
     ],
     [
@@ -172,13 +163,13 @@ class _dashboardState extends State<dashboard> {
           itemBuilder: (BuildContext bc) {
             return const [
               PopupMenuItem(
-                child: Text("مشاركة لوحة المعلومات "),
                 value: 'share',
+                child: Text("مشاركة لوحة المعلومات "),
               ),
               PopupMenuItem(
+                value: 'delete',
                 child: Text("حذف حساب المنرل",
                     style: TextStyle(color: Color.fromARGB(255, 167, 32, 32))),
-                value: 'delete',
               ),
             ];
           },
@@ -278,11 +269,13 @@ class _dashboardState extends State<dashboard> {
                                       color: Colors.green),
                                 ),
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const Goal()),
-                                  );
+                                  // navigate to set goal or popup window
+                                  // Navigator.push(
+
+                                  // context,
+                                  // MaterialPageRoute(
+                                  //     builder: (context) => const Goal()),
+                                  // );
                                 },
                               )),
 
@@ -378,101 +371,101 @@ class _dashboardState extends State<dashboard> {
               )
             ]),
       ),
-      bottomNavigationBar: buildBottomNavigation(),
+      //bottomNavigationBar: buildBottomNavigation(),
     );
   }
 
   int index = 0;
-  Widget buildBottomNavigation() {
-    return BottomNavyBar(
-      selectedIndex: global.index,
-      onItemSelected: (index) {
-        setState(
-          () => global.index = index,
-        );
-        if (global.index == 0) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const devicesList()),
-          );
-        } else if (global.index == 1) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const dashboard()),
-          );
-        } else if (global.index == 2) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const ListOfHouseAccounts()),
-          );
-        }
-      },
-      items: <BottomNavyBarItem>[
-        BottomNavyBarItem(
-          icon: const Icon(Icons.electrical_services_rounded),
-          // icon: IconButton(
-          //     icon: const Icon(Icons.person_outline_rounded),
-          //     onPressed: () {
-          //       setState(
-          //         () => this.index = index,
-          //       );
-          //       Navigator.push(
-          //         context,
-          //         MaterialPageRoute(
-          //             builder: (context) => const CreateHouseAccount()),
-          //       );
-          //     }),
-          title: const Text(
-            ' اجهزتي',
-            textAlign: TextAlign.center,
-          ),
-          activeColor: Colors.lightBlue,
-        ),
-        BottomNavyBarItem(
-            icon: const Icon(Icons.auto_graph_outlined),
-            // icon: IconButton(
-            //     icon: const Icon(Icons.holiday_village_rounded),
-            //     onPressed: () {
+  // Widget buildBottomNavigation() {
+  //   return BottomNavyBar(
+  //     selectedIndex: global.index,
+  //     onItemSelected: (index) {
+  //       setState(
+  //         () => global.index = index,
+  //       );
+  //       if (global.index == 0) {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(builder: (context) => const devicesList()),
+  //         );
+  //       } else if (global.index == 1) {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(builder: (context) => const dashboard()),
+  //         );
+  //       } else if (global.index == 2) {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(
+  //               builder: (context) => const ListOfHouseAccounts()),
+  //         );
+  //       }
+  //     },
+  //     items: <BottomNavyBarItem>[
+  //       BottomNavyBarItem(
+  //         icon: const Icon(Icons.electrical_services_rounded),
+  //         // icon: IconButton(
+  //         //     icon: const Icon(Icons.person_outline_rounded),
+  //         //     onPressed: () {
+  //         //       setState(
+  //         //         () => this.index = index,
+  //         //       );
+  //         //       Navigator.push(
+  //         //         context,
+  //         //         MaterialPageRoute(
+  //         //             builder: (context) => const CreateHouseAccount()),
+  //         //       );
+  //         //     }),
+  //         title: const Text(
+  //           ' اجهزتي',
+  //           textAlign: TextAlign.center,
+  //         ),
+  //         activeColor: Colors.lightBlue,
+  //       ),
+  //       BottomNavyBarItem(
+  //           icon: const Icon(Icons.auto_graph_outlined),
+  //           // icon: IconButton(
+  //           //     icon: const Icon(Icons.holiday_village_rounded),
+  //           //     onPressed: () {
 
-            //       setState(
-            //         () => this.index = index,
-            //       );
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //             builder: (context) => const ListOfHouseAccounts()),
-            //       );
-            //     }),
-            title: const Text(
-              'لوحة المعلومات',
-              textAlign: TextAlign.center,
-            ),
-            activeColor: Colors.lightBlue),
-        BottomNavyBarItem(
-            icon: const Icon(Icons.holiday_village_rounded),
-            // icon: IconButton(
-            //     icon: const Icon(Icons.holiday_village_rounded),
-            //     onPressed: () {
+  //           //       setState(
+  //           //         () => this.index = index,
+  //           //       );
+  //           //       Navigator.push(
+  //           //         context,
+  //           //         MaterialPageRoute(
+  //           //             builder: (context) => const ListOfHouseAccounts()),
+  //           //       );
+  //           //     }),
+  //           title: const Text(
+  //             'لوحة المعلومات',
+  //             textAlign: TextAlign.center,
+  //           ),
+  //           activeColor: Colors.lightBlue),
+  //       BottomNavyBarItem(
+  //           icon: const Icon(Icons.holiday_village_rounded),
+  //           // icon: IconButton(
+  //           //     icon: const Icon(Icons.holiday_village_rounded),
+  //           //     onPressed: () {
 
-            //       setState(
-            //         () => this.index = index,
-            //       );
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //             builder: (context) => const ListOfHouseAccounts()),
-            //       );
-            //     }),
-            title: const Text(
-              'منازلي',
-              textAlign: TextAlign.center,
-            ),
-            activeColor: Colors.lightBlue),
-      ],
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-    );
-  }
+  //           //       setState(
+  //           //         () => this.index = index,
+  //           //       );
+  //           //       Navigator.push(
+  //           //         context,
+  //           //         MaterialPageRoute(
+  //           //             builder: (context) => const ListOfHouseAccounts()),
+  //           //       );
+  //           //     }),
+  //           title: const Text(
+  //             'منازلي',
+  //             textAlign: TextAlign.center,
+  //           ),
+  //           activeColor: Colors.lightBlue),
+  //     ],
+  //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //   );
+  // }
 
   Widget buildCard(List content) {
     return Container(

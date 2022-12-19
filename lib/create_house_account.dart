@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class CreateHouseAccount extends StatefulWidget {
   const CreateHouseAccount({super.key});
@@ -20,7 +21,17 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
   List<TextEditingController> membersPhones = [];
   ScrollController list = ScrollController();
 
+  //toggle swithc
+  String privilege_edit = 'viewer', privilege = '';
+  var privilege_index = 1;
+  String privilege_edit2 = 'viewer', privilege2 = '';
+  var privilege_index2 = 1;
+  //toggle switch
+
   List roles = ['role', 'role', 'role', 'role', 'role'];
+  String role1 = "role";
+  String role2 = "role";
+  String role3 = "role";
 
   List indexes = ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس'];
   int num = 0;
@@ -42,8 +53,10 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
 
   Widget members() {
     num++;
-    int i = num;
+
     String place = indexes[num];
+    privilege_edit2 = 'viewer';
+    privilege2 = 'viewer';
     return Container(
         padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
         child:
@@ -97,52 +110,120 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
             ),
             keyboardType: TextInputType.number,
           ),
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  '  محرر',
-                  textAlign: TextAlign.right,
+          // Row(
+          //   children: [
+          //     const Expanded(
+          //       child: Text(
+          //         '  محرر',
+          //         textAlign: TextAlign.right,
+          //       ),
+          //     ),
+          //     Radio(
+          //       value: "editor",
+          //       groupValue: roles[num],
+          //       onChanged: (T) {
+          //         setState(() {
+          //           //memberRole1 = T!;
+          //           roles[num] = T;
+          //           print(roles[num]);
+          //         });
+          //       },
+          //     ),
+          //     const Expanded(
+          //         child: Text(
+          //       ' مشاهد',
+          //       textAlign: TextAlign.right,
+          //     )),
+          //     Radio(
+          //       value: "viewer",
+          //       groupValue: roles[num],
+          //       onChanged: (T) {
+          //         //print(T);
+          //         setState(() {
+          //           // memberRole1 = T!;
+          //           roles[num] = T;
+          //           print(roles[num]);
+          //         });
+          //       },
+          //     ),
+          //   ],
+          // ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: ToggleSwitch(
+              minWidth: 150.0,
+              minHeight: 45.0,
+              borderWidth: 1,
+              borderColor: const [
+                Color.fromARGB(255, 149, 149, 149),
+                Color.fromARGB(255, 149, 149, 149)
+              ],
+              customTextStyles: const [
+                TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
                 ),
-              ),
-              Radio(
-                value: "editor",
-                groupValue: roles[num],
-                onChanged: (T) {
+                TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                )
+              ],
+              initialLabelIndex: privilege_index,
+              cornerRadius: 10.0,
+              activeFgColor: const Color.fromARGB(255, 255, 255, 255),
+              inactiveBgColor: Colors.white,
+              inactiveFgColor: Colors.black,
+              totalSwitches: 2,
+              labels: const ['محرر', 'مشاهد'],
+              activeBgColors: const [
+                [Color.fromARGB(255, 160, 189, 166)],
+                [Color.fromARGB(255, 160, 189, 166)]
+              ],
+              onToggle: (index) {
+                if (index == 0) {
+                  privilege_index2 = 0;
+                  privilege_edit2 = 'editor';
                   setState(() {
-                    //memberRole1 = T!;
-                    roles[num] = T;
-                    print(roles[num]);
+                    privilege2 = 'editor';
                   });
-                },
-              ),
-              const Expanded(
-                  child: Text(
-                ' مشاهد',
-                textAlign: TextAlign.right,
-              )),
-              Radio(
-                value: "viewer",
-                groupValue: roles[num],
-                onChanged: (T) {
-                  //print(T);
+                  print('switched to: editor');
+                  print(privilege2);
+                } else {
+                  privilege_index2 = 1;
+                  privilege_edit2 = 'viewer';
                   setState(() {
-                    // memberRole1 = T!;
-                    roles[num] = T;
-                    print(roles[num]);
+                    privilege2 = 'viewer';
                   });
-                },
-              ),
-            ],
+                  print('switched to: viewer');
+                  print(privilege2);
+                }
+              },
+            ),
           ),
         ]));
   }
 
   final _formKey = GlobalKey<FormState>();
+  void clearText() {
+    membersPhoneNumber1.clear();
+    membersPhoneNumber2.clear();
+    membersPhoneNumber3.clear();
+    membersPhoneNumber4.clear();
+    membersPhoneNumber5.clear();
+  }
 
   void init() {
     setState(() {
       createList();
+      clearText();
+      //toggle switch
+      privilege_index = 1;
+      privilege_edit = 'viewer';
+      privilege = 'viewer';
+      privilege_index2 = 1;
+      privilege_edit2 = 'viewer';
+      privilege2 = 'viewer';
+      //toggle switch
     });
   }
 
@@ -312,44 +393,98 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                   ),
                                   keyboardType: TextInputType.number,
                                 ),
-                                Row(
-                                  //mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    const Expanded(
-                                      child: Text(
-                                        '  محرر',
-                                        textAlign: TextAlign.right,
+                                // Row(
+                                //   //mainAxisAlignment: MainAxisAlignment.end,
+                                //   children: [
+                                //     const Expanded(
+                                //       child: Text(
+                                //         '  محرر',
+                                //         textAlign: TextAlign.right,
+                                //       ),
+                                //     ),
+                                //     Radio(
+                                //       value: "editor",
+                                //       groupValue: role1,
+                                //       onChanged: (T) {
+                                //         setState(() {
+                                //           // memberRole1 = T!;
+                                //           role1 = T!;
+                                //           print(role1);
+                                //         });
+                                //       },
+                                //     ),
+                                //     const Expanded(
+                                //         child: Text(
+                                //       ' مشاهد',
+                                //       textAlign: TextAlign.right,
+                                //     )),
+                                //     Radio(
+                                //       value: "viewer",
+                                //       groupValue: role1,
+                                //       onChanged: (T) {
+                                //         //print(T);
+                                //         setState(() {
+                                //           // memberRole1 = T!;
+                                //           role1 = T!;
+                                //           print(role1);
+                                //         });
+                                //       },
+                                //     ),
+                                //   ],
+                                // ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                  child: ToggleSwitch(
+                                    minWidth: 150.0,
+                                    minHeight: 45.0,
+                                    borderWidth: 1,
+                                    borderColor: const [
+                                      Color.fromARGB(255, 149, 149, 149),
+                                      Color.fromARGB(255, 149, 149, 149)
+                                    ],
+                                    customTextStyles: const [
+                                      TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16,
                                       ),
-                                    ),
-                                    Radio(
-                                      value: "editor",
-                                      groupValue: roles[0],
-                                      onChanged: (T) {
+                                      TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16,
+                                      )
+                                    ],
+                                    initialLabelIndex: privilege_index,
+                                    cornerRadius: 10.0,
+                                    activeFgColor: const Color.fromARGB(
+                                        255, 255, 255, 255),
+                                    inactiveBgColor: Colors.white,
+                                    inactiveFgColor: Colors.black,
+                                    totalSwitches: 2,
+                                    labels: const ['محرر', 'مشاهد'],
+                                    activeBgColors: const [
+                                      [Color.fromARGB(255, 160, 189, 166)],
+                                      [Color.fromARGB(255, 160, 189, 166)]
+                                    ],
+                                    onToggle: (index) {
+                                      if (index == 0) {
+                                        privilege_index = 0;
+                                        privilege_edit = 'editor';
                                         setState(() {
-                                          // memberRole1 = T!;
-                                          roles[num] = T;
-                                          print(roles[num]);
+                                          privilege = 'editor';
                                         });
-                                      },
-                                    ),
-                                    const Expanded(
-                                        child: Text(
-                                      ' مشاهد',
-                                      textAlign: TextAlign.right,
-                                    )),
-                                    Radio(
-                                      value: "viewer",
-                                      groupValue: roles[0],
-                                      onChanged: (T) {
-                                        //print(T);
+                                        print('switched to: editor');
+                                        print(privilege);
+                                      } else {
+                                        privilege_index = 1;
+                                        privilege_edit = 'viewer';
                                         setState(() {
-                                          // memberRole1 = T!;
-                                          roles[0] = T;
-                                          print(roles[0]);
+                                          privilege = 'viewer';
                                         });
-                                      },
-                                    ),
-                                  ],
+                                        print('switched to: viewer');
+                                        print(privilege);
+                                      }
+                                    },
+                                  ),
                                 ),
                               ])),
                       ListView.builder(
