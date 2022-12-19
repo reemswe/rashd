@@ -60,58 +60,53 @@ class profileState extends State<profile> {
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        leading: //Icon(Icons.more_vert)
-            PopupMenuButton(
-          onSelected: (value) {
-            if (value == 'logout') {
-              showDialog(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: const Text(
-                    " تسجيل خروج",
-                    textAlign: TextAlign.center,
-                  ),
-                  content: const Text(
-                    "هل أنت متأكد من تسجيل الخروج ؟",
-                    textAlign: TextAlign.right,
-                  ),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        child: const Text("الغاء"),
-                      ),
-                    ),
-                    //log in ok button
-                    TextButton(
-                      onPressed: () {},
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        child: const Text("خروج",
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 164, 10, 10))),
-                      ),
-                    ),
-                  ],
+        leading: IconButton(
+          icon: const Icon(Icons.logout_outlined),
+          iconSize: 30,
+          color: Color.fromARGB(255, 149, 37, 37),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text(
+                  " تسجيل خروج",
+                  textAlign: TextAlign.center,
                 ),
-              );
-            }
-            // your logic
-          },
-          itemBuilder: (BuildContext bc) {
-            return const [
-              PopupMenuItem(
-                child: Text("  تسجيل الخروج",
-                    textAlign: TextAlign.right,
-                    style: TextStyle(color: Color.fromARGB(255, 167, 32, 32))),
-                value: 'logout',
+                content: const Text(
+                  "هل أنت متأكد من تسجيل الخروج ؟",
+                  textAlign: TextAlign.right,
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      child: const Text("الغاء"),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      //  Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => const welcomePage()));
+                      // Future.delayed(const Duration(seconds: 1),
+                      //     () async => await FirebaseAuth.instance.signOut());
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      child: const Text("خروج",
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 164, 10, 10))),
+                    ),
+                  ),
+                ],
               ),
-            ];
+            );
           },
-        ),
+        ), //Icon(Icons.more_vert)
         actions: [],
       ),
       body: SingleChildScrollView(
