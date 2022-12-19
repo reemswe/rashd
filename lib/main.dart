@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rashd/account.dart';
 import 'package:rashd/add_house_member.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,7 +23,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Rashd',
-      theme: ThemeData(),
+      theme: ThemeData(
+        elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.lightBlue,
+        )),
+        scaffoldBackgroundColor: Colors.white,
+      ),
       home: profile(),
     );
   }

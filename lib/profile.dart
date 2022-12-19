@@ -124,7 +124,7 @@ class profileState extends State<profile> {
               alignment: Alignment.center,
               child: Icon(
                 Icons.person_pin,
-                color: Color.fromARGB(255, 108, 141, 94),
+                color: Colors.lightBlue,
                 size: 140,
               ),
             ),
@@ -170,8 +170,7 @@ class profileState extends State<profile> {
                     hintText: 'الاسم',
                     alignLabelWithHint: true,
                     enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          width: 2, color: Color.fromARGB(255, 60, 182, 8)),
+                      borderSide: BorderSide(width: 2, color: Colors.lightBlue),
                     ),
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(width: 2, color: Colors.blue),
@@ -234,8 +233,8 @@ class profileState extends State<profile> {
                       },
                       decoration: InputDecoration(
                         enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              width: 2, color: Color.fromARGB(255, 60, 182, 8)),
+                          borderSide:
+                              BorderSide(width: 2, color: Colors.lightBlue),
                         ),
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(width: 2, color: Colors.blue),
@@ -277,7 +276,7 @@ class profileState extends State<profile> {
                         enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
                             width: 2,
-                            color: Color.fromARGB(255, 60, 182, 8),
+                            color: Colors.lightBlue,
                           ),
                         ),
                         focusedBorder: UnderlineInputBorder(
@@ -316,17 +315,23 @@ class profileState extends State<profile> {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                              foregroundColor: Color.fromARGB(255, 3, 3, 3),
+                              foregroundColor:
+                                  Color.fromARGB(255, 253, 253, 253),
                               side: const BorderSide(
                                   width: 1, // the thickness
-                                  color: Colors.black // the color of the border
+                                  color: Color.fromARGB(255, 253, 253,
+                                      253) // the color of the border
                                   ),
                               padding:
                                   const EdgeInsets.fromLTRB(110, 10, 110, 10),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0))),
-                          child: const Text('تحرير',
-                              style: TextStyle(fontSize: 22)),
+                          child: const Text(
+                            'تحرير',
+                            style: TextStyle(
+                                fontSize: 22,
+                                color: Color.fromARGB(255, 0, 0, 0)),
+                          ),
                         ),
                         const SizedBox(
                           width: 10,
@@ -459,10 +464,12 @@ class profileState extends State<profile> {
                             //*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*&*
                           },
                           style: ElevatedButton.styleFrom(
-                              foregroundColor: Color.fromARGB(255, 0, 0, 0),
+                              foregroundColor:
+                                  Color.fromARGB(255, 253, 253, 253),
                               side: const BorderSide(
                                   width: 1, // the thickness
-                                  color: Colors.black // the color of the border
+                                  color: Color.fromARGB(255, 253, 253,
+                                      253) // the color of the border
                                   ),
                               padding:
                                   const EdgeInsets.fromLTRB(70, 10, 70, 10),
@@ -472,6 +479,7 @@ class profileState extends State<profile> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
+                                color: Color.fromARGB(255, 11, 9, 9),
                               )),
                         ),
                         const SizedBox(
@@ -542,10 +550,12 @@ class profileState extends State<profile> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                              foregroundColor: Color.fromARGB(255, 0, 0, 0),
+                              foregroundColor:
+                                  Color.fromARGB(255, 253, 253, 253),
                               side: const BorderSide(
                                   width: 1, // the thickness
-                                  color: Colors.black // the color of the border
+                                  color: Color.fromARGB(255, 253, 253,
+                                      253) // the color of the border
                                   ),
                               padding:
                                   const EdgeInsets.fromLTRB(70, 10, 70, 10),
@@ -562,75 +572,78 @@ class profileState extends State<profile> {
           ],
         ),
       )),
-      //bottomNavigationBar: buildBottomNavigation(),
+      bottomNavigationBar: buildBottomNavigation(),
     );
   }
-  // int index = 0;
-  // Widget buildBottomNavigation() {
-  //   return BottomNavyBar(
-  //     selectedIndex: global.index,
-  //     onItemSelected: (index) {
-  //       setState(
-  //         () => global.index = index,
-  //       );
-  //       if (global.index == 0) {
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(builder: (context) => const profile()),
-  //         );
-  //       } else if (global.index == 1) {
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(
-  //               builder: (context) => const ListOfHouseAccounts()),
-  //         );
-  //       }
-  //     },
-  //     items: <BottomNavyBarItem>[
-  //       BottomNavyBarItem(
-  //         icon: const Icon(Icons.person_outline_rounded),
-  //         // icon: IconButton(
-  //         //     icon: const Icon(Icons.person_outline_rounded),
-  //         //     onPressed: () {
-  //         //       setState(
-  //         //         () => this.index = index,
-  //         //       );
-  //         //       Navigator.push(
-  //         //         context,
-  //         //         MaterialPageRoute(
-  //         //             builder: (context) => const CreateHouseAccount()),
-  //         //       );
-  //         //     }),
-  //         title: const Text(
-  //           'الملف الشخصي',
-  //           textAlign: TextAlign.center,
-  //         ),
-  //         activeColor: Colors.lightBlue,
-  //       ),
-  //       BottomNavyBarItem(
-  //           icon: const Icon(Icons.holiday_village_rounded),
-  //           // icon: IconButton(
-  //           //     icon: const Icon(Icons.holiday_village_rounded),
-  //           //     onPressed: () {
 
-  //           //       setState(
-  //           //         () => this.index = index,
-  //           //       );
-  //           //       Navigator.push(
-  //           //         context,
-  //           //         MaterialPageRoute(
-  //           //             builder: (context) => const ListOfHouseAccounts()),
-  //           //       );
-  //           //     }),
-  //           title: const Text(
-  //             'منازلي',
-  //             textAlign: TextAlign.center,
-  //           ),
-  //           activeColor: Colors.lightBlue),
-  //     ],
-  //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //   );
-  // }
+  int index = 0;
+  Widget buildBottomNavigation() {
+    return BottomNavyBar(
+      selectedIndex: global.index,
+      onItemSelected: (index) {
+        setState(
+          () => global.index = index,
+        );
+        if (global.index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const profile()),
+          );
+        } else if (global.index == 1) {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //       builder: (context) => const ListOfHouseAccounts()),
+          // );
+        }
+      },
+      items: <BottomNavyBarItem>[
+        BottomNavyBarItem(
+            icon: const Icon(
+              Icons.person_outline_rounded,
+              size: 30,
+            ),
+            title: const Text(
+              'الملف الشخصي',
+              textAlign: TextAlign.center,
+            ),
+            activeColor: Colors.lightBlue),
+        BottomNavyBarItem(
+            icon: const Icon(
+              Icons.holiday_village_rounded,
+              size: 30,
+            ),
+            title: const Text(
+              'منازلي',
+              textAlign: TextAlign.center,
+            ),
+            activeColor: Colors.lightBlue),
+      ],
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+    );
+  }
+
+  navigateRoutes() {
+    switch (index) {
+      case 0:
+        {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //       builder: (context) => const ListOfHouseAccounts()),
+          // );
+          break;
+        }
+      case 1:
+        {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const profile()),
+          );
+          break;
+        }
+    }
+  }
 }
 
 Future<void> UpdateDB() async {
@@ -644,4 +657,8 @@ Future<void> UpdateDB() async {
     'DOB': DOBController.text,
   });
   print('profile edited');
+}
+
+class global {
+  static var index = 0;
 }
