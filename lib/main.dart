@@ -1,5 +1,4 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'Devices/listOfDevices.dart';
@@ -19,8 +18,6 @@ import 'welcomePage.dart';
 //     name: 'Rashd',
 //     options: DefaultFirebaseOptions.currentPlatform,
 //   );
-
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,23 +45,23 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        routes: {
-          '/welcomePage': (ctx) => const welcomePage(),
-          '/homePage': (ctx) => const ListOfHouseAccounts(),
-          "/register": (ctx) => const register(),
-          "/login": (ctx) => const login(),
-        },
-        theme: new ThemeData(
-            elevatedButtonTheme: ElevatedButtonThemeData(
-                style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              //Color.fromARGB(255, 147, 191, 128),
-            )),
-            scaffoldBackgroundColor: Colors.white,
-            fontFamily: 'LamaSans',
-            textTheme: TextTheme()),
-        title: 'Flutter Demo',
-        home: auth ? ListOfHouseAccounts() : welcomePage());
+      routes: {
+        '/welcomePage': (ctx) => const welcomePage(),
+        '/homePage': (ctx) => const ListOfHouseAccounts(),
+        "/register": (ctx) => const register(),
+        "/login": (ctx) => const login(),
+      },
+      // theme: new ThemeData(
+      //     elevatedButtonTheme: ElevatedButtonThemeData(
+      //         style: ElevatedButton.styleFrom(
+      //       backgroundColor: Colors.blue,
+      //       //Color.fromARGB(255, 147, 191, 128),
+      //     )),
+      //     scaffoldBackgroundColor: Colors.white,
+      //     fontFamily: 'LamaSans',
+      //     textTheme: TextTheme()),
+
+      home: auth ? ListOfHouseAccounts() : welcomePage(),
       title: 'رشد',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -93,7 +90,6 @@ class MyApp extends StatelessWidget {
         // labelStyle: TextStyle(fontSize: 4, color: Colors.blue)),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            
               backgroundColor: Colors.transparent,
               foregroundColor: const Color(0xFFfcfffe),
               shadowColor: Colors.transparent,
@@ -112,7 +108,7 @@ class MyApp extends StatelessWidget {
       ],
       locale: const Locale(
           "ar", "SA"), // OR Locale('ar', 'AE') OR Other RTL locales,
-      home: const listOfDevices(),
+      // home: const listOfDevices(),
     );
   }
 }
