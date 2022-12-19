@@ -51,6 +51,8 @@ dependencies:
   flutter_contacts: ^1.1.5+1
   permission_handler: ^10.2.0
   uuid: ^3.0.7
+  firebase_storage: ^11.0.8
+  toggle_switch: ^2.0.1
 
 dev_dependencies:
   flutter_test:

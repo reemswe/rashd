@@ -1,16 +1,11 @@
-// ignore_for_file: prefer_const_constructors, avoid_print, unused_import
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
-import 'dart:ffi';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:toggle_switch/toggle_switch.dart';
-import 'main.dart';
 import 'package:flutter/material.dart';
-import 'firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
+
+import 'welcomePage.dart';
 
 class profile extends StatefulWidget {
   const profile({super.key});
@@ -49,6 +44,9 @@ class profileState extends State<profile> {
 
   @override
   Widget build(BuildContext context) {
+    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery.of(context).size.width;
+
     var userData;
     final _formKey = GlobalKey<FormState>();
     return Scaffold(
@@ -88,12 +86,12 @@ class profileState extends State<profile> {
                   ),
                   TextButton(
                     onPressed: () {
-                      //  Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => const welcomePage()));
-                      // Future.delayed(const Duration(seconds: 1),
-                      //     () async => await FirebaseAuth.instance.signOut());
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const welcomePage()));
+                      Future.delayed(const Duration(seconds: 1),
+                          () async => await FirebaseAuth.instance.signOut());
                     },
                     child: Container(
                       padding: const EdgeInsets.all(14),
@@ -106,15 +104,14 @@ class profileState extends State<profile> {
               ),
             );
           },
-        ), //Icon(Icons.more_vert)
-        actions: [],
+        ),
       ),
       body: SingleChildScrollView(
           child: Form(
         key: _formKey,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(
               height: 20,
@@ -130,7 +127,7 @@ class profileState extends State<profile> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(30, 5, 30, 0),
-              child: Text('الايميل '),
+              child: Text('البريد الإلكتروني'),
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(30, 0, 30, 10),
@@ -302,101 +299,121 @@ class profileState extends State<profile> {
             ),
             //Editing buttons :
             Visibility(
-                visible: Viewing,
-                child: Padding(
-                    padding: const EdgeInsets.fromLTRB(40, 10, 0, 0),
-                    child: Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              Editing = true;
-                              Viewing = false;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                              foregroundColor:
-                                  Color.fromARGB(255, 253, 253, 253),
-                              side: const BorderSide(
-                                  width: 1, // the thickness
-                                  color: Color.fromARGB(255, 253, 253,
-                                      253) // the color of the border
-                                  ),
-                              padding:
-                                  const EdgeInsets.fromLTRB(110, 10, 110, 10),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0))),
-                          child: const Text(
-                            'تحرير',
-                            style: TextStyle(
-                                fontSize: 22,
-                                color: Color.fromARGB(255, 0, 0, 0)),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          iconSize: 55,
-                          color: Color.fromARGB(255, 149, 37, 37),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                title: const Text(
-                                  "هل أنت متأكد ؟",
-                                  textAlign: TextAlign.center,
-                                ),
-                                content: const Text(
-                                  "هل أنت متأكد من حدف حسابك ؟ لا يمكنك استرجاع الحساب بعد الحذف",
-                                  textAlign: TextAlign.end,
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(ctx).pop();
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(14),
-                                      child: const Text(
-                                        "إلغاء",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      // FirebaseFirestore.instance
-                                      //     .collection("users")
-                                      //     .doc(userData['id'])
-                                      //     .delete()
-                                      //     .then((_) {
-                                      //   print(
-                                      //       "success!, user deleted");
-                                      // });
-                                      // Navigator.of(ctx).pop();
-                                      print("success!, user deleted");
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(14),
-                                      child: const Text("حذف",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              color: Color.fromARGB(
-                                                  255, 124, 18, 18))),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+              visible: Viewing,
+              // child: Padding(
+              //     padding: const EdgeInsets.fromLTRB(40, 10, 40, 0),
+              child: Center(
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                //  mainAxisSize: MainAxisSize.spaceAround,
+                //  crossAxisAlignment: CrossAxisAlignment.spaceAround,
+                children: [
+                  SizedBox(
+                    width: width * 0.01,
+                  ),
+                  Container(
+                    width: width * 0.5,
+                    decoration: BoxDecoration(
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 4),
+                            blurRadius: 5.0)
                       ],
-                    ))),
-            //Save and cancel buttons
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        stops: [0.1, 1.0],
+                        colors: [
+                          Colors.blue.shade200,
+                          Colors.blue.shade400,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          Editing = true;
+                          Viewing = false;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                          foregroundColor: Color.fromARGB(255, 253, 253, 253),
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0))),
+                      child: const Text('تحرير'),
+                    ),
+                  ),
+                  SizedBox(
+                    width: width * 0.015,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    iconSize: 55,
+                    color: Color.fromARGB(255, 149, 37, 37),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text(
+                            "هل أنت متأكد ؟",
+                            textAlign: TextAlign.center,
+                          ),
+                          content: const Text(
+                            "هل أنت متأكد من حدف حسابك ؟ لا يمكنك استرجاع الحساب بعد الحذف",
+                            // textAlign: TextAlign.end,
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(ctx).pop();
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(14),
+                                child: const Text(
+                                  "إلغاء",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                // FirebaseFirestore.instance
+                                //     .collection("users")
+                                //     .doc(userData['id'])
+                                //     .delete()
+                                //     .then((_) {
+                                //   print(
+                                //       "success!, user deleted");
+                                // });
+                                // Navigator.of(ctx).pop();
+                                print("success!, user deleted");
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(14),
+                                child: const Text("حذف",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color:
+                                            Color.fromARGB(255, 124, 18, 18))),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    width: width * 0.01,
+                  ),
+                ],
+                // )
+              )),
+            ), //Save and cancel buttons
             Visibility(
                 visible: Editing,
                 child: Padding(

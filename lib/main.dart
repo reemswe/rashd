@@ -7,13 +7,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 // import 'accessSharedDashboard.dart';
 // import 'houseDevicesList.dart';
 import 'list_of_house_accounts.dart';
-import 'login.dart';
-import 'register.dart';
+import 'Registration/login.dart';
+import 'Registration/register.dart';
 import 'welcomePage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp();
 
   FirebaseAuth.instance.authStateChanges().listen((User? user) {
     bool auth = false;
@@ -44,16 +44,6 @@ class MyApp extends StatelessWidget {
         "/register": (ctx) => const register(),
         "/login": (ctx) => const login(),
       },
-      // theme: new ThemeData(
-      //     elevatedButtonTheme: ElevatedButtonThemeData(
-      //         style: ElevatedButton.styleFrom(
-      //       backgroundColor: Colors.blue,
-      //       //Color.fromARGB(255, 147, 191, 128),
-      //     )),
-      //     scaffoldBackgroundColor: Colors.white,
-      //     fontFamily: 'LamaSans',
-      //     textTheme: TextTheme()),
-
       home: auth ? ListOfHouseAccounts() : welcomePage(),
       title: 'رشد',
       debugShowCheckedModeBanner: false,

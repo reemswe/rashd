@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 // import 'accessSharedDashboard.dart';
 // import 'houseDevicesList.dart';
-import 'login.dart';
-import 'register.dart';
+import 'Registration/login.dart';
+import 'Registration/register.dart';
 
 class welcomePage extends StatefulWidget {
   const welcomePage({super.key});

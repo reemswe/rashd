@@ -3,7 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'list_of_house_accounts.dart';
+import '../list_of_house_accounts.dart';
 import 'register.dart';
 
 class login extends StatefulWidget {

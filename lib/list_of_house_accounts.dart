@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rashd/Devices/listOfDevices.dart';
-import 'package:rashd/register.dart';
+import 'package:rashd/Registration/register.dart';
+import 'package:rashd/profile.dart';
 import 'package:rashd/welcomePage.dart';
 
 class ListOfHouseAccounts extends StatefulWidget {
@@ -302,12 +303,12 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
         setState(
           () => this.index = index,
         );
-        if (index == 0) {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const profile()),
-          // );
-        } else if (index == 1) {
+        if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const profile()),
+          );
+        } else if (index == 0) {
           Navigator.push(
             context,
             MaterialPageRoute(

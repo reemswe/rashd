@@ -7,7 +7,7 @@ import 'package:email_validator/email_validator.dart';
 
 import 'package:intl/intl.dart';
 
-import 'list_of_house_accounts.dart';
+import '../list_of_house_accounts.dart';
 import 'login.dart';
 
 class register extends StatefulWidget {
