@@ -54,54 +54,54 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
               return Scaffold(
                 appBar: AppBar(
                     actions: [
-                      //log out
-                      Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 10, 12, 10),
-                          child: IconButton(
-                            icon: const Icon(Icons.logout_rounded),
-                            iconSize: 25,
-                            color: Colors.white,
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: const Text(
-                                    "Logout",
-                                    textAlign: TextAlign.left,
-                                  ),
-                                  content: const Text(
-                                    "Are You Sure You want to log out of your account?",
-                                    textAlign: TextAlign.left,
-                                  ),
-                                  actions: <Widget>[
-                                    //log in cancle button
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(ctx).pop();
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(14),
-                                        child: const Text("Cancel"),
-                                      ),
-                                    ),
-                                    //log in ok button
-                                    TextButton(
-                                      onPressed: () async {
-                                        await _signOut();
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(14),
-                                        child: const Text("Log out",
-                                            style: TextStyle(
-                                                color: Color.fromARGB(
-                                                    255, 164, 10, 10))),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          )),
+                      // //log out
+                      // Padding(
+                      //     padding: const EdgeInsets.fromLTRB(10, 10, 12, 10),
+                      //     child: IconButton(
+                      //       icon: const Icon(Icons.logout_rounded),
+                      //       iconSize: 25,
+                      //       color: Colors.white,
+                      //       onPressed: () {
+                      //         showDialog(
+                      //           context: context,
+                      //           builder: (ctx) => AlertDialog(
+                      //             title: const Text(
+                      //               "Logout",
+                      //               textAlign: TextAlign.left,
+                      //             ),
+                      //             content: const Text(
+                      //               "Are You Sure You want to log out of your account?",
+                      //               textAlign: TextAlign.left,
+                      //             ),
+                      //             actions: <Widget>[
+                      //               //log in cancle button
+                      //               TextButton(
+                      //                 onPressed: () {
+                      //                   Navigator.of(ctx).pop();
+                      //                 },
+                      //                 child: Container(
+                      //                   padding: const EdgeInsets.all(14),
+                      //                   child: const Text("Cancel"),
+                      //                 ),
+                      //               ),
+                      //               //log in ok button
+                      //               TextButton(
+                      //                 onPressed: () async {
+                      //                   await _signOut();
+                      //                 },
+                      //                 child: Container(
+                      //                   padding: const EdgeInsets.all(14),
+                      //                   child: const Text("Log out",
+                      //                       style: TextStyle(
+                      //                           color: Color.fromARGB(
+                      //                               255, 164, 10, 10))),
+                      //                 ),
+                      //               ),
+                      //             ],
+                      //           ),
+                      //         );
+                      //       },
+                      //     )),
                     ],
                     title: Text(
                       '! مرحبًا ' + userData['full_name'],
