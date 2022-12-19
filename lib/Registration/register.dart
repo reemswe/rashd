@@ -58,19 +58,17 @@ class _registerState extends State<register> {
         title: Text(
           'تسجيل جديد',
         ),
-        leading: //Icon(Icons.more_vert)
-            Text(''),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.arrow_forward_ios,
-            ),
-            onPressed: () {
-              clearForm();
-              Navigator.of(context).pop();
-            },
+
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios,
           ),
-        ],
+          onPressed: () {
+            clearForm();
+            Navigator.of(context).pop();
+          },
+        ),
+
         // elevation: 15,
       ),
       body: registerForm(),
@@ -122,6 +120,8 @@ class registerFormState extends State<registerForm> {
   }
 
   Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width;
+
     TextStyle defaultStyle = TextStyle(color: Colors.grey, fontSize: 20.0);
     TextStyle linkStyle = TextStyle(color: Colors.blue);
     return Form(
@@ -141,36 +141,40 @@ class registerFormState extends State<registerForm> {
             height: 20,
           ),
           //Email
-          TextFormField(
-            textAlign: TextAlign.right,
-            controller: emailController,
-            decoration: InputDecoration(
-              hintText: 'البريد الالكتروني',
-              contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: const BorderSide(color: Colors.grey)),
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: BorderSide(color: Colors.grey.shade400)),
-              errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: const BorderSide(color: Colors.red, width: 2.0)),
-              focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: const BorderSide(color: Colors.red, width: 2.0)),
-            ),
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            validator: (email) {
-              if (email != null &&
-                  !EmailValidator.validate(email) &&
-                  (email.trim()).isEmpty) {
-                return "الرجاء ادخال البريد الالكتروني";
-              } else if (invalidEmail) {
-                return emailErrorMessage;
-              }
-            },
-          ),
+          Container(
+              padding: EdgeInsets.fromLTRB(6, 12, 6, 12),
+              child: TextFormField(
+                textAlign: TextAlign.right,
+                controller: emailController,
+                decoration: InputDecoration(
+                  hintText: 'البريد الالكتروني',
+                  contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(100.0),
+                      borderSide: const BorderSide(color: Colors.grey)),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(100.0),
+                      borderSide: BorderSide(color: Colors.grey.shade400)),
+                  errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(100.0),
+                      borderSide:
+                          const BorderSide(color: Colors.red, width: 2.0)),
+                  focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(100.0),
+                      borderSide:
+                          const BorderSide(color: Colors.red, width: 2.0)),
+                ),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (email) {
+                  if (email != null &&
+                      !EmailValidator.validate(email) &&
+                      (email.trim()).isEmpty) {
+                    return "الرجاء ادخال البريد الالكتروني";
+                  } else if (invalidEmail) {
+                    return emailErrorMessage;
+                  }
+                },
+              )),
           // Container(
           //     padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
           //     child: TextFormField(
@@ -385,33 +389,55 @@ class registerFormState extends State<registerForm> {
               )),
           //button
           Container(
-              child: ElevatedButton(
-            onPressed: () async {
-              await checkEmail();
-              //  await checkPhoneNum();
-              await isDuplicatePhoneNum();
-              if ((_formKey.currentState!.validate())) {
-                if (await checkEmail() && await isDuplicatePhoneNum()) {
-                  await signUp();
-                  // if (await checkPhoneNum()) {
-                  //   //   await signUp();
-                  // }
-                }
-              }
-
-              // if (await checkPhoneNum()) {
-              //   if ((_formKey.currentState!.validate())) {
-              //     if (await checkEmail()) await signUp();
-              //   }
-              // }
-            },
-            child: Text('تسجيل'),
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(
+              width: width * 0.9,
+              decoration: BoxDecoration(
+                boxShadow: const [
+                  BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 4),
+                      blurRadius: 5.0)
+                ],
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  stops: [0.1, 1.0],
+                  colors: [
+                    Colors.blue.shade200,
+                    Colors.blue.shade400,
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(30),
               ),
-            ),
-          )),
+              child: ElevatedButton(
+                onPressed: () async {
+                  await checkEmail();
+                  //  await checkPhoneNum();
+                  await isDuplicatePhoneNum();
+                  if ((_formKey.currentState!.validate())) {
+                    if (await checkEmail() && await isDuplicatePhoneNum()) {
+                      await signUp();
+                      // if (await checkPhoneNum()) {
+                      //   //   await signUp();
+                      // }
+                    }
+                  }
+
+                  // if (await checkPhoneNum()) {
+                  //   if ((_formKey.currentState!.validate())) {
+                  //     if (await checkEmail()) await signUp();
+                  //   }
+                  // }
+                },
+                child: Text('تسجيل'),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              )),
+          SizedBox(
+            height: 20,
+          ),
           Center(
               child: RichText(
             text: TextSpan(

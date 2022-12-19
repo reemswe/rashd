@@ -34,19 +34,17 @@ class _loginPageState extends State<login> {
         title: Text(
           'تسجيل الدخول',
         ),
-        leading: //Icon(Icons.more_vert)
-            Text(''),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.arrow_forward_ios,
-            ),
-            onPressed: () {
-              clearForm();
-              Navigator.of(context).pop();
-            },
+
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios,
           ),
-        ],
+          onPressed: () {
+            clearForm();
+            Navigator.of(context).pop();
+          },
+        ),
+
         // elevation: 15,
       ),
       body: loginForm(),
@@ -128,7 +126,7 @@ class loginFormState extends State<loginForm> {
               padding: EdgeInsets.fromLTRB(6, 12, 6, 12),
               child: TextFormField(
                 textAlign: TextAlign.right,
-                maxLength: 8,
+                // maxLength: 8,
                 controller: passwordController,
                 obscureText: !_passwordVisible,
                 decoration: InputDecoration(
@@ -173,7 +171,9 @@ class loginFormState extends State<loginForm> {
                   return null;
                 },
               )),
-
+          SizedBox(
+            height: 20,
+          ),
           //button
           Container(
               width: width * 0.5,
@@ -245,7 +245,9 @@ class loginFormState extends State<loginForm> {
                   ),
                 ),
               )),
-
+          SizedBox(
+            height: 20,
+          ),
           Center(
               child: RichText(
             text: TextSpan(

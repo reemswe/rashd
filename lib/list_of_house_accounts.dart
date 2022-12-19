@@ -4,8 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rashd/Devices/listOfDevices.dart';
 import 'package:rashd/Registration/register.dart';
+import 'package:rashd/dashboard.dart';
 import 'package:rashd/profile.dart';
 import 'package:rashd/welcomePage.dart';
+
+import 'create_house_account.dart';
 
 class ListOfHouseAccounts extends StatefulWidget {
   const ListOfHouseAccounts({super.key});
@@ -54,59 +57,10 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
               userData = snapshot.data as Map<String, dynamic>;
               return Scaffold(
                 appBar: AppBar(
-                    actions: [
-                      // //log out
-                      // Padding(
-                      //     padding: const EdgeInsets.fromLTRB(10, 10, 12, 10),
-                      //     child: IconButton(
-                      //       icon: const Icon(Icons.logout_rounded),
-                      //       iconSize: 25,
-                      //       color: Colors.white,
-                      //       onPressed: () {
-                      //         showDialog(
-                      //           context: context,
-                      //           builder: (ctx) => AlertDialog(
-                      //             title: const Text(
-                      //               "Logout",
-                      //               textAlign: TextAlign.left,
-                      //             ),
-                      //             content: const Text(
-                      //               "Are You Sure You want to log out of your account?",
-                      //               textAlign: TextAlign.left,
-                      //             ),
-                      //             actions: <Widget>[
-                      //               //log in cancle button
-                      //               TextButton(
-                      //                 onPressed: () {
-                      //                   Navigator.of(ctx).pop();
-                      //                 },
-                      //                 child: Container(
-                      //                   padding: const EdgeInsets.all(14),
-                      //                   child: const Text("Cancel"),
-                      //                 ),
-                      //               ),
-                      //               //log in ok button
-                      //               TextButton(
-                      //                 onPressed: () async {
-                      //                   await _signOut();
-                      //                 },
-                      //                 child: Container(
-                      //                   padding: const EdgeInsets.all(14),
-                      //                   child: const Text("Log out",
-                      //                       style: TextStyle(
-                      //                           color: Color.fromARGB(
-                      //                               255, 164, 10, 10))),
-                      //                 ),
-                      //               ),
-                      //             ],
-                      //           ),
-                      //         );
-                      //       },
-                      //     )),
-                    ],
                     title: Text(
                       '! مرحبًا ' + userData['full_name'],
                       textAlign: TextAlign.right,
+                      // style: TextStyle(color),
                     ),
                     leading: const Text(''),
                     centerTitle: true,
@@ -125,8 +79,6 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                       Container(
                           padding: const EdgeInsets.fromLTRB(6, 12, 0, 12),
                           child: TextFormField(
-                            // maxLength: 20,
-
                             readOnly: true,
                             textAlign: TextAlign.right,
                             decoration: InputDecoration(
@@ -135,16 +87,14 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                                   EdgeInsets.fromLTRB(20, 10, 20, 10),
                               //border: InputBorder.none,
                               prefixIcon: IconButton(
-                                icon: const Icon(
-                                    // Based on passwordVisible state choose the icon
-                                    Icons.add),
+                                icon: const Icon(Icons.add),
                                 onPressed: () {
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //       builder: (context) =>
-                                  //           const CreateHouseAccount()),
-                                  // );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const CreateHouseAccount()),
+                                  );
                                 },
                               ),
                             ),
@@ -181,10 +131,12 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            const listOfDevices(
-                                              houseID: 'ffDQbRQQ8k9RzlGQ57FL',
-                                            )),
+                                        builder: (context) => dashboard(
+                                            houseID: 'ffDQbRQQ8k9RzlGQ57FL')
+                                        // const listOfDevices(
+                                        //   houseID: 'ffDQbRQQ8k9RzlGQ57FL',
+                                        // )
+                                        ),
                                   );
                                 },
                               ),

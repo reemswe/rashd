@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:rashd/profile.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+
+import 'list_of_house_accounts.dart';
 
 class CreateHouseAccount extends StatefulWidget {
   const CreateHouseAccount({super.key});
@@ -71,9 +74,21 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
     });
 
     return Container(
-        padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-        child: Column(children: <Widget>[
-          Text('  عضو المنزل $place ', textAlign: TextAlign.right),
+        padding: const EdgeInsets.fromLTRB(12, 12, 6, 12),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
+            Widget>[
+          const SizedBox(
+            height: 40,
+          ),
+          Text(
+            'عضو المنزل $place',
+            textAlign: TextAlign.right,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          // Text('  عضو المنزل $place ', textAlign: TextAlign.right),
           TextFormField(
             maxLength: 20,
             controller: membersNames[num],
@@ -120,11 +135,14 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
             ),
             keyboardType: TextInputType.number,
           ),
+          const SizedBox(
+            height: 20,
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
             child: ToggleSwitch(
-              minWidth: 150.0,
-              minHeight: 45.0,
+              minWidth: 210.0,
+              minHeight: 50.0,
               borderWidth: 1,
               borderColor: const [
                 Color.fromARGB(255, 149, 149, 149),
@@ -141,7 +159,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                 )
               ],
               initialLabelIndex: privilege_index2,
-              cornerRadius: 10.0,
+              cornerRadius: 100.0,
               activeFgColor: const Color.fromARGB(255, 255, 255, 255),
               inactiveBgColor: Colors.white,
               inactiveFgColor: Colors.black,
@@ -203,6 +221,8 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
 
   @override
   Widget build(BuildContext context) {
+    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery.of(context).size.width;
     createList();
     return Scaffold(
       appBar: AppBar(
@@ -213,15 +233,12 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        leading: const Text(''),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.arrow_forward_ios),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
       ),
       body: SingleChildScrollView(
           controller: list,
@@ -238,25 +255,36 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                   padding: const EdgeInsets.all(20),
                   children: [
                     Container(
-                        //padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-                        padding: const EdgeInsets.fromLTRB(6, 12, 0, 12),
-                        child: TextFormField(
-                          // maxLength: 20,
-                          readOnly: true,
+                      //padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
+                      padding: const EdgeInsets.fromLTRB(6, 8, 0, 12),
+                      child: Text(
                           textAlign: TextAlign.right,
-                          decoration: const InputDecoration(
-                            hintText: 'علامة * تمثل الحقول الإلزامية',
-                            contentPadding: EdgeInsets.fromLTRB(20, 10, 0, 10),
-                            border: InputBorder.none,
-                          ),
-                        )),
+                          'علامة * تمثل الحقول الإلزامية',
+                          style: TextStyle(fontSize: 16)),
+                    ),
+                    //  TextFormField(
+                    //   // maxLength: 20,
+                    //   readOnly: true,
+                    //   textAlign: TextAlign.right,
+                    //   decoration: const InputDecoration(
+                    //     hintText: 'علامة * تمثل الحقول الإلزامية',
+                    //     contentPadding: EdgeInsets.fromLTRB(20, 10, 0, 10),
+                    //     border: InputBorder.none,
+                    //   ),
+                    // )
+
                     Container(
                         padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
                         child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              const Text('*اسم المنزل',
-                                  textAlign: TextAlign.right),
+                              const Text(
+                                'اسم المنزل*',
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w700),
+                              ),
+                              SizedBox(height: 10),
                               TextFormField(
                                 controller: houseName,
                                 maxLength: 20,
@@ -296,137 +324,157 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                             ])),
                     Container(
                         padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-                        child: Column(children: <Widget>[
-                          const Text('اعضاء المنزل ',
-                              textAlign: TextAlign.right),
-                          TextFormField(
-                            // maxLength: 20,
-                            maxLength: 20,
-                            controller: membersNames[0],
-                            textAlign: TextAlign.right,
-                            decoration: InputDecoration(
-                              hintText: ' الاسم ',
-                              contentPadding:
-                                  const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      const BorderSide(color: Colors.grey)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      BorderSide(color: Colors.grey.shade400)),
-                              errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                              focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                            ),
-                            validator: (value) {
-                              if (membersPhones[0].text != '' && value == '') {
-                                return 'اختر إسمًا للعضو ';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          TextFormField(
-                            // maxLength: 20,
-
-                            controller: membersPhones[0],
-                            maxLength: 10,
-
-                            textAlign: TextAlign.right,
-                            decoration: InputDecoration(
-                              hintText: ' رقم الجوال ',
-                              contentPadding:
-                                  const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      const BorderSide(color: Colors.grey)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      BorderSide(color: Colors.grey.shade400)),
-                              errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                              focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                            ),
-                            keyboardType: TextInputType.number,
-                            validator: (value) {
-                              if (value!.length < 10) {
-                                return 'ادخل رقمًا صحيحًا مكونًا من ١٠ أرقام';
-                              }
-                              return null;
-                            },
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                            child: ToggleSwitch(
-                              minWidth: 150.0,
-                              minHeight: 45.0,
-                              borderWidth: 1,
-                              borderColor: const [
-                                Color.fromARGB(255, 149, 149, 149),
-                                Color.fromARGB(255, 149, 149, 149)
-                              ],
-                              customTextStyles: const [
-                                TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              const Text(
+                                'أعضاء المنزل',
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w700),
+                              ),
+                              TextFormField(
+                                // maxLength: 20,
+                                maxLength: 20,
+                                controller: membersNames[0],
+                                textAlign: TextAlign.right,
+                                decoration: InputDecoration(
+                                  hintText: ' الاسم ',
+                                  contentPadding:
+                                      const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(100.0),
+                                      borderSide:
+                                          const BorderSide(color: Colors.grey)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(100.0),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade400)),
+                                  errorBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(100.0),
+                                      borderSide: const BorderSide(
+                                          color: Colors.red, width: 2.0)),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(100.0),
+                                      borderSide: const BorderSide(
+                                          color: Colors.red, width: 2.0)),
                                 ),
-                                TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                )
-                              ],
-                              initialLabelIndex: privilege_index,
-                              cornerRadius: 10.0,
-                              activeFgColor:
-                                  const Color.fromARGB(255, 255, 255, 255),
-                              inactiveBgColor: Colors.white,
-                              inactiveFgColor: Colors.black,
-                              totalSwitches: 2,
-                              labels: const ['محرر', 'مشاهد'],
-                              activeBgColors: const [
-                                [Colors.blue],
-                                [Colors.blue],
-                              ],
-                              onToggle: (index) {
-                                if (index == 0) {
-                                  privilege_index = 0;
-                                  privilege_edit = 'editor';
-                                  setState(() {
-                                    privilege = 'editor';
-                                    roles[0] = 'editor';
-                                  });
-                                  print('switched to: editor');
-                                  print(privilege);
-                                } else {
-                                  privilege_index = 1;
-                                  privilege_edit = 'viewer';
-                                  setState(() {
-                                    privilege = 'viewer';
-                                    roles[0] = 'viewer';
-                                  });
-                                  print('switched to: viewer');
-                                  print(privilege);
-                                }
-                              },
-                            ),
-                          ),
-                        ])),
+                                validator: (value) {
+                                  if (membersPhones[0].text != '' &&
+                                      value == '') {
+                                    return 'اختر إسمًا للعضو ';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              SizedBox(
+                                height: height * 0.010,
+                              ),
+                              TextFormField(
+                                // maxLength: 20,
+
+                                controller: membersPhones[0],
+                                maxLength: 10,
+
+                                textAlign: TextAlign.right,
+                                decoration: InputDecoration(
+                                  hintText: ' رقم الجوال ',
+                                  contentPadding:
+                                      const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(100.0),
+                                      borderSide:
+                                          const BorderSide(color: Colors.grey)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(100.0),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade400)),
+                                  errorBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(100.0),
+                                      borderSide: const BorderSide(
+                                          color: Colors.red, width: 2.0)),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(100.0),
+                                      borderSide: const BorderSide(
+                                          color: Colors.red, width: 2.0)),
+                                ),
+                                keyboardType: TextInputType.number,
+                                validator: (value) {
+                                  if (value != null &&
+                                      value.isNotEmpty &&
+                                      value!.length < 10) {
+                                    return 'ادخل رقمًا صحيحًا مكونًا من ١٠ أرقام';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              SizedBox(
+                                height: height * 0.020,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                child: ToggleSwitch(
+                                  minWidth: width * 0.45,
+                                  minHeight: 50.0,
+                                  borderWidth: 1,
+                                  borderColor: const [
+                                    Color.fromARGB(255, 149, 149, 149),
+                                    Color.fromARGB(255, 149, 149, 149)
+                                  ],
+                                  customTextStyles: const [
+                                    TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                    TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    )
+                                  ],
+                                  initialLabelIndex: privilege_index,
+                                  cornerRadius: 100.0,
+                                  activeFgColor:
+                                      const Color.fromARGB(255, 255, 255, 255),
+                                  inactiveBgColor: Colors.white,
+                                  inactiveFgColor: Colors.black,
+                                  totalSwitches: 2,
+                                  labels: const ['محرر', 'مشاهد'],
+                                  activeBgColors: const [
+                                    [Colors.blue],
+                                    [Colors.blue],
+                                  ],
+                                  onToggle: (index) {
+                                    if (index == 0) {
+                                      privilege_index = 0;
+                                      privilege_edit = 'editor';
+                                      setState(() {
+                                        privilege = 'editor';
+                                        roles[0] = 'editor';
+                                      });
+                                      print('switched to: editor');
+                                      print(privilege);
+                                    } else {
+                                      privilege_index = 1;
+                                      privilege_edit = 'viewer';
+                                      setState(() {
+                                        privilege = 'viewer';
+                                        roles[0] = 'viewer';
+                                      });
+                                      print('switched to: viewer');
+                                      print(privilege);
+                                    }
+                                  },
+                                ),
+                              ),
+                            ])),
                     ListView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
@@ -467,6 +515,25 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                     ),
                     Container(
                         padding: const EdgeInsets.fromLTRB(45, 10, 45, 0),
+                        width: width * 0.9,
+                        decoration: BoxDecoration(
+                          boxShadow: const [
+                            BoxShadow(
+                                color: Colors.black26,
+                                offset: Offset(0, 4),
+                                blurRadius: 5.0)
+                          ],
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            stops: [0.1, 1.0],
+                            colors: [
+                              Colors.blue.shade200,
+                              Colors.blue.shade400,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                         child: ElevatedButton(
                           onPressed: () {
                             if (!_formKey.currentState!.validate()) {
@@ -546,27 +613,35 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
     }
   }
 
+  int index = 0;
   Widget buildBottomNavigation() {
     return BottomNavyBar(
-      selectedIndex: global.index,
+      selectedIndex: 0,
       onItemSelected: (index) {
         setState(
-          () => global.index = index,
+          () => this.index = index,
         );
-        if (global.index == 0) {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const profile()),
-          // );
-        } else if (global.index == 1) {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //       builder: (context) => const ListOfHouseAccounts()),
-          // );
+        if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const profile()),
+          );
+        } else if (index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const ListOfHouseAccounts()),
+          );
         }
       },
       items: <BottomNavyBarItem>[
+        BottomNavyBarItem(
+            icon: const Icon(Icons.holiday_village_rounded),
+            title: const Text(
+              'منازلي',
+              textAlign: TextAlign.center,
+            ),
+            activeColor: Colors.lightBlue),
         BottomNavyBarItem(
           icon: const Icon(Icons.person_outline_rounded),
           title: const Text(
@@ -575,13 +650,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
           ),
           activeColor: Colors.lightBlue,
         ),
-        BottomNavyBarItem(
-            icon: const Icon(Icons.holiday_village_rounded),
-            title: const Text(
-              'منازلي',
-              textAlign: TextAlign.center,
-            ),
-            activeColor: Colors.lightBlue),
       ],
       mainAxisAlignment: MainAxisAlignment.spaceAround,
     );

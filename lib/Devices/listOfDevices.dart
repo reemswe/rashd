@@ -14,6 +14,8 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 
+import '../add_house_member.dart';
+import '../dashboard.dart';
 import '../list_of_house_accounts.dart';
 
 class listOfDevices extends StatefulWidget {
@@ -100,30 +102,6 @@ class listOfDevicesState extends State<listOfDevices> {
                         ),
                       )
                     ]),
-                //  Column(
-                //     mainAxisSize: MainAxisSize.min,
-                //     mainAxisAlignment: MainAxisAlignment.start,
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     children: [
-                //       Text(
-                //         houseData['houseName'],
-                //         style: TextStyle(
-                //             color: Colors.black,
-                //             fontWeight: FontWeight.bold,
-                //             fontSize: 25),
-                //       ),
-                //       SizedBox(height: height * 0.0000000000000001),
-                //       Text(
-                //         houseData['OwnerID'] ==
-                //                 FirebaseAuth.instance.currentUser!.uid
-                //             ? 'مالك المنزل'
-                //             : "عضو في المنزل",
-                //         style: TextStyle(
-                //             color: Colors.black,
-                //             fontWeight: FontWeight.w400,
-                //             fontSize: 18),
-                //       )
-                //     ]),
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.black,
                 actions: [morePopupMenu(height, width)],
@@ -173,7 +151,7 @@ class listOfDevicesState extends State<listOfDevices> {
               bottomNavigationBar: buildBottomNavigation(height),
             );
           } else {
-            return Text('error');
+            return Center(child: CircularProgressIndicator());
           }
         });
   }
@@ -533,87 +511,60 @@ class listOfDevicesState extends State<listOfDevices> {
     );
   }
 
+  int index = 1;
   Widget buildBottomNavigation(height) {
     return BottomNavyBar(
       containerHeight: height * 0.07,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      selectedIndex: global.index,
+      selectedIndex: index,
       iconSize: 28,
       onItemSelected: (index) {
         setState(
-          () => global.index = index,
+          () => index = index,
         );
-        if (global.index == 0) {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const devicesList()),
-          // );
-        } else if (global.index == 1) {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const dashboard()),
-          // );
-        } else if (global.index == 2) {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //       builder: (context) => const ListOfHouseAccounts()),
-          // );
+        if (index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => dashboard(
+                      houseID: widget.houseID,
+                    )),
+          );
+        } else if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => listOfDevices(
+                      houseID: widget.houseID,
+                    )),
+          );
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    add_house_member(houseID: widget.houseID)),
+          );
         }
       },
       items: <BottomNavyBarItem>[
         BottomNavyBarItem(
-            icon: IconButton(
-                icon: const Icon(Icons.bar_chart_rounded),
-                onPressed: () {
-                  // setState(
-                  //   () => this.index = index,
-                  // );
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) => const ListOfHouseAccounts()),
-                  // );
-                }),
+            icon: const Icon(Icons.bar_chart_rounded),
             title: const Text(
               'لوحة المعلومات',
               textAlign: TextAlign.center,
             ),
             activeColor: Colors.lightBlue),
         BottomNavyBarItem(
-          icon: IconButton(
-              icon: const Icon(Icons.electrical_services_rounded),
-              onPressed: () {
-                setState(
-                  () => global.index = 1,
-                );
-              }),
-          //       Navigator.push(
-          //         context,
-          //         MaterialPageRoute(
-          //             builder: (context) => const CreateHouseAccount()),
-          //       );
-          //     }),
+          icon: const Icon(Icons.electrical_services_rounded),
           title: const Text(
             'الأجهزة',
             textAlign: TextAlign.center,
           ),
-
           activeColor: Colors.lightBlue,
         ),
         BottomNavyBarItem(
-          icon: IconButton(
-              icon: const Icon(Icons.people_alt_rounded),
-              onPressed: () {
-                setState(
-                  () => global.index = 2,
-                );
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => const CreateHouseAccount()),
-                // );
-              }),
+          icon: const Icon(Icons.people_alt_rounded),
           title: const Text(
             'اعضاء المنزل',
             style: TextStyle(fontSize: 12),
@@ -623,6 +574,7 @@ class listOfDevicesState extends State<listOfDevices> {
       ],
     );
   }
+
 }
 
 class global {

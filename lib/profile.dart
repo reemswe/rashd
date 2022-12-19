@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:rashd/list_of_house_accounts.dart';
 
 import 'welcomePage.dart';
 
@@ -589,54 +590,50 @@ class profileState extends State<profile> {
           ],
         ),
       )),
-      bottomNavigationBar: buildBottomNavigation(),
+      bottomNavigationBar: buildBottomNavigation(height),
     );
   }
 
-  int index = 0;
-  Widget buildBottomNavigation() {
+  int index = 1;
+  Widget buildBottomNavigation(height) {
     return BottomNavyBar(
-      selectedIndex: global.index,
+      containerHeight: height * 0.07,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      selectedIndex: index,
+      iconSize: 28,
       onItemSelected: (index) {
         setState(
-          () => global.index = index,
+          () => index = index,
         );
-        if (global.index == 0) {
+        if (index == 1) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const profile()),
+            MaterialPageRoute(builder: (context) => profile()),
           );
-        } else if (global.index == 1) {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //       builder: (context) => const ListOfHouseAccounts()),
-          // );
+        } else if (index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ListOfHouseAccounts()),
+          );
         }
       },
       items: <BottomNavyBarItem>[
         BottomNavyBarItem(
-            icon: const Icon(
-              Icons.person_outline_rounded,
-              size: 30,
-            ),
-            title: const Text(
-              'الملف الشخصي',
-              textAlign: TextAlign.center,
-            ),
-            activeColor: Colors.lightBlue),
-        BottomNavyBarItem(
-            icon: const Icon(
-              Icons.holiday_village_rounded,
-              size: 30,
-            ),
+            icon: const Icon(Icons.holiday_village_rounded),
             title: const Text(
               'منازلي',
               textAlign: TextAlign.center,
             ),
             activeColor: Colors.lightBlue),
+        BottomNavyBarItem(
+          icon: const Icon(Icons.person_outline_rounded),
+          title: const Text(
+            'حسابي',
+            textAlign: TextAlign.center,
+          ),
+          activeColor: Colors.lightBlue,
+        ),
       ],
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
     );
   }
 
