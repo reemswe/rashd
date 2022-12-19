@@ -12,7 +12,6 @@ class CreateHouseAccount extends StatefulWidget {
 
 class _CreateHouseAccountState extends State<CreateHouseAccount> {
   TextEditingController houseName = TextEditingController();
-  String memberRole1 = "role";
   List<Widget> addMembers = [];
   TextEditingController membersPhoneNumber1 = TextEditingController();
   TextEditingController membersPhoneNumber2 = TextEditingController();
@@ -65,14 +64,17 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
     num++;
 
     String place = indexes[num];
-    privilege_edit2 = 'viewer';
-    privilege2 = 'viewer';
+    setState(() {
+      privilege_edit2 = 'viewer';
+      privilege2 = 'viewer';
+      privilege_index2 = 1;
+    });
+
     return Container(
         padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
         child: Column(children: <Widget>[
           Text('  عضو المنزل $place ', textAlign: TextAlign.right),
           TextFormField(
-            // maxLength: 20,
             maxLength: 20,
             controller: membersNames[num],
             textAlign: TextAlign.right,
@@ -118,44 +120,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
             ),
             keyboardType: TextInputType.number,
           ),
-          // Row(
-          //   children: [
-          //     const Expanded(
-          //       child: Text(
-          //         '  محرر',
-          //         textAlign: TextAlign.right,
-          //       ),
-          //     ),
-          //     Radio(
-          //       value: "editor",
-          //       groupValue: roles[num],
-          //       onChanged: (T) {
-          //         setState(() {
-          //           //memberRole1 = T!;
-          //           roles[num] = T;
-          //           print(roles[num]);
-          //         });
-          //       },
-          //     ),
-          //     const Expanded(
-          //         child: Text(
-          //       ' مشاهد',
-          //       textAlign: TextAlign.right,
-          //     )),
-          //     Radio(
-          //       value: "viewer",
-          //       groupValue: roles[num],
-          //       onChanged: (T) {
-          //         //print(T);
-          //         setState(() {
-          //           // memberRole1 = T!;
-          //           roles[num] = T;
-          //           print(roles[num]);
-          //         });
-          //       },
-          //     ),
-          //   ],
-          // ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
             child: ToggleSwitch(
@@ -176,7 +140,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                   fontSize: 16,
                 )
               ],
-              initialLabelIndex: privilege_index,
+              initialLabelIndex: privilege_index2,
               cornerRadius: 10.0,
               activeFgColor: const Color.fromARGB(255, 255, 255, 255),
               inactiveBgColor: Colors.white,
@@ -184,8 +148,8 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
               totalSwitches: 2,
               labels: const ['محرر', 'مشاهد'],
               activeBgColors: const [
-                [Color.fromARGB(255, 160, 189, 166)],
-                [Color.fromARGB(255, 160, 189, 166)]
+                [Colors.blue],
+                [Colors.blue],
               ],
               onToggle: (index) {
                 if (index == 0) {
@@ -225,7 +189,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
   void init() {
     setState(() {
       createList();
-      //clearText();
+      clearText();
       //toggle switch
       privilege_index = 1;
       privilege_edit = 'viewer';
@@ -371,7 +335,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                           const SizedBox(
                             height: 20,
                           ),
-
                           TextFormField(
                             // maxLength: 20,
 
@@ -408,45 +371,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                               return null;
                             },
                           ),
-                          // Row(
-                          //   //mainAxisAlignment: MainAxisAlignment.end,
-                          //   children: [
-                          //     const Expanded(
-                          //       child: Text(
-                          //         '  محرر',
-                          //         textAlign: TextAlign.right,
-                          //       ),
-                          //     ),
-                          //     Radio(
-                          //       value: "editor",
-                          //       groupValue: role1,
-                          //       onChanged: (T) {
-                          //         setState(() {
-                          //           // memberRole1 = T!;
-                          //           role1 = T!;
-                          //           print(role1);
-                          //         });
-                          //       },
-                          //     ),
-                          //     const Expanded(
-                          //         child: Text(
-                          //       ' مشاهد',
-                          //       textAlign: TextAlign.right,
-                          //     )),
-                          //     Radio(
-                          //       value: "viewer",
-                          //       groupValue: role1,
-                          //       onChanged: (T) {
-                          //         //print(T);
-                          //         setState(() {
-                          //           // memberRole1 = T!;
-                          //           role1 = T!;
-                          //           print(role1);
-                          //         });
-                          //       },
-                          //     ),
-                          //   ],
-                          // ),
                           Padding(
                             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                             child: ToggleSwitch(
@@ -476,8 +400,8 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                               totalSwitches: 2,
                               labels: const ['محرر', 'مشاهد'],
                               activeBgColors: const [
-                                [Color.fromARGB(255, 160, 189, 166)],
-                                [Color.fromARGB(255, 160, 189, 166)]
+                                [Colors.blue],
+                                [Colors.blue],
                               ],
                               onToggle: (index) {
                                 if (index == 0) {
@@ -546,14 +470,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (!_formKey.currentState!.validate()) {
-                              // ScaffoldMessenger.of(context).showSnackBar(
-                              //   const SnackBar(
-                              //       content: Text(
-                              //         '  الرجاء إدخال اسم للمنزل',
-                              //         textAlign: TextAlign.center,
-                              //       ),
-                              //       backgroundColor: Colors.redAccent),
-                              // );
                             } else {
                               print(houseName.text);
                               setData();
@@ -592,7 +508,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
     CollectionReference houses =
         FirebaseFirestore.instance.collection('houseAccount');
 
-    String houseId = '';
+    String houseId = '', dashId = '';
     DocumentReference docReference = await houses.add({
       'OwnerID': '',
       'dashboardID': '',
@@ -600,10 +516,21 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
       'houseName': houseName.text,
       'houseOwner': '',
     });
+    CollectionReference dashboard =
+        FirebaseFirestore.instance.collection('dashboard');
 
     houseId = docReference.id;
     houses.doc(houseId).update({'houseID': houseId});
 
+    DocumentReference docReference1 = await dashboard.add({
+      'dashboardID': '',
+      'houseID': houseId,
+      'userGoal': '',
+      'code': '',
+    });
+    dashId = docReference1.id;
+    dashboard.doc(dashId).update({'dashboardID': dashId});
+    houses.doc(houseId).update({'dashboardID': dashId});
     print('num $num');
 
     for (int i = 0; i <= num; i++) {
