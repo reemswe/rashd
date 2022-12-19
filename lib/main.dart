@@ -1,27 +1,70 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'Devices/listOfDevices.dart';
 import 'Firebase/firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+// import 'accessSharedDashboard.dart';
+// import 'houseDevicesList.dart';
+import 'list_of_house_accounts.dart';
+import 'login.dart';
+import 'register.dart';
+import 'welcomePage.dart';
+
+// Future<void> main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   //! Firebase
+//   await Firebase.initializeApp(
+//     name: 'Rashd',
+//     options: DefaultFirebaseOptions.currentPlatform,
+//   );
+
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //! Firebase
-  await Firebase.initializeApp(
-    name: 'Rashd',
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  runApp(const MyApp());
+  await Firebase.initializeApp();
+  FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    bool auth = false;
+    if (user == null) {
+      auth = false;
+    } else {
+      auth = true;
+    }
+    runApp(MyApp(
+      auth: auth,
+    ));
+  });
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool auth;
+  const MyApp({
+    super.key,
+    required this.auth,
+  });
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        routes: {
+          '/welcomePage': (ctx) => const welcomePage(),
+          '/homePage': (ctx) => const ListOfHouseAccounts(),
+          "/register": (ctx) => const register(),
+          "/login": (ctx) => const login(),
+        },
+        theme: new ThemeData(
+            elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              //Color.fromARGB(255, 147, 191, 128),
+            )),
+            scaffoldBackgroundColor: Colors.white,
+            fontFamily: 'LamaSans',
+            textTheme: TextTheme()),
+        title: 'Flutter Demo',
+        home: auth ? ListOfHouseAccounts() : welcomePage());
       title: 'رشد',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
