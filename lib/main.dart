@@ -11,19 +11,10 @@ import 'login.dart';
 import 'register.dart';
 import 'welcomePage.dart';
 
-// Future<void> main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   //! Firebase
-//   await Firebase.initializeApp(
-//     name: 'Rashd',
-//     options: DefaultFirebaseOptions.currentPlatform,
-//   );
-
-Future<Future<void>> main() async async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
   FirebaseAuth.instance.authStateChanges().listen((User? user) {
     bool auth = false;
     if (user == null) {
@@ -66,7 +57,6 @@ class MyApp extends StatelessWidget {
       home: auth ? ListOfHouseAccounts() : welcomePage(),
       title: 'رشد',
       debugShowCheckedModeBanner: false,
-      title: 'Rashd',
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,
         backgroundColor: Colors.white,
