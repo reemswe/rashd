@@ -19,7 +19,9 @@ import 'welcomePage.dart';
 //     options: DefaultFirebaseOptions.currentPlatform,
 //   );
 
-Future<void> main() async {
+Future<Future<void>> main() async async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseAuth.instance.authStateChanges().listen((User? user) {
@@ -64,6 +66,7 @@ class MyApp extends StatelessWidget {
       home: auth ? ListOfHouseAccounts() : welcomePage(),
       title: 'رشد',
       debugShowCheckedModeBanner: false,
+      title: 'Rashd',
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,
         backgroundColor: Colors.white,
