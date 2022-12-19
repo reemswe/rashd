@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:math';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -13,8 +14,11 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 
+import '../list_of_house_accounts.dart';
+
 class listOfDevices extends StatefulWidget {
-  const listOfDevices({super.key});
+  final houseID;
+  const listOfDevices({super.key, required this.houseID});
 
   @override
   State<listOfDevices> createState() => listOfDevicesState();
@@ -25,6 +29,13 @@ class listOfDevicesState extends State<listOfDevices> {
   void initState() {
     super.initState();
   }
+
+  Future<Map<String, dynamic>> readHouseData(var id) =>
+      FirebaseFirestore.instance.collection('houseAccount').doc(id).get().then(
+        (DocumentSnapshot doc) {
+          return doc.data() as Map<String, dynamic>;
+        },
+      );
 
   Future<void> share() async {
     var uuid = Uuid();
@@ -54,60 +65,117 @@ class listOfDevicesState extends State<listOfDevices> {
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'البيت',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        actions: [morePopupMenu(height, width)],
-        // actions: [
-        //   IconButton(
-        //     icon: const Icon(Icons.arrow_forward_ios),
-        //     onPressed: () {
-        //       // clearForm();
-        //       Navigator.of(context).pop();
-        //     },
-        //   ),
-        // ],
-
-        elevation: 1.5,
-      ),
-      body: Column(children: [
-        SizedBox(height: height * 0.01),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Padding(
-                  padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                  child: Text(
-                    "قائمة الأجهزة",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 24,
-                    ),
-                  )),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                  child: IconButton(
-                    iconSize: 33,
-                    icon: const Icon(Icons.add),
-                    onPressed: () {
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(builder: (context) => {},//add_device(),
-                      //         ));
-                      share();
-                    },
-                  )),
-            ]),
-        buildDevicesList(),
-      ]),
-      bottomNavigationBar: buildBottomNavigation(height),
-    );
+    return FutureBuilder<Map<String, dynamic>>(
+        future: readHouseData(widget.houseID),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            var houseData = snapshot.data as Map<String, dynamic>;
+            return Scaffold(
+              appBar: AppBar(
+                toolbarHeight: height * 0.085,
+                title: Wrap(
+                    direction: Axis.vertical,
+                    spacing: 1, // to apply margin in the main axis of the wrap
+                    children: <Widget>[
+                      SizedBox(height: height * 0.01),
+                      Text(
+                        houseData['houseName'],
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25,
+                          height: 1,
+                        ),
+                      ),
+                      Text(
+                        houseData['OwnerID'] ==
+                                FirebaseAuth.instance.currentUser!.uid
+                            ? 'مالك المنزل'
+                            : "عضو في المنزل",
+                        style: TextStyle(
+                          color: Colors.grey.shade900,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 16,
+                          height: 1,
+                        ),
+                      )
+                    ]),
+                //  Column(
+                //     mainAxisSize: MainAxisSize.min,
+                //     mainAxisAlignment: MainAxisAlignment.start,
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: [
+                //       Text(
+                //         houseData['houseName'],
+                //         style: TextStyle(
+                //             color: Colors.black,
+                //             fontWeight: FontWeight.bold,
+                //             fontSize: 25),
+                //       ),
+                //       SizedBox(height: height * 0.0000000000000001),
+                //       Text(
+                //         houseData['OwnerID'] ==
+                //                 FirebaseAuth.instance.currentUser!.uid
+                //             ? 'مالك المنزل'
+                //             : "عضو في المنزل",
+                //         style: TextStyle(
+                //             color: Colors.black,
+                //             fontWeight: FontWeight.w400,
+                //             fontSize: 18),
+                //       )
+                //     ]),
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                actions: [morePopupMenu(height, width)],
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ListOfHouseAccounts(),
+                        ));
+                  },
+                ),
+                elevation: 1.5,
+              ),
+              body: Column(children: [
+                SizedBox(height: height * 0.01),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Padding(
+                          padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                          child: Text(
+                            "قائمة الأجهزة",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 24,
+                            ),
+                          )),
+                      Padding(
+                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                          child: IconButton(
+                            iconSize: 33,
+                            icon: const Icon(Icons.add),
+                            onPressed: () {
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(builder: (context) => {},//add_device(),
+                              //         ));
+                              share();
+                            },
+                          )),
+                    ]),
+                buildDevicesList(height),
+              ]),
+              bottomNavigationBar: buildBottomNavigation(height),
+            );
+          } else {
+            return Text('error');
+          }
+        });
   }
 
   Widget morePopupMenu(height, width) {
@@ -365,11 +433,11 @@ class listOfDevicesState extends State<listOfDevices> {
     );
   }
 
-  Widget buildDevicesList() {
+  Widget buildDevicesList(height) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection("houseAccount")
-          .doc('ffDQbRQQ8k9RzlGQ57FL')
+          .doc(widget.houseID)
           .collection('houseDevices')
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -403,7 +471,7 @@ class listOfDevicesState extends State<listOfDevices> {
                 splashColor: Colors.transparent,
                 child: Container(
                     margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                     // height: height * 0.05,
                     decoration: BoxDecoration(
                         color: Colors.white,
@@ -417,15 +485,18 @@ class listOfDevicesState extends State<listOfDevices> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          devices.docs[index]['name'],
-                          textDirection: TextDirection.rtl,
-                          textAlign: TextAlign.right,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 24,
-                          ),
-                        ),
+                        Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                            child: Text(
+                              devices.docs[index]['name'],
+                              textDirection: TextDirection.rtl,
+                              textAlign: TextAlign.right,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 24,
+                              ),
+                            )),
+                        SizedBox(height: height * 0.02),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: LiteRollingSwitch(
@@ -442,7 +513,7 @@ class listOfDevicesState extends State<listOfDevices> {
                             onChanged: (bool state) {
                               FirebaseFirestore.instance
                                   .collection("houseAccount")
-                                  .doc('ffDQbRQQ8k9RzlGQ57FL')
+                                  .doc(widget.houseID)
                                   .collection('houseDevices')
                                   .doc(devices.docs[index].id)
                                   .update({'status': state});

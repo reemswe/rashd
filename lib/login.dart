@@ -68,7 +68,10 @@ class loginFormState extends State<loginForm> {
 
   ScrollController _scrollController = ScrollController();
 
+  @override
   Widget build(BuildContext context) {
+    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery.of(context).size.width;
     TextStyle defaultStyle = TextStyle(color: Colors.grey, fontSize: 20.0);
     TextStyle linkStyle = TextStyle(color: Colors.blue);
     return Form(
@@ -76,12 +79,16 @@ class loginFormState extends State<loginForm> {
       child: Padding(
         padding:
             const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 15),
-        child: ListView(children: <Widget>[
+        child: Column(children: <Widget>[
+          SizedBox(height: height * 0.05),
+
           Image.asset(
             'assets/images/logo.jpg',
             height: 200,
             width: 200,
           ),
+
+          SizedBox(height: height * 0.01),
           Container(
               padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
               child: TextFormField(
@@ -115,6 +122,8 @@ class loginFormState extends State<loginForm> {
                   return null;
                 },
               )),
+
+          SizedBox(height: height * 0.01),
           Container(
               padding: EdgeInsets.fromLTRB(6, 12, 6, 12),
               child: TextFormField(
@@ -167,56 +176,75 @@ class loginFormState extends State<loginForm> {
 
           //button
           Container(
-              child: ElevatedButton(
-            onPressed: () async {
-              if (_formKey.currentState!.validate()) {
-                //signIn();
-                try {
-                  final newUser =
-                      await FirebaseAuth.instance.signInWithEmailAndPassword(
-                    email: emailController.text.trim(),
-                    password: passwordController.text.trim(),
-                  );
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ListOfHouseAccounts(),
-                      ));
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text(
-                        'تم تسجيل دخولك بنجاح',
-                        textAlign: TextAlign.center,
-                      ),
-                      backgroundColor: Colors.green));
-                } on FirebaseAuthException catch (e) {
-                  print(e);
-                  if (emailController.text.isNotEmpty &&
-                      passwordController.text.isNotEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Invalid email/password'),
-                        backgroundColor: Colors.red.shade400,
-                        margin: const EdgeInsets.fromLTRB(6, 0, 3, 0),
-                        behavior: SnackBarBehavior.floating,
-                        action: SnackBarAction(
-                          label: 'Dismiss',
-                          disabledTextColor: Colors.white,
-                          textColor: Colors.white,
-                          onPressed: () {},
-                        ),
-                      ),
-                    );
-                  }
-                }
-              }
-            },
-            child: Text('تسجيل الدخول'),
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(
+              width: width * 0.5,
+              decoration: BoxDecoration(
+                boxShadow: const [
+                  BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 4),
+                      blurRadius: 5.0)
+                ],
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  stops: [0.1, 1.0],
+                  colors: [
+                    Colors.blue.shade200,
+                    Colors.blue.shade400,
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(30),
               ),
-            ),
-          )),
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    //signIn();
+                    try {
+                      final newUser = await FirebaseAuth.instance
+                          .signInWithEmailAndPassword(
+                        email: emailController.text.trim(),
+                        password: passwordController.text.trim(),
+                      );
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ListOfHouseAccounts(),
+                          ));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                            'تم تسجيل دخولك بنجاح',
+                            textAlign: TextAlign.center,
+                          ),
+                          backgroundColor: Colors.green));
+                    } on FirebaseAuthException catch (e) {
+                      print(e);
+                      if (emailController.text.isNotEmpty &&
+                          passwordController.text.isNotEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Invalid email/password'),
+                            backgroundColor: Colors.red.shade400,
+                            margin: const EdgeInsets.fromLTRB(6, 0, 3, 0),
+                            behavior: SnackBarBehavior.floating,
+                            action: SnackBarAction(
+                              label: 'Dismiss',
+                              disabledTextColor: Colors.white,
+                              textColor: Colors.white,
+                              onPressed: () {},
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+                child: Text('تسجيل الدخول'),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              )),
 
           Center(
               child: RichText(

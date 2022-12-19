@@ -67,6 +67,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,
         backgroundColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white,
         textTheme: const TextTheme(
           button: TextStyle(
             wordSpacing: 3,

@@ -2,12 +2,9 @@ import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:rashd/Devices/listOfDevices.dart';
 import 'package:rashd/register.dart';
 import 'package:rashd/welcomePage.dart';
-
-import 'create_house_account.dart';
-import 'dashboard.dart';
-import 'profile.dart';
 
 class ListOfHouseAccounts extends StatefulWidget {
   const ListOfHouseAccounts({super.key});
@@ -21,6 +18,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
 
   late PageController pageController;
   var userData;
+
   @override
   void initState() {
     userData = readUserData(FirebaseAuth.instance.currentUser!.uid);
@@ -33,6 +31,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
   //     .instance
   //     .collection('users')
   //     .doc(FirebaseAuth.instance.currentUser!.uid);
+
   String name = 'null';
   Future<Map<String, dynamic>> readUserData(var id) =>
       FirebaseFirestore.instance.collection('userAccount').doc(id).get().then(
@@ -43,6 +42,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
           return doc.data() as Map<String, dynamic>;
         },
       );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,70 +53,69 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
               userData = snapshot.data as Map<String, dynamic>;
               return Scaffold(
                 appBar: AppBar(
-                  actions: [
-                    //log out
-                    Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 12, 10),
-                        child: IconButton(
-                          icon: const Icon(Icons.logout_rounded),
-                          iconSize: 25,
-                          color: Colors.white,
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                title: const Text(
-                                  "Logout",
-                                  textAlign: TextAlign.left,
-                                ),
-                                content: const Text(
-                                  "Are You Sure You want to log out of your account?",
-                                  textAlign: TextAlign.left,
-                                ),
-                                actions: <Widget>[
-                                  //log in cancle button
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(ctx).pop();
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(14),
-                                      child: const Text("Cancel"),
-                                    ),
+                    actions: [
+                      //log out
+                      Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 12, 10),
+                          child: IconButton(
+                            icon: const Icon(Icons.logout_rounded),
+                            iconSize: 25,
+                            color: Colors.white,
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text(
+                                    "Logout",
+                                    textAlign: TextAlign.left,
                                   ),
-                                  //log in ok button
-                                  TextButton(
-                                    onPressed: () async {
-                                      await _signOut();
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(14),
-                                      child: const Text("Log out",
-                                          style: TextStyle(
-                                              color: Color.fromARGB(
-                                                  255, 164, 10, 10))),
-                                    ),
+                                  content: const Text(
+                                    "Are You Sure You want to log out of your account?",
+                                    textAlign: TextAlign.left,
                                   ),
-                                ],
-                              ),
-                            );
-                          },
-                        )),
-                  ],
-                  title: Text(
-                    '! مرحبًا ' + userData['full_name'],
-                    textAlign: TextAlign.right,
-                  ),
-                  leading: const Text(''),
-                  centerTitle: true,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.horizontal(
-                      left: Radius.circular(40),
-                      right: Radius.zero,
+                                  actions: <Widget>[
+                                    //log in cancle button
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(ctx).pop();
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(14),
+                                        child: const Text("Cancel"),
+                                      ),
+                                    ),
+                                    //log in ok button
+                                    TextButton(
+                                      onPressed: () async {
+                                        await _signOut();
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(14),
+                                        child: const Text("Log out",
+                                            style: TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 164, 10, 10))),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          )),
+                    ],
+                    title: Text(
+                      '! مرحبًا ' + userData['full_name'],
+                      textAlign: TextAlign.right,
                     ),
-                  ),
-                  backgroundColor: const Color.fromARGB(255, 119, 201, 239),
-                ),
+                    leading: const Text(''),
+                    centerTitle: true,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.horizontal(
+                        left: Radius.circular(40),
+                        right: Radius.zero,
+                      ),
+                    ),
+                    backgroundColor: Color.fromARGB(255, 194, 236, 255)),
                 body: Container(
                   transformAlignment: Alignment.topRight,
                   child: ListView(
@@ -139,12 +138,12 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                                     // Based on passwordVisible state choose the icon
                                     Icons.add),
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const CreateHouseAccount()),
-                                  );
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //       builder: (context) =>
+                                  //           const CreateHouseAccount()),
+                                  // );
                                 },
                               ),
                             ),
@@ -176,103 +175,102 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                                   borderSide: const BorderSide(
                                       color: Colors.red, width: 2.0)),
                               prefixIcon: IconButton(
-                                icon: const Icon(
-                                    // Based on passwordVisible state choose the icon
-                                    Icons.arrow_back_ios),
+                                icon: const Icon(Icons.arrow_back_ios),
                                 onPressed: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const dashboard()),
+                                            const listOfDevices(
+                                              houseID: 'ffDQbRQQ8k9RzlGQ57FL',
+                                            )),
                                   );
                                 },
                               ),
                             ),
                           )),
-                      Container(
-                          padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-                          child: TextFormField(
-                            // maxLength: 20,
-                            readOnly: true,
-                            textAlign: TextAlign.right,
-                            decoration: InputDecoration(
-                              hintText: 'المزرعة',
-                              contentPadding:
-                                  const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      const BorderSide(color: Colors.grey)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      BorderSide(color: Colors.grey.shade400)),
-                              errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                              focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                              prefixIcon: IconButton(
-                                icon: const Icon(
-                                    // Based on passwordVisible state choose the icon
-                                    Icons.arrow_back_ios),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const dashboard()),
-                                  );
-                                },
-                              ),
-                            ),
-                          )),
-                      Container(
-                          padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-                          child: TextFormField(
-                            // maxLength: 20,
-                            readOnly: true,
-                            textAlign: TextAlign.right,
-                            decoration: InputDecoration(
-                              hintText: 'الاستراحة',
-                              contentPadding:
-                                  const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      const BorderSide(color: Colors.grey)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      BorderSide(color: Colors.grey.shade400)),
-                              errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                              focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                              prefixIcon: IconButton(
-                                icon: const Icon(
-                                    // Based on passwordVisible state choose the icon
-                                    Icons.arrow_back_ios),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const dashboard()),
-                                  );
-                                },
-                              ),
-                            ),
-                          )),
-
+                      // Container(
+                      //     padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
+                      //     child: TextFormField(
+                      //       // maxLength: 20,
+                      //       readOnly: true,
+                      //       textAlign: TextAlign.right,
+                      //       decoration: InputDecoration(
+                      //         hintText: 'المزرعة',
+                      //         contentPadding:
+                      //             const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                      //         focusedBorder: OutlineInputBorder(
+                      //             borderRadius: BorderRadius.circular(100.0),
+                      //             borderSide:
+                      //                 const BorderSide(color: Colors.grey)),
+                      //         enabledBorder: OutlineInputBorder(
+                      //             borderRadius: BorderRadius.circular(100.0),
+                      //             borderSide:
+                      //                 BorderSide(color: Colors.grey.shade400)),
+                      //         errorBorder: OutlineInputBorder(
+                      //             borderRadius: BorderRadius.circular(100.0),
+                      //             borderSide: const BorderSide(
+                      //                 color: Colors.red, width: 2.0)),
+                      //         focusedErrorBorder: OutlineInputBorder(
+                      //             borderRadius: BorderRadius.circular(100.0),
+                      //             borderSide: const BorderSide(
+                      //                 color: Colors.red, width: 2.0)),
+                      //         prefixIcon: IconButton(
+                      //           icon: const Icon(
+                      //               // Based on passwordVisible state choose the icon
+                      //               Icons.arrow_back_ios),
+                      //           onPressed: () {
+                      //             Navigator.push(
+                      //               context,
+                      //               MaterialPageRoute(
+                      //                   builder: (context) =>
+                      //                       const listOfDevices()),
+                      //             );
+                      //           },
+                      //         ),
+                      //       ),
+                      //     )),
+                      // Container(
+                      //     padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
+                      //     child: TextFormField(
+                      //       // maxLength: 20,
+                      //       readOnly: true,
+                      //       textAlign: TextAlign.right,
+                      //       decoration: InputDecoration(
+                      //         hintText: 'الاستراحة',
+                      //         contentPadding:
+                      //             const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                      //         focusedBorder: OutlineInputBorder(
+                      //             borderRadius: BorderRadius.circular(100.0),
+                      //             borderSide:
+                      //                 const BorderSide(color: Colors.grey)),
+                      //         enabledBorder: OutlineInputBorder(
+                      //             borderRadius: BorderRadius.circular(100.0),
+                      //             borderSide:
+                      //                 BorderSide(color: Colors.grey.shade400)),
+                      //         errorBorder: OutlineInputBorder(
+                      //             borderRadius: BorderRadius.circular(100.0),
+                      //             borderSide: const BorderSide(
+                      //                 color: Colors.red, width: 2.0)),
+                      //         focusedErrorBorder: OutlineInputBorder(
+                      //             borderRadius: BorderRadius.circular(100.0),
+                      //             borderSide: const BorderSide(
+                      //                 color: Colors.red, width: 2.0)),
+                      //         prefixIcon: IconButton(
+                      //           icon: const Icon(
+                      //               // Based on passwordVisible state choose the icon
+                      //               Icons.arrow_back_ios),
+                      //           onPressed: () {
+                      //             // Navigator.push(
+                      //             //   context,
+                      //             //   MaterialPageRoute(
+                      //             //       builder: (context) =>
+                      //             //           const dashboard()),
+                      //             // );
+                      //           },
+                      //         ),
+                      //       ),
+                      //     )),
                       // TextButton(
                       //   onPressed: () async {
                       //     await _signOut();
@@ -290,8 +288,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                 bottomNavigationBar: buildBottomNavigation(),
               );
             } else {
-              print('null');
-              return const Text('null');
+              return Text('');
             }
           }),
     );
@@ -300,17 +297,17 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
   int index = 0;
   Widget buildBottomNavigation() {
     return BottomNavyBar(
-      selectedIndex: global.index,
+      selectedIndex: 0,
       onItemSelected: (index) {
         setState(
-          () => global.index = index,
+          () => this.index = index,
         );
-        if (global.index == 0) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const profile()),
-          );
-        } else if (global.index == 1) {
+        if (index == 0) {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => const profile()),
+          // );
+        } else if (index == 1) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -320,6 +317,13 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
       },
       items: <BottomNavyBarItem>[
         BottomNavyBarItem(
+            icon: const Icon(Icons.holiday_village_rounded),
+            title: const Text(
+              'منازلي',
+              textAlign: TextAlign.center,
+            ),
+            activeColor: Colors.lightBlue),
+        BottomNavyBarItem(
           icon: const Icon(Icons.person_outline_rounded),
           title: const Text(
             'الملف الشخصي',
@@ -327,13 +331,6 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
           ),
           activeColor: Colors.lightBlue,
         ),
-        BottomNavyBarItem(
-            icon: const Icon(Icons.holiday_village_rounded),
-            title: const Text(
-              'منازلي',
-              textAlign: TextAlign.center,
-            ),
-            activeColor: Colors.lightBlue),
       ],
       mainAxisAlignment: MainAxisAlignment.spaceAround,
     );
@@ -352,10 +349,10 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
         }
       case 1:
         {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const CreateHouseAccount()),
-          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => const CreateHouseAccount()),
+          // );
           break;
         }
     }
