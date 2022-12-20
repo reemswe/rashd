@@ -1,8 +1,10 @@
 import 'dart:core';
 
+import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'create_house_account.dart';
 
 class dashboard extends StatefulWidget {
   const dashboard({super.key});
@@ -371,101 +373,62 @@ class _dashboardState extends State<dashboard> {
               )
             ]),
       ),
-      //bottomNavigationBar: buildBottomNavigation(),
+      bottomNavigationBar: buildBottomNavigation(),
     );
   }
 
-  int index = 0;
-  // Widget buildBottomNavigation() {
-  //   return BottomNavyBar(
-  //     selectedIndex: global.index,
-  //     onItemSelected: (index) {
-  //       setState(
-  //         () => global.index = index,
-  //       );
-  //       if (global.index == 0) {
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(builder: (context) => const devicesList()),
-  //         );
-  //       } else if (global.index == 1) {
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(builder: (context) => const dashboard()),
-  //         );
-  //       } else if (global.index == 2) {
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(
-  //               builder: (context) => const ListOfHouseAccounts()),
-  //         );
-  //       }
-  //     },
-  //     items: <BottomNavyBarItem>[
-  //       BottomNavyBarItem(
-  //         icon: const Icon(Icons.electrical_services_rounded),
-  //         // icon: IconButton(
-  //         //     icon: const Icon(Icons.person_outline_rounded),
-  //         //     onPressed: () {
-  //         //       setState(
-  //         //         () => this.index = index,
-  //         //       );
-  //         //       Navigator.push(
-  //         //         context,
-  //         //         MaterialPageRoute(
-  //         //             builder: (context) => const CreateHouseAccount()),
-  //         //       );
-  //         //     }),
-  //         title: const Text(
-  //           ' اجهزتي',
-  //           textAlign: TextAlign.center,
-  //         ),
-  //         activeColor: Colors.lightBlue,
-  //       ),
-  //       BottomNavyBarItem(
-  //           icon: const Icon(Icons.auto_graph_outlined),
-  //           // icon: IconButton(
-  //           //     icon: const Icon(Icons.holiday_village_rounded),
-  //           //     onPressed: () {
-
-  //           //       setState(
-  //           //         () => this.index = index,
-  //           //       );
-  //           //       Navigator.push(
-  //           //         context,
-  //           //         MaterialPageRoute(
-  //           //             builder: (context) => const ListOfHouseAccounts()),
-  //           //       );
-  //           //     }),
-  //           title: const Text(
-  //             'لوحة المعلومات',
-  //             textAlign: TextAlign.center,
-  //           ),
-  //           activeColor: Colors.lightBlue),
-  //       BottomNavyBarItem(
-  //           icon: const Icon(Icons.holiday_village_rounded),
-  //           // icon: IconButton(
-  //           //     icon: const Icon(Icons.holiday_village_rounded),
-  //           //     onPressed: () {
-
-  //           //       setState(
-  //           //         () => this.index = index,
-  //           //       );
-  //           //       Navigator.push(
-  //           //         context,
-  //           //         MaterialPageRoute(
-  //           //             builder: (context) => const ListOfHouseAccounts()),
-  //           //       );
-  //           //     }),
-  //           title: const Text(
-  //             'منازلي',
-  //             textAlign: TextAlign.center,
-  //           ),
-  //           activeColor: Colors.lightBlue),
-  //     ],
-  //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //   );
-  // }
+  Widget buildBottomNavigation() {
+    return BottomNavyBar(
+      selectedIndex: global.index,
+      onItemSelected: (index) {
+        setState(
+          () => global.index = index,
+        );
+        if (global.index == 0) {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => const devicesList()),
+          // );
+        } else if (global.index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const dashboard()),
+          );
+        } else if (global.index == 2) {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //       builder: (context) => const ListOfHouseAccounts()),
+          // );
+        }
+      },
+      items: <BottomNavyBarItem>[
+        BottomNavyBarItem(
+          icon: const Icon(Icons.electrical_services_rounded),
+          title: const Text(
+            ' اجهزتي',
+            textAlign: TextAlign.center,
+          ),
+          activeColor: Colors.lightBlue,
+        ),
+        BottomNavyBarItem(
+            icon: const Icon(Icons.auto_graph_outlined),
+            title: const Text(
+              'لوحة المعلومات',
+              textAlign: TextAlign.center,
+            ),
+            activeColor: Colors.lightBlue),
+        BottomNavyBarItem(
+            icon: const Icon(Icons.holiday_village_rounded),
+            title: const Text(
+              'منازلي',
+              textAlign: TextAlign.center,
+            ),
+            activeColor: Colors.lightBlue),
+      ],
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+    );
+  }
 
   Widget buildCard(List content) {
     return Container(
@@ -500,15 +463,3 @@ class ChartData {
   final String x;
   final double y;
 }
-
-
-/*
-IconButton(
-                          icon: Icon(
-                            // Based on passwordVisible state choose the icon
-                            _passwordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Theme.of(context).primaryColorDark,
-                          ),
-                          */ 
