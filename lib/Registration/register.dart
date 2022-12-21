@@ -50,28 +50,77 @@ void clearForm() {
 class _registerState extends State<register> {
   @override
   Widget build(BuildContext context) {
+    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFFFFF),
-        foregroundColor: Colors.black87,
-        centerTitle: true,
-        title: const Text(
-          'تسجيل جديد',
-        ),
-
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
+      resizeToAvoidBottomInset: false,
+      body: Column(children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Container(
+            height: height * 0.22,
+            width: width * 0.75,
+            child: Stack(children: [
+              Positioned(
+                bottom: height * 0,
+                top: height * -0.22,
+                left: width * 0.08,
+                child: Container(
+                  width: width * 0.8,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                          colors: [Colors.lightBlue.shade200, Colors.blue]),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.blue.shade100,
+                            offset: const Offset(4.0, 4.0),
+                            blurRadius: 10.0)
+                      ]),
+                ),
+              ),
+              Positioned(
+                top: height * 0.08,
+                right: width * 0.00,
+                bottom: 0,
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          color: Colors.white,
+                          Icons.arrow_back_ios,
+                        ),
+                        onPressed: () {
+                          clearForm();
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      const Text(
+                        "إنشاء حساب",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 30.0,
+                            fontWeight: FontWeight.w800), // Textstyle
+                      ),
+                    ]),
+              ),
+            ]),
           ),
-          onPressed: () {
-            clearForm();
-            Navigator.of(context).pop();
-          },
-        ),
-
-        // elevation: 15,
-      ),
-      body: registerForm(),
+          Padding(
+            padding: EdgeInsets.only(left: width * 0.05),
+            child: Opacity(
+              opacity: 0.8,
+              child: (Image.asset(
+                'assets/images/logo.jpg',
+                height: height * 0.09,
+                width: width * 0.2,
+              )),
+            ),
+          ),
+        ]),
+        registerForm(),
+      ]),
     );
   }
 }
@@ -126,45 +175,34 @@ class registerFormState extends State<registerForm> {
     final key = new GlobalKey();
 
     TextStyle defaultStyle =
-        const TextStyle(color: Colors.grey, fontSize: 20.0);
-    TextStyle linkStyle = const TextStyle(color: Colors.blue);
+        const TextStyle(color: Colors.grey, fontSize: 17.0);
+    TextStyle linkStyle = const TextStyle(color: Colors.blue, fontSize: 17.0);
+
     return Form(
       key: _formKey,
       child: Padding(
-        padding: const EdgeInsets.only(top: 0, left: 15, right: 15, bottom: 15),
-        child: ListView(children: <Widget>[
-          const SizedBox(
-            height: 20,
-          ),
-          Image.asset(
-            'assets/images/logo.jpg',
-            height: 100,
-            width: 100,
-          ),
-          const SizedBox(
-            height: 20,
-          ),
+        padding: EdgeInsets.only(
+            top: 0, left: width * 0.08, right: width * 0.08, bottom: 0),
+        child: Column(children: [
+          SizedBox(height: height * 0.02),
           //Email
-          Container(
-              padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-              child: TextFormField(
-                textAlign: TextAlign.right,
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: 'البريد الإلكتروني',
-                ),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (email) {
-                  if (email != null &&
-                      !EmailValidator.validate(email) &&
-                      (email.trim()).isEmpty) {
-                    return "الرجاء إدخال البريد الإلكتروني";
-                  } else if (invalidEmail) {
-                    return emailErrorMessage;
-                  }
-                },
-              )),
-
+          TextFormField(
+            controller: emailController,
+            decoration: const InputDecoration(
+                labelText: 'البريد الإلكتروني',
+                suffixIcon: Icon(
+                  Icons.mail,
+                  color: Color.fromRGBO(53, 152, 219, 1),
+                )),
+            validator: (email) {
+              if (email != null && (email.trim()).isEmpty) {
+                return "الرجاء إدخال البريد الإلكتروني.";
+              } else if (invalidEmail) {
+                return emailErrorMessage;
+              }
+            },
+          ),
+          SizedBox(height: height * 0.02),
           //Password
           Stack(
             children: [
@@ -174,186 +212,127 @@ class registerFormState extends State<registerForm> {
                 child: Tooltip(
                   key: key,
                   message:
-                      'كلمة السر يجب أن تكون من ٨ خانات على الاقل، وتحتوي على:\n- حرف صغير باللغة الانجليزية.\n- حرف كبير باللغة الانجليزية.\n- رقم.',
+                      'كلمة المرور يجب أن تكون من ٨ خانات على الاقل، وتحتوي على:\n- حرف صغير باللغة الانجليزية.\n- حرف كبير باللغة الانجليزية.\n- رقم.',
                   triggerMode: TooltipTriggerMode.manual,
                 ),
               ),
-              Container(
-                  padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-                  child: TextFormField(
-                    onTap: () {
-                      final dynamic tooltip = key.currentState;
-
-                      tooltip.ensureTooltipVisible();
-                    },
-                    textAlign: TextAlign.right,
-                    controller: passwordController,
-                    obscureText: !_passwordVisible,
-                    decoration: InputDecoration(
-                      hintText: ' كلمة السر',
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          // Based on passwordVisible state choose the icon
-                          _passwordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          color: const Color.fromRGBO(53, 152, 219, 1),
-                        ),
-                        onPressed: () {
-                          // Update the state i.e. toogle the state of passwordVisible variable
-                          setState(() {
-                            _passwordVisible = !_passwordVisible;
-                          });
-                        },
-                      ),
-                    ),
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (value) {
-                      // Wedd's Code for password
-                      password = value.toString();
-                      RegExp Upper = RegExp(r"(?=.*[A-Z])");
-                      RegExp digit = RegExp(r"(?=.*[0-9])");
-                      if (value == null || value.isEmpty) {
-                        return "الرجاء إدخال كلمة المرور";
-                      } else if (value.length < 7) {
-                        return "كلمة المرور يجب أن تكون ٨ احرف على الاقل"; //ود موجودة ؟
-                      } else if (!Upper.hasMatch(value)) {
-                        return "Password should contain an Upper case";
-                      } else if (!digit.hasMatch(value)) {
-                        return " كلمة المرور يجب أن تحتوي على رقم";
-                      } else {
-                        return null;
-                      }
-                    },
-                  )),
-            ],
-          ),
-
-          Container(
-              padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-              child: TextFormField(
-                // maxLength: 20,
-                textAlign: TextAlign.right,
-                controller: fullNameController,
-                decoration: InputDecoration(
-                  hintText: 'الاسم الكامل',
-                  contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide: const BorderSide(color: Colors.grey)),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide: BorderSide(color: Colors.grey.shade400)),
-                  errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide:
-                          const BorderSide(color: Colors.red, width: 2.0)),
-                  focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide:
-                          const BorderSide(color: Colors.red, width: 2.0)),
-                ),
-                validator: (value) {
-                  if (value == null ||
-                      value.isEmpty ||
-                      (value.trim()).isEmpty) {
-                    return 'الرجاء ادخال الاسم الكامل';
-                  }
-                  return null;
+              TextFormField(
+                onTap: () {
+                  final dynamic tooltip = key.currentState;
+                  tooltip.ensureTooltipVisible();
                 },
-              )),
-          Container(
-            padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-            child: TextFormField(
-              textAlign: TextAlign.right,
-              readOnly: true,
-              controller: DOBController,
-              onTap: () {
-                _selectDate(context);
-                showDate = false;
-                bDay = getDate();
-                // DOBController.text = globals.bDay;
-              },
-              decoration: InputDecoration(
-                hintText: 'تاريخ الميلاد',
-                contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(100.0),
-                    borderSide: const BorderSide(color: Colors.grey)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(100.0),
-                    borderSide: BorderSide(color: Colors.grey.shade400)),
-                errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(100.0),
-                    borderSide:
-                        const BorderSide(color: Colors.red, width: 2.0)),
-                focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(100.0),
-                    borderSide:
-                        const BorderSide(color: Colors.red, width: 2.0)),
-                prefixIcon: const Icon(
-                  Icons.calendar_today,
-                  color: Color.fromRGBO(53, 152, 219, 1),
-                ),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty || (value.trim()).isEmpty) {
-                  return 'الرجاء اختيار تاريخ الميلاد';
-                }
-              },
-            ),
-          ),
-          Container(
-              padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-              child: TextFormField(
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-                maxLength: 10,
-                textAlign: TextAlign.right,
-                controller: PhoneNumController,
+                controller: passwordController,
+                obscureText: !_passwordVisible,
                 decoration: InputDecoration(
-                  // hintText: 'رقم الجوال',
-                  labelText: 'رقم الجوال', hintText: '05XXXXXXXX',
-                  contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide: const BorderSide(color: Colors.grey)),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide: BorderSide(color: Colors.grey.shade400)),
-                  errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide:
-                          const BorderSide(color: Colors.red, width: 2.0)),
-                  focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide:
-                          const BorderSide(color: Colors.red, width: 2.0)),
-                  prefixIcon: const Icon(
-                    Icons.phone_android,
-                    color: Color.fromRGBO(53, 152, 219, 1),
+                  labelText: 'كلمة المرور',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _passwordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: const Color.fromRGBO(53, 152, 219, 1),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
                   ),
                 ),
+                // autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
-                  if (value == null ||
-                      value.isEmpty ||
-                      (value.trim()).isEmpty) {
-                    return 'الرجاء ادخال رقم الجوال';
+                  password = value.toString();
+                  RegExp Upper = RegExp(r"(?=.*[A-Z])");
+                  RegExp Lower = RegExp(r"(?=.*[a-z])");
+                  RegExp digit = RegExp(r"(?=.*[0-9])");
+                  if (value == null || value.isEmpty) {
+                    return "الرجاء إدخال كلمة المرور.";
+                  } else if (value.length < 7) {
+                    return "كلمة المرور يجب أن تكون من ٨ خانات على الاقل."; //ود موجودة ؟
+                  } else if (!Upper.hasMatch(value)) {
+                    return "حرف كبير باللغة الانجليزية.";
+                  } else if (!Lower.hasMatch(value)) {
+                    return "حرف صغير باللغة الانجليزية.";
+                  } else if (!digit.hasMatch(value)) {
+                    return "كلمة المرور يجب أن تحتوي على رقم.";
                   } else {
-                    if (value.length > 10 || value.length < 3) {
-                      return 'الرجاء ادخال رقم جوال ';
-                    }
-                    if (invalidPhone) return phoneErrorMessage;
+                    return null;
                   }
-                  return null;
                 },
-              )),
-
+              ),
+            ],
+          ),
+          SizedBox(height: height * 0.02),
+          TextFormField(
+            controller: fullNameController,
+            decoration: const InputDecoration(
+                labelText: 'الاسم الكامل',
+                suffixIcon: Icon(
+                  Icons.person,
+                  color: Color.fromRGBO(53, 152, 219, 1),
+                )),
+            validator: (value) {
+              if (value == null || value.isEmpty || (value.trim()).isEmpty) {
+                return 'الرجاء إدخال الاسم الكامل.';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: height * 0.02),
+          TextFormField(
+            readOnly: true,
+            controller: DOBController,
+            onTap: () {
+              _selectDate(context);
+              showDate = false;
+              bDay = getDate();
+              // DOBController.text = globals.bDay;
+            },
+            decoration: const InputDecoration(
+              labelText: 'تاريخ الميلاد',
+              suffixIcon: Icon(
+                Icons.calendar_today,
+                color: Color.fromRGBO(53, 152, 219, 1),
+              ),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty || (value.trim()).isEmpty) {
+                return 'الرجاء اختيار تاريخ الميلاد.';
+              }
+            },
+          ),
+          SizedBox(height: height * 0.02),
+          TextFormField(
+            keyboardType: TextInputType.number,
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly
+            ],
+            maxLength: 10,
+            controller: PhoneNumController,
+            decoration: const InputDecoration(
+              labelText: 'رقم الهاتف',
+              hintText: '05XXXXXXXX',
+              suffixIcon: Icon(
+                Icons.phone_android,
+                color: Color.fromRGBO(53, 152, 219, 1),
+              ),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty || (value.trim()).isEmpty) {
+                return 'الرجاء إدخال رقم الهاتف.';
+              } else {
+                if (value.length != 10) {
+                  return 'الرجاء إدخال رقم هاتف صالح.';
+                }
+                if (invalidPhone) return phoneErrorMessage;
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: height * 0.05),
           //button
           Container(
-              width: width * 0.9,
+              width: width * 0.5,
               decoration: BoxDecoration(
                 boxShadow: const [
                   BoxShadow(
@@ -380,17 +359,8 @@ class registerFormState extends State<registerForm> {
                   if ((_formKey.currentState!.validate())) {
                     if (await checkEmail() && await isDuplicatePhoneNum()) {
                       await signUp();
-                      // if (await checkPhoneNum()) {
-                      //   //   await signUp();
-                      // }
                     }
                   }
-
-                  // if (await checkPhoneNum()) {
-                  //   if ((_formKey.currentState!.validate())) {
-                  //     if (await checkEmail()) await signUp();
-                  //   }
-                  // }
                 },
                 child: const Text('تسجيل'),
                 style: ElevatedButton.styleFrom(
@@ -399,9 +369,7 @@ class registerFormState extends State<registerForm> {
                   ),
                 ),
               )),
-          const SizedBox(
-            height: 20,
-          ),
+          SizedBox(height: height * 0.02),
           Center(
               child: RichText(
             text: TextSpan(
@@ -427,7 +395,7 @@ class registerFormState extends State<registerForm> {
     );
   }
 
-//this function checks if uniqueName already exists
+//this function checks if phone number already exists
 //Returns true if phone number is not in use.
   Future<bool> isDuplicatePhoneNum() async {
     QuerySnapshot query = await FirebaseFirestore.instance
@@ -436,7 +404,8 @@ class registerFormState extends State<registerForm> {
         .get();
     if (query.docs.isNotEmpty) {
       invalidPhone = true;
-      phoneErrorMessage = 'رقم الجوال قد سجل به، الرجاء ادخال رقم آخر';
+      phoneErrorMessage =
+          'رقم الهاتف تم التسجيل به سابقًا، الرجاء إدخال رقم آخر.';
     } else
       invalidPhone = false;
 

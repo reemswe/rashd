@@ -17,14 +17,16 @@ TextEditingController usernameController = TextEditingController();
 
 TextEditingController emailController = TextEditingController();
 TextEditingController passwordController = TextEditingController();
+bool inProgress = false;
+
 void clearForm() {
   emailController.text = "";
   usernameController.text = '';
   passwordController.text = '';
+  inProgress = false;
 }
 
 class _loginPageState extends State<login> {
-// return
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
@@ -32,77 +34,101 @@ class _loginPageState extends State<login> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Column(children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Container(
-            height: height * 0.22,
-            width: width * 0.75,
-            child: Stack(children: [
-              Positioned(
-                bottom: height * 0,
-                top: height * -0.22,
-                left: width * 0.08,
-                child: Container(
-                  width: width * 0.8,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                          colors: [Colors.lightBlue.shade200, Colors.blue]),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.blue.shade100,
-                            offset: const Offset(4.0, 4.0),
-                            blurRadius: 10.0)
-                      ]),
+      body: Stack(children: [
+        /*inProgress*/ false
+            ? Center(child: CircularProgressIndicator())
+            : SizedBox(),
+        AnimatedOpacity(
+          duration: Duration(milliseconds: 500),
+          opacity: inProgress && false ? 0.2 : 1,
+          child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: Column(children: [
+                Expanded(
+                  child: Column(children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            height: height * 0.22,
+                            width: width * 0.75,
+                            child: Stack(children: [
+                              Positioned(
+                                bottom: height * 0,
+                                top: height * -0.22,
+                                left: width * 0.08,
+                                child: Container(
+                                  width: width * 0.8,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(colors: [
+                                        Colors.lightBlue.shade200,
+                                        Colors.blue
+                                      ]),
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Colors.blue.shade100,
+                                            offset: const Offset(4.0, 4.0),
+                                            blurRadius: 10.0)
+                                      ]),
+                                ),
+                              ),
+                              Positioned(
+                                top: height * 0.08,
+                                right: width * 0.00,
+                                bottom: 0,
+                                child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          color: Colors.white,
+                                          Icons.arrow_back_ios,
+                                        ),
+                                        onPressed: () {
+                                          clearForm();
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      const Text(
+                                        "تسجيل الدخول",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 30.0,
+                                            fontWeight:
+                                                FontWeight.w800), // Textstyle
+                                      ),
+                                    ]),
+                              ),
+                            ]),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: width * 0.05),
+                            child: Opacity(
+                              opacity: 0.8,
+                              child: (Image.asset(
+                                'assets/images/logo.jpg',
+                                height: height * 0.09,
+                                width: width * 0.2,
+                              )),
+                            ),
+                          ),
+                        ]),
+                    loginForm(),
+                  ]),
                 ),
-              ),
-              Positioned(
-                top: height * 0.08,
-                right: width * 0.00,
-                bottom: 0,
-                child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          color: Colors.white,
-                          Icons.arrow_back_ios,
-                        ),
-                        onPressed: () {
-                          clearForm();
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      const Text(
-                        "تسجيل الدخول",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 30.0,
-                            fontWeight: FontWeight.w800), // Textstyle
-                      ),
-                    ]),
-              ),
-            ]),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: width * 0.05),
-            child: Opacity(
-              opacity: 0.8,
-              child: (Image.asset(
-                'assets/images/logo.jpg',
-                height: height * 0.2,
-                width: width * 0.2,
-              )),
-            ),
-          ),
-        ]),
-        loginForm(),
+              ])),
+        ),
       ]),
     );
   }
 }
 
 class loginForm extends StatefulWidget {
+  const loginForm({super.key});
+
+  @override
   loginFormState createState() {
     return loginFormState();
   }
@@ -158,11 +184,14 @@ class loginFormState extends State<loginForm> {
                     color: Color.fromRGBO(53, 152, 219, 1),
                   ),
                 ),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
                   if (value == null ||
                       value.isEmpty ||
                       (value.trim()).isEmpty) {
                     return 'الرجاء ادخال اسم المستخدم';
+                  } else if (invalidData) {
+                    return '';
                   }
                   return null;
                 },
@@ -171,18 +200,17 @@ class loginFormState extends State<loginForm> {
               TextFormField(
                 controller: passwordController,
                 obscureText: !_passwordVisible,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 decoration: InputDecoration(
-                  labelText: ' كلمة السر',
+                  labelText: 'كلمة المرور',
                   suffixIcon: IconButton(
                     icon: Icon(
-                      // Based on passwordVisible state choose the icon
                       _passwordVisible
                           ? Icons.visibility
                           : Icons.visibility_off,
                       color: const Color.fromRGBO(53, 152, 219, 1),
                     ),
                     onPressed: () {
-                      // Update the state i.e. toogle the state of passwordVisible variable
                       setState(() {
                         _passwordVisible = !_passwordVisible;
                       });
@@ -193,12 +221,13 @@ class loginFormState extends State<loginForm> {
                   if (value == null ||
                       value.isEmpty ||
                       (value.trim()).isEmpty) {
-                    return 'الرجاء إدخال كلمة السر.';
+                    return 'الرجاء إدخال كلمة المرور.';
+                  } else if (invalidData) {
+                    return '';
                   }
                   return null;
                 },
               ),
-
               SizedBox(height: height * 0.02),
 
               Visibility(
@@ -206,13 +235,12 @@ class loginFormState extends State<loginForm> {
                   child: const Align(
                     alignment: Alignment.center,
                     child: Text(
-                        'البريد إلكتروني/ كلمة السر غير صالحة، يرجى المحاولة مرة أخرى.',
+                        'البريد إلكتروني/ كلمة المرور غير صالحة، يرجى المحاولة مرة أخرى.',
                         style: TextStyle(
                             color: Colors.red,
                             fontSize: 14,
                             fontWeight: FontWeight.normal)),
                   )),
-
               SizedBox(height: height * 0.03),
 
               //button
@@ -240,11 +268,21 @@ class loginFormState extends State<loginForm> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         try {
+                          setState(() {
+                            inProgress = true;
+                          });
                           final newUser = await FirebaseAuth.instance
                               .signInWithEmailAndPassword(
-                            email: emailController.text.trim(),
-                            password: passwordController.text.trim(),
-                          );
+                                email: emailController.text.trim(),
+                                password: passwordController.text.trim(),
+                              )
+                              .then((value) => {
+                                    setState(() {
+                                      inProgress = false;
+                                    })
+                                  });
+                          clearForm();
+
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -262,9 +300,6 @@ class loginFormState extends State<loginForm> {
                           print(e);
                           if (emailController.text.isNotEmpty &&
                               passwordController.text.isNotEmpty) {
-                            // _formKey.currentState!.setError("email",
-                            // "This email address is already in use");
-
                             setState(() {
                               invalidData = true;
                             });
@@ -308,48 +343,5 @@ class loginFormState extends State<loginForm> {
             ]),
       ),
     );
-  }
-
-  Future signIn() async {
-    try {
-      final newUser = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ListOfHouseAccounts(),
-          ));
-      clearForm();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-            'تم تسجيل دخولك بنجاح',
-            textAlign: TextAlign.center,
-          ),
-          backgroundColor: Colors.green));
-    } on FirebaseAuthException catch (e) {
-      print(e.message);
-      if (emailController.text.isNotEmpty &&
-          passwordController.text.isNotEmpty) {
-        setState(() {
-          invalidData = true;
-        });
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(
-        //     content: const Text('Invalid email/password'),
-        //     backgroundColor: Colors.red.shade400,
-        //     margin: const EdgeInsets.fromLTRB(6, 0, 3, 0),
-        //     behavior: SnackBarBehavior.floating,
-        //     action: SnackBarAction(
-        //       label: 'Dismiss',
-        //       disabledTextColor: Colors.white,
-        //       textColor: Colors.white,
-        //       onPressed: () {},
-        //     ),
-        //   ),
-        // );
-      }
-    }
   }
 }

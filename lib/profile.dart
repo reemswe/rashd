@@ -640,34 +640,13 @@ class profileState extends State<profile> {
     );
   }
 
-  navigateRoutes() {
-    switch (index) {
-      case 0:
-        {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //       builder: (context) => const ListOfHouseAccounts()),
-          // );
-          break;
-        }
-      case 1:
-        {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const profile()),
-          );
-          break;
-        }
-    }
-  }
 }
 
 Future<void> UpdateDB() async {
   print('will be added to db');
   var Edit_info = FirebaseFirestore.instance
       .collection('userAccount')
-      .doc('xd4GxeUvyyYTDO9iaMo2oaNg7qd2');
+      .doc(FirebaseAuth.instance.currentUser!.uid);
   Edit_info.update({
     'full_name': nameController.text,
     'phone_number': phoneController.text,
