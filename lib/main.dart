@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
         inputDecorationTheme: const InputDecorationTheme(
             enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey)),
-            contentPadding: EdgeInsets.fromLTRB(20, 12, 20, 12),
+            contentPadding: EdgeInsets.fromLTRB(10, 13, 10, 13),
             focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Colors.blue, width: 2)),
             errorBorder: UnderlineInputBorder(

@@ -24,6 +24,8 @@ bool Editing = false;
 bool Viewing = true;
 
 class profileState extends State<profile> {
+  var _formKey;
+
   @override
   initState() {
     super.initState();
@@ -41,6 +43,7 @@ class profileState extends State<profile> {
     });
     print(nameController.text);
     print(phoneController.text);
+    _formKey = GlobalKey<FormState>();
   }
 
   @override
@@ -49,7 +52,7 @@ class profileState extends State<profile> {
     final double width = MediaQuery.of(context).size.width;
 
     var userData;
-    final _formKey = GlobalKey<FormState>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(

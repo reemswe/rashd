@@ -14,11 +14,11 @@ class register extends StatefulWidget {
   const register({
     Key? key,
   }) : super(key: key);
+  @override
   _registerState createState() => _registerState();
 }
 
 TextEditingController emailController = TextEditingController();
-TextEditingController usernameController = TextEditingController();
 TextEditingController passwordController = TextEditingController();
 TextEditingController cofirmPasswordController = TextEditingController();
 TextEditingController fullNameController = TextEditingController();
@@ -52,10 +52,10 @@ class _registerState extends State<register> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFFFFFFFF),
+        backgroundColor: const Color(0xFFFFFFFF),
         foregroundColor: Colors.black87,
         centerTitle: true,
-        title: Text(
+        title: const Text(
           'تسجيل جديد',
         ),
 
@@ -121,15 +121,19 @@ class registerFormState extends State<registerForm> {
 
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
+    final double height = MediaQuery.of(context).size.height;
 
-    TextStyle defaultStyle = TextStyle(color: Colors.grey, fontSize: 20.0);
-    TextStyle linkStyle = TextStyle(color: Colors.blue);
+    final key = new GlobalKey();
+
+    TextStyle defaultStyle =
+        const TextStyle(color: Colors.grey, fontSize: 20.0);
+    TextStyle linkStyle = const TextStyle(color: Colors.blue);
     return Form(
       key: _formKey,
       child: Padding(
         padding: const EdgeInsets.only(top: 0, left: 15, right: 15, bottom: 15),
         child: ListView(children: <Widget>[
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Image.asset(
@@ -137,135 +141,94 @@ class registerFormState extends State<registerForm> {
             height: 100,
             width: 100,
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           //Email
           Container(
-              padding: EdgeInsets.fromLTRB(6, 12, 6, 12),
+              padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
               child: TextFormField(
                 textAlign: TextAlign.right,
                 controller: emailController,
                 decoration: InputDecoration(
-                  hintText: 'البريد الالكتروني',
-                  contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide: const BorderSide(color: Colors.grey)),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide: BorderSide(color: Colors.grey.shade400)),
-                  errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide:
-                          const BorderSide(color: Colors.red, width: 2.0)),
-                  focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide:
-                          const BorderSide(color: Colors.red, width: 2.0)),
+                  labelText: 'البريد الإلكتروني',
                 ),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (email) {
                   if (email != null &&
                       !EmailValidator.validate(email) &&
                       (email.trim()).isEmpty) {
-                    return "الرجاء ادخال البريد الالكتروني";
+                    return "الرجاء إدخال البريد الإلكتروني";
                   } else if (invalidEmail) {
                     return emailErrorMessage;
                   }
                 },
               )),
-          // Container(
-          //     padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-          //     child: TextFormField(
-          //       // maxLength: 20,
-          //       textAlign: TextAlign.right,
-          //       controller: usernameController,
-          //       decoration: InputDecoration(
-          //         hintText: 'اسم المستخدم',
-          //         contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-          //         focusedBorder: OutlineInputBorder(
-          //             borderRadius: BorderRadius.circular(100.0),
-          //             borderSide: const BorderSide(color: Colors.grey)),
-          //         enabledBorder: OutlineInputBorder(
-          //             borderRadius: BorderRadius.circular(100.0),
-          //             borderSide: BorderSide(color: Colors.grey.shade400)),
-          //         errorBorder: OutlineInputBorder(
-          //             borderRadius: BorderRadius.circular(100.0),
-          //             borderSide:
-          //                 const BorderSide(color: Colors.red, width: 2.0)),
-          //         focusedErrorBorder: OutlineInputBorder(
-          //             borderRadius: BorderRadius.circular(100.0),
-          //             borderSide:
-          //                 const BorderSide(color: Colors.red, width: 2.0)),
-          //       ),
-          //       validator: (value) {
-          //         if (value == null ||
-          //             value.isEmpty ||
-          //             (value.trim()).isEmpty) {
-          //           return 'الرجاء ادخال اسم المستخدم';
-          //         }
-          //         return null;
-          //       },
-          //     )),
-          Container(
-              padding: EdgeInsets.fromLTRB(6, 12, 6, 12),
-              child: TextFormField(
-                textAlign: TextAlign.right,
-                controller: passwordController,
-                obscureText: !_passwordVisible,
-                decoration: InputDecoration(
-                  hintText: ' كلمة السر',
-                  contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide: const BorderSide(color: Colors.grey)),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide: BorderSide(color: Colors.grey.shade400)),
-                  errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide:
-                          const BorderSide(color: Colors.red, width: 2.0)),
-                  focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide:
-                          const BorderSide(color: Colors.red, width: 2.0)),
-                  prefixIcon: IconButton(
-                    icon: Icon(
-                      // Based on passwordVisible state choose the icon
-                      _passwordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: Color.fromRGBO(53, 152, 219, 1),
-                    ),
-                    onPressed: () {
-                      // Update the state i.e. toogle the state of passwordVisible variable
-                      setState(() {
-                        _passwordVisible = !_passwordVisible;
-                      });
-                    },
-                  ),
+
+          //Password
+          Stack(
+            children: [
+              Positioned(
+                right: width * 0.450,
+                top: height * 0.035,
+                child: Tooltip(
+                  key: key,
+                  message:
+                      'كلمة السر يجب أن تكون من ٨ خانات على الاقل، وتحتوي على:\n- حرف صغير باللغة الانجليزية.\n- حرف كبير باللغة الانجليزية.\n- رقم.',
+                  triggerMode: TooltipTriggerMode.manual,
                 ),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) {
-                  // Wedd's Code for password
-                  password = value.toString();
-                  RegExp Upper = RegExp(r"(?=.*[A-Z])");
-                  RegExp digit = RegExp(r"(?=.*[0-9])");
-                  if (value == null || value.isEmpty) {
-                    return "الرجاء إدخال كلمة المرور";
-                  } else if (value.length < 7) {
-                    return "كلمة المرور يجب أن تكون ٨ احرف على الاقل"; //ود موجودة ؟
-                  } else if (!Upper.hasMatch(value)) {
-                    return "Password should contain an Upper case";
-                  } else if (!digit.hasMatch(value)) {
-                    return " كلمة المرور يجب أن تحتوي على رقم";
-                  } else {
-                    return null;
-                  }
-                },
-              )),
+              ),
+              Container(
+                  padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
+                  child: TextFormField(
+                    onTap: () {
+                      final dynamic tooltip = key.currentState;
+
+                      tooltip.ensureTooltipVisible();
+                    },
+                    textAlign: TextAlign.right,
+                    controller: passwordController,
+                    obscureText: !_passwordVisible,
+                    decoration: InputDecoration(
+                      hintText: ' كلمة السر',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          // Based on passwordVisible state choose the icon
+                          _passwordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: const Color.fromRGBO(53, 152, 219, 1),
+                        ),
+                        onPressed: () {
+                          // Update the state i.e. toogle the state of passwordVisible variable
+                          setState(() {
+                            _passwordVisible = !_passwordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) {
+                      // Wedd's Code for password
+                      password = value.toString();
+                      RegExp Upper = RegExp(r"(?=.*[A-Z])");
+                      RegExp digit = RegExp(r"(?=.*[0-9])");
+                      if (value == null || value.isEmpty) {
+                        return "الرجاء إدخال كلمة المرور";
+                      } else if (value.length < 7) {
+                        return "كلمة المرور يجب أن تكون ٨ احرف على الاقل"; //ود موجودة ؟
+                      } else if (!Upper.hasMatch(value)) {
+                        return "Password should contain an Upper case";
+                      } else if (!digit.hasMatch(value)) {
+                        return " كلمة المرور يجب أن تحتوي على رقم";
+                      } else {
+                        return null;
+                      }
+                    },
+                  )),
+            ],
+          ),
+
           Container(
               padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
               child: TextFormField(
@@ -274,7 +237,7 @@ class registerFormState extends State<registerForm> {
                 controller: fullNameController,
                 decoration: InputDecoration(
                   hintText: 'الاسم الكامل',
-                  contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                  contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(100.0),
                       borderSide: const BorderSide(color: Colors.grey)),
@@ -328,7 +291,7 @@ class registerFormState extends State<registerForm> {
                     borderRadius: BorderRadius.circular(100.0),
                     borderSide:
                         const BorderSide(color: Colors.red, width: 2.0)),
-                prefixIcon: Icon(
+                prefixIcon: const Icon(
                   Icons.calendar_today,
                   color: Color.fromRGBO(53, 152, 219, 1),
                 ),
@@ -353,7 +316,7 @@ class registerFormState extends State<registerForm> {
                 decoration: InputDecoration(
                   // hintText: 'رقم الجوال',
                   labelText: 'رقم الجوال', hintText: '05XXXXXXXX',
-                  contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                  contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(100.0),
                       borderSide: const BorderSide(color: Colors.grey)),
@@ -368,7 +331,7 @@ class registerFormState extends State<registerForm> {
                       borderRadius: BorderRadius.circular(100.0),
                       borderSide:
                           const BorderSide(color: Colors.red, width: 2.0)),
-                  prefixIcon: Icon(
+                  prefixIcon: const Icon(
                     Icons.phone_android,
                     color: Color.fromRGBO(53, 152, 219, 1),
                   ),
@@ -387,6 +350,7 @@ class registerFormState extends State<registerForm> {
                   return null;
                 },
               )),
+
           //button
           Container(
               width: width * 0.9,
@@ -428,14 +392,14 @@ class registerFormState extends State<registerForm> {
                   //   }
                   // }
                 },
-                child: Text('تسجيل'),
+                child: const Text('تسجيل'),
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
               )),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Center(
@@ -443,7 +407,7 @@ class registerFormState extends State<registerForm> {
             text: TextSpan(
               style: defaultStyle,
               children: <TextSpan>[
-                TextSpan(text: ' لديك حساب بالفعل؟ '),
+                const TextSpan(text: ' لديك حساب بالفعل؟ '),
                 TextSpan(
                     text: 'تسجيل الدخول',
                     style: linkStyle,
@@ -452,7 +416,7 @@ class registerFormState extends State<registerForm> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => login(),
+                              builder: (context) => const login(),
                             ));
                       }),
               ],
@@ -463,24 +427,7 @@ class registerFormState extends State<registerForm> {
     );
   }
 
-// // bool docExists = await checkIfDocExists('document_id');
-// // print("Document exists in Firestore? " + docExists.toString());
-//   /// Check If Document Exists
-//   Future<bool> checkIfDocExists(String docId) async {
-//     try {
-//       // Get reference to Firestore collection
-//       var collectionRef = FirebaseFirestore.instance.collection('houseMember');
-
-//       var doc = await collectionRef
-//           .where('phone_number', isEqualTo: PhoneNumController.text)
-//           .get();
-//       return doc.exists;
-//     } catch (e) {
-//       throw e;
-//     }
-//   }
-
-// this function checks if uniqueName already exists
+//this function checks if uniqueName already exists
 //Returns true if phone number is not in use.
   Future<bool> isDuplicatePhoneNum() async {
     QuerySnapshot query = await FirebaseFirestore.instance
@@ -507,7 +454,8 @@ class registerFormState extends State<registerForm> {
       if (list.isNotEmpty) {
         setState(() {
           invalidEmail = true;
-          emailErrorMessage = 'البريد الالكتروني مستعمل، الرجاء تسجيل الدخول';
+          emailErrorMessage =
+              ' البريد الإلكتروني مستخدم ، يرجى محاولة تسجيل الدخول.';
         });
         print("empty");
         return false;
@@ -523,7 +471,7 @@ class registerFormState extends State<registerForm> {
     } catch (error) {
       setState(() {
         invalidEmail = true;
-        emailErrorMessage = 'The email address is badly formatted.';
+        emailErrorMessage = 'الرجاء إدخال بريد إلكتروني صالح.';
       });
       // Handle error
       print('Handle error');
@@ -542,18 +490,16 @@ class registerFormState extends State<registerForm> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // await FirebaseAuth.instance.createUserWithPhone
       await saveUser();
 
       clearForm();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('مرحبًا بك لرشد')),
       );
-      // Navigator.pushNamed(context, "/homePage");
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ListOfHouseAccounts(),
+            builder: (context) => const ListOfHouseAccounts(),
           ));
     } on FirebaseAuthException catch (e) {
       print(e);
@@ -578,7 +524,6 @@ class registerFormState extends State<registerForm> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   saveUser() async {
     String email = emailController.text;
-    //String username = usernameController.text;
     String fullname = fullNameController.text;
     String dob = DOBController.text;
     String number = PhoneNumController.text;
@@ -588,7 +533,6 @@ class registerFormState extends State<registerForm> {
     final userRef = db.collection("userAccount").doc(user.uid);
     if (!((await userRef.get()).exists)) {
       await userRef.set({
-        //   "user_name": username,
         "email": email,
         "userId": userId,
         "full_name": fullname,
