@@ -31,10 +31,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
     super.initState();
   }
 
-  // final DocumentReference<Map<String, dynamic>> user = FirebaseFirestore
-  //     .instance
-  //     .collection('users')
-  //     .doc(FirebaseAuth.instance.currentUser!.uid);
+
 
   String name = 'null';
   Future<Map<String, dynamic>> readUserData(var id) =>

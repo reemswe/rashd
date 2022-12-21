@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 import '../HouseAccount/list_of_house_accounts.dart';
@@ -11,13 +12,14 @@ class accessSharedDashboard extends StatefulWidget {
   const accessSharedDashboard({Key? key}) : super(key: key);
 
   @override
-  _accessSharedDashboardState createState() => _accessSharedDashboardState();
+  satisfies createState() => satisfies();
 }
 
-class _accessSharedDashboardState extends State<accessSharedDashboard> {
+class satisfies extends State<accessSharedDashboard> {
   final _formKey = GlobalKey<FormState>();
-  bool invalidData = false;
+  bool invalidCode = false;
   TextEditingController codeController = TextEditingController();
+  String codeErrorMessage = '';
   bool inProgress = false;
   ScrollController _scrollController = ScrollController();
 
@@ -153,26 +155,13 @@ class _accessSharedDashboardState extends State<accessSharedDashboard> {
                                       value.isEmpty ||
                                       (value.trim()).isEmpty) {
                                     return 'الرجاء إدخال رمز لوحة المعلومات.';
-                                  } else if (invalidData) {
-                                    return '';
+                                  } else if (invalidCode) {
+                                    return codeErrorMessage;
                                   }
                                   return null;
                                 },
                               ),
-                              SizedBox(height: height * 0.02),
-
-                              Visibility(
-                                  visible: invalidData,
-                                  child: const Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                        'البريد إلكتروني/ كلمة المرور غير صالحة، يرجى المحاولة مرة أخرى.',
-                                        style: TextStyle(
-                                            color: Colors.red,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.normal)),
-                                  )),
-                              SizedBox(height: height * 0.03),
+                              SizedBox(height: height * 0.05),
 
                               //button
                               Container(
@@ -197,48 +186,32 @@ class _accessSharedDashboardState extends State<accessSharedDashboard> {
                                   ),
                                   child: ElevatedButton(
                                     onPressed: () async {
-                                      if (_formKey.currentState!.validate()) {
-                                        try {
-                                          setState(() {
-                                            inProgress = true;
-                                          });
-                                          final newUser =
-                                              await FirebaseAuth.instance
-                                                  .signInWithEmailAndPassword(
-                                                    email: codeController.text
-                                                        .trim(),
-                                                    password: '0000'.trim(),
-                                                  )
-                                                  .then((value) => {
-                                                        setState(() {
-                                                          inProgress = false;
-                                                        })
-                                                      });
-                                          clearForm();
+                                      setState(() {
+                                        inProgress = true;
+                                      });
+                                      await isCodeValid();
 
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const ListOfHouseAccounts(),
-                                              ));
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                                  content: Text(
-                                                    'تم تسجيل دخولك بنجاح',
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                  backgroundColor:
-                                                      Colors.green));
-                                        } on FirebaseAuthException catch (e) {
-                                          print(e);
-                                          if (codeController.text.isNotEmpty &&
-                                              true) {
-                                            setState(() {
-                                              invalidData = true;
-                                            });
-                                          }
-                                        }
+                                      if (_formKey.currentState!.validate()) {
+                                        setState(() {
+                                          inProgress = false;
+                                        });
+
+                                        Fluttertoast.showToast(
+                                            msg: "مرحبا بك في رشد",
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            gravity: ToastGravity
+                                                .BOTTOM, // Also possible "TOP" and "CENTER"
+                                            backgroundColor: Colors.blue,
+                                            textColor: Colors.white);
+
+                                        clearForm();
+
+                                        // Navigator.push(
+                                        //     context,
+                                        //     MaterialPageRoute(
+                                        //       builder: (context) =>
+                                        //           const ListOfHouseAccounts(),
+                                        //     ));
                                       }
                                     },
                                     child: const Text('التالي'),
@@ -287,25 +260,38 @@ class _accessSharedDashboardState extends State<accessSharedDashboard> {
   }
 
   //this function checks if dashboard exists and not expired (not used before)
-  //Returns true if phone number is not in use.
+  //Returns true if code satisfies the above.
   Future<bool> isCodeValid() async {
-    QuerySnapshot query = await FirebaseFirestore.instance
+    QuerySnapshot codeExistQuery = await FirebaseFirestore.instance
+        .collection('shared_user')
+        .where('code', isEqualTo: codeController.value) //parse the input string value to int and it will work correctly, then change the status of isExpired 
+        .get();
+    QuerySnapshot codeExpiredQuery = await FirebaseFirestore.instance
         .collection('shared_user')
         .where('code', isEqualTo: codeController.text)
         .where('isExpired', isEqualTo: false)
         .get();
-    if (query.docs.isNotEmpty) {
-      invalidPhone = true;
-      phoneErrorMessage =
-          'رقم الهاتف تم التسجيل به سابقًا، الرجاء إدخال رقم آخر.';
-    } else
-      invalidPhone = false;
 
-    return query.docs.isEmpty;
+    if (codeExistQuery.docs.isNotEmpty) {
+      print('NOT EMPTY');
+      if (codeExpiredQuery.docs.isNotEmpty) {
+        invalidCode = false;
+      } else {
+        invalidCode = true;
+        codeErrorMessage = 'رمز لوحة المعلومات تم استخدامه بالفعل.';
+      }
+    } else {
+      print('EMPTY');
+      invalidCode = true;
+      codeErrorMessage = 'رمز لوحة المعلومات غير صالح.';
+    }
+
+    return codeExpiredQuery.docs.isEmpty;
   }
 
   void clearForm() {
     codeController.text = "";
     inProgress = false;
+    codeErrorMessage = '';
   }
 }
