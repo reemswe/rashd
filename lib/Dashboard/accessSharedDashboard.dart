@@ -264,7 +264,9 @@ class satisfies extends State<accessSharedDashboard> {
   Future<bool> isCodeValid() async {
     QuerySnapshot codeExistQuery = await FirebaseFirestore.instance
         .collection('shared_user')
-        .where('code', isEqualTo: codeController.value) //parse the input string value to int and it will work correctly, then change the status of isExpired 
+        .where('code',
+            isEqualTo: codeController
+                .value) //parse the input string value to int and it will work correctly, then change the status of isExpired
         .get();
     QuerySnapshot codeExpiredQuery = await FirebaseFirestore.instance
         .collection('shared_user')
