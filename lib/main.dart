@@ -6,10 +6,10 @@ import 'Firebase/firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 // import 'accessSharedDashboard.dart';
 // import 'houseDevicesList.dart';
-import 'list_of_house_accounts.dart';
+import 'HouseAccount/list_of_house_accounts.dart';
 import 'Registration/login.dart';
 import 'Registration/register.dart';
-import 'welcomePage.dart';
+import 'Registration/welcomePage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

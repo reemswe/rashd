@@ -4,9 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rashd/Devices/listOfDevices.dart';
 import 'package:rashd/Registration/register.dart';
-import 'package:rashd/dashboard.dart';
-import 'package:rashd/profile.dart';
-import 'package:rashd/welcomePage.dart';
+import 'package:rashd/Dashboard/dashboard.dart';
+import 'package:rashd/Registration/profile.dart';
+import 'package:rashd/Registration/welcomePage.dart';
 
 import 'create_house_account.dart';
 

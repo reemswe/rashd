@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:rashd/profile.dart';
+import 'package:rashd/Registration/profile.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 

@@ -14,9 +14,9 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 
-import '../add_house_member.dart';
-import '../dashboard.dart';
-import '../list_of_house_accounts.dart';
+import '../HouseAccount/add_house_member.dart';
+import '../Dashboard/dashboard.dart';
+import '../HouseAccount/list_of_house_accounts.dart';
 
 class listOfDevices extends StatefulWidget {
   final houseID;

@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import 'Devices/listOfDevices.dart';
-import 'add_house_member.dart';
-import 'list_of_house_accounts.dart';
+import '../Devices/listOfDevices.dart';
+import '../HouseAccount/add_house_member.dart';
+import '../HouseAccount/list_of_house_accounts.dart';
 
 class dashboard extends StatefulWidget {
   final houseID;

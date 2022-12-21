@@ -1,10 +1,7 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
-// import 'accessSharedDashboard.dart';
-// import 'houseDevicesList.dart';
-import 'Registration/login.dart';
-import 'Registration/register.dart';
+import '../Dashboard/accessSharedDashboard.dart';
+import 'login.dart';
+import 'register.dart';
 
 class welcomePage extends StatefulWidget {
   const welcomePage({super.key});
@@ -20,13 +17,8 @@ class _welcomePageState extends State<welcomePage> {
     final double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(widget.title),
-      // ),
       body: Center(
-        // padding: const EdgeInsets.all(0),
         child: Column(
-          //  mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(height: height * 0.1),
 
@@ -37,8 +29,6 @@ class _welcomePageState extends State<welcomePage> {
                   height: 200,
                   width: 200,
                 )),
-            // Image.network(
-            //     'file:///Users/Leena/Desktop/hackathon/hackathon/assets/images/logo.jpg'),
             SizedBox(height: height * 0.05),
 
             //button
@@ -149,11 +139,11 @@ class _welcomePageState extends State<welcomePage> {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-                        // Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //       builder: (context) => accsessShared(),
-                        //     ));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => accessSharedDashboard(),
+                            ));
                       },
                       child: Text('لوحة المنزل المشتركة',
                           style: TextStyle(fontSize: 25)),
