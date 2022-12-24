@@ -127,7 +127,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
             ),
             keyboardType: TextInputType.number,
             validator: (value) {
-              if (value!.isNotEmpty && value!.length < 10) {
+              if (value!.isNotEmpty && value.length < 10) {
                 return 'ادخل رقمًا صحيحًا مكونًا من ١٠ أرقام';
               }
               return null;
@@ -399,7 +399,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                         keyboardType: TextInputType.number,
                                         validator: (value) {
                                           if (value!.isNotEmpty &&
-                                              value!.length < 10) {
+                                              value.length < 10) {
                                             return 'ادخل رقمًا صحيحًا مكونًا من ١٠ أرقام';
                                           }
                                           return null;

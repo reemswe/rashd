@@ -1,20 +1,35 @@
 import 'dart:core';
-
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'create_house_account.dart';
 
 class dashboard extends StatefulWidget {
-  const dashboard({super.key});
+  final String dashId;
+  const dashboard({super.key, required this.dashId});
 
   @override
   State<dashboard> createState() => _dashboardState();
 }
 
 class _dashboardState extends State<dashboard> {
-  @override
+  List months = [
+    '',
+    'جانيوري',
+    'فبراير',
+    'مارس',
+    'ابريل',
+    'مايو',
+    'جون',
+    'جولاي',
+    'اوقست',
+    'سبتمبر',
+    'نوفمبر',
+    'اكتوبر',
+    'ديسمبر'
+  ];
   List text = [
     [
       'فاتورة الكهرباء\n\n500.25 SR',
@@ -27,7 +42,7 @@ class _dashboardState extends State<dashboard> {
       'اجمالي استهلاك الطاقة\n\n150 kWh\n\n  تم بلوغ 50% من هدف الشهر',
       '150 kWh',
       'تم بلوغ 50% من هدف الشهر',
-      Color.fromARGB(255, 107, 217, 245),
+      const Color.fromARGB(255, 107, 217, 245),
       Colors.white
     ]
   ];
@@ -38,6 +53,30 @@ class _dashboardState extends State<dashboard> {
     ChartData('المايكرويف', 250),
     ChartData('الفريزر', 400)
   ];
+
+  var date = DateTime.now();
+  var formatted = '';
+  String userGoal = '0';
+
+  @override
+  void initState() {
+    super.initState();
+
+    setState(() {
+      int index = date.month;
+      formatted = months[index];
+      print('formatted: $formatted');
+      FirebaseFirestore.instance
+          .collection("dashboard")
+          .doc(widget.dashId)
+          .get()
+          .then((value) {
+        userGoal = value.data()!["userGoal"];
+        print('user goal: $userGoal');
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,7 +121,6 @@ class _dashboardState extends State<dashboard> {
                         hintStyle: TextStyle(color: Colors.grey[800]),
                         hintText: " رقم الهاتف",
                       ),
-                      // The validator receives the text that the user has entered.
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return '  رجاء ادخل رقم هاتف';
@@ -211,92 +249,95 @@ class _dashboardState extends State<dashboard> {
                       // maxLength: 20,
                       readOnly: true,
                       textAlign: TextAlign.right,
-                      decoration: const InputDecoration(
-                        hintText: ' شهر نوفمبر',
-                        hintStyle: TextStyle(fontSize: 15),
-                        contentPadding: EdgeInsets.fromLTRB(20, 0, 20, 10),
+                      decoration: InputDecoration(
+                        hintText: formatted,
+                        hintStyle: const TextStyle(fontSize: 15),
+                        contentPadding:
+                            const EdgeInsets.fromLTRB(20, 0, 20, 10),
                         border: InputBorder.none,
                       ),
                     ),
                   ])),
-              Container(
-                  padding: const EdgeInsets.fromLTRB(6, 12, 6, 0),
-                  child: Material(
-                      elevation: 20,
-                      borderRadius: BorderRadius.circular(30),
-                      child: TextFormField(
-                        readOnly: true,
-                        maxLines: 4,
-                        textAlign: TextAlign.right,
-                        decoration: InputDecoration(
-                          suffixIcon: const Padding(
-                              padding: EdgeInsets.only(right: 20),
-                              child: Text(
-                                'الهدف لإجمالي استهلاك \n :الطاقة',
-                                textAlign: TextAlign.right,
-                                style: TextStyle(fontSize: 17),
-                              )),
-                          hintStyle: const TextStyle(
-                            fontSize: 10,
-                            decoration: TextDecoration.underline,
-                            fontWeight: FontWeight.w500,
-                            color: Color.fromARGB(255, 17, 184, 97),
+              // changeeee
+              Stack(children: [
+                Container(
+                    padding: const EdgeInsets.fromLTRB(6, 12, 6, 0),
+                    child: Material(
+                        elevation: 20,
+                        borderRadius: BorderRadius.circular(30),
+                        child: TextFormField(
+                          readOnly: true,
+                          maxLines: 4,
+                          textAlign: TextAlign.right,
+                          decoration: InputDecoration(
+                            suffixIcon: const Padding(
+                                padding: EdgeInsets.only(right: 20),
+                                child: Text(
+                                  'الهدف لإجمالي استهلاك \n :الطاقة',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(fontSize: 17),
+                                )),
+                            hintStyle: const TextStyle(
+                              fontSize: 10,
+                              decoration: TextDecoration.underline,
+                              fontWeight: FontWeight.w500,
+                              color: Color.fromARGB(255, 17, 184, 97),
+                            ),
+                            contentPadding:
+                                const EdgeInsets.fromLTRB(20, 15, 5, 10),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: const BorderSide(
+                                    color: Color.fromARGB(0, 158, 158, 158))),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                                borderSide: BorderSide(
+                                    color: Color.fromARGB(0, 189, 189, 189))),
+                            prefixIcon: Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 20, top: 8, right: 0),
+                                child: InkWell(
+                                  child: Text(
+                                    ' $userGoal kWh',
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        decoration: TextDecoration.underline,
+                                        color: Colors.green),
+                                  ),
+                                  onTap: () {
+                                    // navigate to set goal or popup window
+                                    // Navigator.push(
+
+                                    // context,
+                                    // MaterialPageRoute(
+                                    //     builder: (context) => const Goal()),
+                                    // );
+                                  },
+                                )),
                           ),
-                          contentPadding:
-                              const EdgeInsets.fromLTRB(20, 15, 5, 10),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: const BorderSide(color: Colors.grey)),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide:
-                                  BorderSide(color: Colors.grey.shade400)),
-                          errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: const BorderSide(
-                                  color: Colors.red, width: 2.0)),
-                          focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: const BorderSide(
-                                  color: Colors.red, width: 2.0)),
-                          prefixIcon: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 20, top: 8, right: 0),
-                              child: InkWell(
-                                child: const Text(
-                                  '300 kWh',
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      decoration: TextDecoration.underline,
-                                      color: Colors.green),
-                                ),
-                                onTap: () {
-                                  // navigate to set goal or popup window
-                                  // Navigator.push(
-
-                                  // context,
-                                  // MaterialPageRoute(
-                                  //     builder: (context) => const Goal()),
-                                  // );
-                                },
-                              )),
-
-                          //const Padding(
-                          //     padding: EdgeInsets.all(15),
-                          //     child: Text(
-                          //       '300 kWh',
-                          //       style: TextStyle(
-                          //           fontSize: 20,
-                          //           fontWeight: FontWeight.w500),
-
-                          // )),
-                          //InkWell(hintText: 'حدد هدف الشهر')
-                        ),
-                      ))),
+                        ))),
+                // CircleAvatar(
+                //   radius: 30,
+                //   backgroundColor: const Color.fromARGB(255, 17, 240, 221),
+                //   child: IconButton(
+                //     icon: const Icon(
+                //       Icons.edit,
+                //       color: Color.fromARGB(255, 255, 255, 255),
+                //     ),
+                //     onPressed: () {},
+                //   ),
+                // ),
+                FloatingActionButton(
+                    backgroundColor: Colors.lightGreen,
+                    child: const Icon(Icons.edit),
+                    onPressed: () {})
+              ]),
+              //change
               Expanded(
                 child: Stack(children: [
                   Container(
                       child: GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: 2,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
@@ -324,25 +365,17 @@ class _dashboardState extends State<dashboard> {
                             hintStyle: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: Color.fromARGB(255, 100, 100, 100)),
+                                color: Color.fromARGB(0, 100, 100, 100)),
                             contentPadding:
                                 const EdgeInsets.fromLTRB(20, 10, 5, 10),
                             focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
-                                borderSide:
-                                    const BorderSide(color: Colors.grey)),
+                                borderSide: const BorderSide(
+                                    color: Color.fromARGB(0, 158, 158, 158))),
                             enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30.0),
-                                borderSide:
-                                    BorderSide(color: Colors.grey.shade400)),
-                            errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                                borderSide: const BorderSide(
-                                    color: Colors.red, width: 2.0)),
-                            focusedErrorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                                borderSide: const BorderSide(
-                                    color: Colors.red, width: 2.0)),
+                                borderSide: BorderSide(
+                                    color: Color.fromARGB(0, 189, 189, 189))),
                             prefixIcon: Padding(
                               padding: const EdgeInsets.all(12),
                               child: SfCartesianChart(
@@ -353,13 +386,14 @@ class _dashboardState extends State<dashboard> {
                                   series: <ChartSeries<ChartData, String>>[
                                     // Renders column chart
                                     ColumnSeries<ChartData, String>(
-                                        color:
-                                            Color.fromARGB(255, 98, 227, 165),
+                                        color: const Color.fromARGB(
+                                            255, 98, 227, 165),
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(10)),
                                         dataSource: chartData,
                                         dataLabelSettings:
-                                            DataLabelSettings(isVisible: true),
+                                            const DataLabelSettings(
+                                                isVisible: true),
                                         xValueMapper: (ChartData data, _) =>
                                             data.x,
                                         yValueMapper: (ChartData data, _) =>
@@ -392,7 +426,10 @@ class _dashboardState extends State<dashboard> {
         } else if (global.index == 1) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const dashboard()),
+            MaterialPageRoute(
+                builder: (context) => const dashboard(
+                      dashId: 'fIgVgfieeVqGRB9oRne1',
+                    )),
           );
         } else if (global.index == 2) {
           // Navigator.push(
