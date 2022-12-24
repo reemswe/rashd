@@ -316,21 +316,14 @@ class _dashboardState extends State<dashboard> {
                                 )),
                           ),
                         ))),
-                // CircleAvatar(
-                //   radius: 30,
-                //   backgroundColor: const Color.fromARGB(255, 17, 240, 221),
-                //   child: IconButton(
-                //     icon: const Icon(
-                //       Icons.edit,
-                //       color: Color.fromARGB(255, 255, 255, 255),
-                //     ),
-                //     onPressed: () {},
-                //   ),
-                // ),
-                FloatingActionButton(
-                    backgroundColor: Colors.lightGreen,
-                    child: const Icon(Icons.edit),
-                    onPressed: () {})
+                Container(
+                    margin: const EdgeInsets.fromLTRB(0, 80, 0, 0),
+                    child: FloatingActionButton(
+                        backgroundColor: Colors.lightGreen,
+                        child: const Icon(Icons.edit),
+                        onPressed: () {
+                          dialog();
+                        }))
               ]),
               //change
               Expanded(
@@ -374,7 +367,7 @@ class _dashboardState extends State<dashboard> {
                                     color: Color.fromARGB(0, 158, 158, 158))),
                             enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30.0),
-                                borderSide: BorderSide(
+                                borderSide: const BorderSide(
                                     color: Color.fromARGB(0, 189, 189, 189))),
                             prefixIcon: Padding(
                               padding: const EdgeInsets.all(12),
@@ -492,6 +485,79 @@ class _dashboardState extends State<dashboard> {
             style: TextStyle(color: content[4], fontWeight: FontWeight.w600),
           )),
         ));
+  }
+
+  Widget dialog() {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      child: contentBox(context),
+    );
+  }
+
+  contentBox(context) {
+    return Stack(
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.only(
+              left: 20, top: 45 + 20, right: 20, bottom: 20),
+          margin: const EdgeInsets.only(top: 45),
+          decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const [
+                BoxShadow(
+                    color: Colors.black, offset: Offset(0, 10), blurRadius: 10),
+              ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Text(
+                '1',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              const Text(
+                'widget.descriptions',
+                style: TextStyle(fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 22,
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      'widget.text',
+                      style: TextStyle(fontSize: 18),
+                    )),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          left: 20,
+          right: 20,
+          child: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            radius: 45,
+            child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(45)),
+                child: Image.asset('lib/icons/goal.png')),
+          ),
+        ),
+      ],
+    );
   }
 }
 
