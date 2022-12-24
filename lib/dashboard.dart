@@ -30,6 +30,8 @@ class _dashboardState extends State<dashboard> {
     'اكتوبر',
     'ديسمبر'
   ];
+  String userGoal = '0';
+  final _formKey = GlobalKey<FormState>();
   List text = [
     [
       'فاتورة الكهرباء\n\n500.25 SR',
@@ -56,7 +58,6 @@ class _dashboardState extends State<dashboard> {
 
   var date = DateTime.now();
   var formatted = '';
-  String userGoal = '0';
 
   @override
   void initState() {
@@ -271,7 +272,7 @@ class _dashboardState extends State<dashboard> {
                           textAlign: TextAlign.right,
                           decoration: InputDecoration(
                             suffixIcon: const Padding(
-                                padding: EdgeInsets.only(right: 20),
+                                padding: EdgeInsets.only(right: 30),
                                 child: Text(
                                   'الهدف لإجمالي استهلاك \n :الطاقة',
                                   textAlign: TextAlign.right,
@@ -291,38 +292,33 @@ class _dashboardState extends State<dashboard> {
                                     color: Color.fromARGB(0, 158, 158, 158))),
                             enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30.0),
-                                borderSide: BorderSide(
+                                borderSide: const BorderSide(
                                     color: Color.fromARGB(0, 189, 189, 189))),
                             prefixIcon: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 20, top: 8, right: 0),
-                                child: InkWell(
-                                  child: Text(
-                                    ' $userGoal kWh',
-                                    style: const TextStyle(
-                                        fontSize: 20,
-                                        decoration: TextDecoration.underline,
-                                        color: Colors.green),
-                                  ),
-                                  onTap: () {
-                                    // navigate to set goal or popup window
-                                    // Navigator.push(
-
-                                    // context,
-                                    // MaterialPageRoute(
-                                    //     builder: (context) => const Goal()),
-                                    // );
-                                  },
-                                )),
+                              padding: const EdgeInsets.only(
+                                  left: 60, top: 8, right: 0),
+                              child: Text(
+                                '$userGoal kWh',
+                                style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    // decoration: TextDecoration.underline,
+                                    color: Colors.green),
+                              ),
+                            ),
                           ),
                         ))),
                 Container(
-                    margin: const EdgeInsets.fromLTRB(0, 80, 0, 0),
+                    margin: const EdgeInsets.fromLTRB(0, 70, 0, 0),
                     child: FloatingActionButton(
                         backgroundColor: Colors.lightGreen,
                         child: const Icon(Icons.edit),
                         onPressed: () {
-                          dialog();
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return dialog();
+                              });
                         }))
               ]),
               //change
@@ -511,49 +507,91 @@ class _dashboardState extends State<dashboard> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: const [
                 BoxShadow(
-                    color: Colors.black, offset: Offset(0, 10), blurRadius: 10),
+                    color: Color.fromARGB(255, 41, 41, 41),
+                    offset: Offset(0, 10),
+                    blurRadius: 10),
               ]),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               const Text(
-                '1',
+                'حدد هدف الاستهلاك',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
               ),
               const SizedBox(
                 height: 15,
               ),
-              const Text(
-                'widget.descriptions',
-                style: TextStyle(fontSize: 14),
-                textAlign: TextAlign.center,
-              ),
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  child: Form(
+                      key: _formKey,
+                      child: TextFormField(
+                        keyboardType: TextInputType.number,
+                        maxLines: 1,
+                        decoration: const InputDecoration(
+                            hintText: '300',
+                            suffixText: 'kWh',
+                            suffixStyle: TextStyle(color: Colors.black)),
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'الرجاء تحديد هدف';
+                          } else {
+                            return null;
+                          }
+                        },
+                      ))),
               const SizedBox(
                 height: 22,
               ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      'widget.text',
-                      style: TextStyle(fontSize: 18),
-                    )),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.redAccent)),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        'إلغاء',
+                        style: TextStyle(fontSize: 18),
+                      )),
+                  const SizedBox(
+                    height: 10,
+                    width: 30,
+                  ),
+                  ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.lightGreen)),
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: const Text(
+                        'تحديد',
+                        style: TextStyle(fontSize: 18),
+                      )),
+                ],
               ),
             ],
           ),
         ),
         Positioned(
-          left: 20,
+          left: 27,
           right: 20,
           child: CircleAvatar(
             backgroundColor: Colors.transparent,
             radius: 45,
             child: ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(45)),
-                child: Image.asset('lib/icons/goal.png')),
+                child: Image.asset(
+                  'lib/icons/goal.png',
+                  width: 150,
+                  height: 120,
+                )),
           ),
         ),
       ],
