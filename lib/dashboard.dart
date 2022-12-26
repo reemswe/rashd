@@ -22,15 +22,15 @@ class _dashboardState extends State<dashboard> {
     'مارس',
     'ابريل',
     'مايو',
-    'جون',
-    'جولاي',
-    'اوقست',
+    'يونيو',
+    'يوليو',
+    'اغسطس',
     'سبتمبر',
     'نوفمبر',
     'اكتوبر',
     'ديسمبر'
   ];
-  String userGoal = '0';
+
   final _formKey = GlobalKey<FormState>();
   List text = [
     [
@@ -58,11 +58,9 @@ class _dashboardState extends State<dashboard> {
 
   var date = DateTime.now();
   var formatted = '';
-
+  TextEditingController goalController = TextEditingController();
   @override
   void initState() {
-    super.initState();
-
     setState(() {
       int index = date.month;
       formatted = months[index];
@@ -74,9 +72,14 @@ class _dashboardState extends State<dashboard> {
           .then((value) {
         userGoal = value.data()!["userGoal"];
         print('user goal: $userGoal');
+        print('init');
       });
     });
+
+    super.initState();
   }
+
+  String userGoal = '0';
 
   @override
   Widget build(BuildContext context) {
@@ -263,51 +266,57 @@ class _dashboardState extends State<dashboard> {
               Stack(children: [
                 Container(
                     padding: const EdgeInsets.fromLTRB(6, 12, 6, 0),
-                    child: Material(
-                        elevation: 20,
-                        borderRadius: BorderRadius.circular(30),
-                        child: TextFormField(
-                          readOnly: true,
-                          maxLines: 4,
-                          textAlign: TextAlign.right,
-                          decoration: InputDecoration(
-                            suffixIcon: const Padding(
-                                padding: EdgeInsets.only(right: 30),
-                                child: Text(
-                                  'الهدف لإجمالي استهلاك \n :الطاقة',
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(fontSize: 17),
-                                )),
-                            hintStyle: const TextStyle(
-                              fontSize: 10,
-                              decoration: TextDecoration.underline,
-                              fontWeight: FontWeight.w500,
-                              color: Color.fromARGB(255, 17, 184, 97),
-                            ),
-                            contentPadding:
-                                const EdgeInsets.fromLTRB(20, 15, 5, 10),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                    color: Color.fromARGB(0, 158, 158, 158))),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                                borderSide: const BorderSide(
-                                    color: Color.fromARGB(0, 189, 189, 189))),
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 60, top: 8, right: 0),
-                              child: Text(
-                                '$userGoal kWh',
-                                style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    // decoration: TextDecoration.underline,
-                                    color: Colors.green),
-                              ),
-                            ),
-                          ),
-                        ))),
+                    child: FutureBuilder(
+                        future: goal(),
+                        builder: (context, snapshot) {
+                          return Material(
+                              elevation: 20,
+                              borderRadius: BorderRadius.circular(30),
+                              child: TextFormField(
+                                readOnly: true,
+                                maxLines: 4,
+                                textAlign: TextAlign.right,
+                                decoration: InputDecoration(
+                                  suffixIcon: const Padding(
+                                      padding: EdgeInsets.only(right: 30),
+                                      child: Text(
+                                        'الهدف لإجمالي استهلاك \n :الطاقة',
+                                        textAlign: TextAlign.right,
+                                        style: TextStyle(fontSize: 17),
+                                      )),
+                                  hintStyle: const TextStyle(
+                                    fontSize: 10,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color.fromARGB(255, 17, 184, 97),
+                                  ),
+                                  contentPadding:
+                                      const EdgeInsets.fromLTRB(20, 15, 5, 10),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                      borderSide: const BorderSide(
+                                          color: Color.fromARGB(
+                                              0, 158, 158, 158))),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      borderSide: const BorderSide(
+                                          color: Color.fromARGB(
+                                              0, 189, 189, 189))),
+                                  prefixIcon: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 60, top: 8, right: 0),
+                                    child: Text(
+                                      '$userGoal kWh',
+                                      style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          // decoration: TextDecoration.underline,
+                                          color: Colors.green),
+                                    ),
+                                  ),
+                                ),
+                              ));
+                        })),
                 Container(
                     margin: const EdgeInsets.fromLTRB(0, 70, 0, 0),
                     child: FloatingActionButton(
@@ -526,6 +535,7 @@ class _dashboardState extends State<dashboard> {
                   child: Form(
                       key: _formKey,
                       child: TextFormField(
+                        controller: goalController,
                         keyboardType: TextInputType.number,
                         maxLines: 1,
                         decoration: const InputDecoration(
@@ -567,6 +577,10 @@ class _dashboardState extends State<dashboard> {
                               Colors.lightGreen)),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
+                          setState(() {
+                            goal();
+                          });
+                          UpdateDB();
                           Navigator.of(context).pop();
                         }
                       },
@@ -596,6 +610,28 @@ class _dashboardState extends State<dashboard> {
         ),
       ],
     );
+  }
+
+  Future<void> UpdateDB() async {
+    print('will be added to db');
+    var Edit_info =
+        FirebaseFirestore.instance.collection('dashboard').doc(widget.dashId);
+    Edit_info.update({
+      'userGoal': goalController.text,
+    });
+    print('profile edited');
+  }
+
+  Future<void> goal() async {
+    await FirebaseFirestore.instance
+        .collection("dashboard")
+        .doc(widget.dashId)
+        .get()
+        .then((value) {
+      userGoal = value.data()!["userGoal"];
+      print('user goal: $userGoal');
+      print('init');
+    });
   }
 }
 
