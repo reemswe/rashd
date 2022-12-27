@@ -30,7 +30,7 @@ class _dashboardState extends State<dashboard> {
     'اكتوبر',
     'ديسمبر'
   ];
-
+  Future<void>? energy;
   final _formKey = GlobalKey<FormState>();
   List text = [
     [
@@ -38,14 +38,16 @@ class _dashboardState extends State<dashboard> {
       '500.25 SR',
       '\t',
       const Color.fromARGB(255, 92, 226, 233),
-      Colors.black
+      Colors.black,
+      const EdgeInsets.fromLTRB(15, 15, 12, 23),
     ],
     [
-      'اجمالي استهلاك الطاقة\n\n150 kWh\n\n  تم بلوغ 50% من هدف الشهر',
-      '150 kWh',
+      'اجمالي استهلاك الطاقة\n\nkWh\n\n  تم بلوغ 50% من هدف الشهر',
+      '',
       'تم بلوغ 50% من هدف الشهر',
       const Color.fromARGB(255, 107, 217, 245),
-      Colors.white
+      Colors.white,
+      const EdgeInsets.fromLTRB(0, 15, 10, 23),
     ]
   ];
   final List<ChartData> chartData = [
@@ -59,6 +61,7 @@ class _dashboardState extends State<dashboard> {
   var date = DateTime.now();
   var formatted = '';
   TextEditingController goalController = TextEditingController();
+
   @override
   void initState() {
     setState(() {
@@ -71,15 +74,16 @@ class _dashboardState extends State<dashboard> {
           .get()
           .then((value) {
         userGoal = value.data()!["userGoal"];
-        print('user goal: $userGoal');
-        print('init');
+        energy = totalEnergy();
       });
+      //totalEnergy();
     });
 
     super.initState();
   }
 
-  String userGoal = '0';
+  String userGoal = '';
+  int total = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -282,7 +286,9 @@ class _dashboardState extends State<dashboard> {
                                       child: Text(
                                         'الهدف لإجمالي استهلاك \n :الطاقة',
                                         textAlign: TextAlign.right,
-                                        style: TextStyle(fontSize: 17),
+                                        style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold),
                                       )),
                                   hintStyle: const TextStyle(
                                     fontSize: 10,
@@ -317,6 +323,7 @@ class _dashboardState extends State<dashboard> {
                                 ),
                               ));
                         })),
+                //floating action button
                 Container(
                     margin: const EdgeInsets.fromLTRB(0, 70, 0, 0),
                     child: FloatingActionButton(
@@ -330,7 +337,7 @@ class _dashboardState extends State<dashboard> {
                               });
                         }))
               ]),
-              //change
+
               Expanded(
                 child: Stack(children: [
                   Container(
@@ -348,6 +355,7 @@ class _dashboardState extends State<dashboard> {
                       return buildCard(item);
                     },
                   )),
+                  //chart
                   Container(
                       margin: const EdgeInsets.fromLTRB(0, 170, 0, 12),
                       padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
@@ -469,6 +477,7 @@ class _dashboardState extends State<dashboard> {
     return Container(
         decoration: BoxDecoration(
           // border: Border.all(color: Color(0xff940D5A)),
+
           color: content[3],
           borderRadius: BorderRadius.circular(17.0),
           boxShadow: const <BoxShadow>[
@@ -480,16 +489,23 @@ class _dashboardState extends State<dashboard> {
           ],
         ),
         padding: const EdgeInsets.fromLTRB(6, 5, 2, 9),
-        margin: const EdgeInsets.fromLTRB(15, 23, 10, 23),
+        margin: content[5],
         //color: content[3],
-        child: GridTile(
-          child: Center(
-              child: Text(
-            content[0],
-            textAlign: TextAlign.center,
-            style: TextStyle(color: content[4], fontWeight: FontWeight.w600),
-          )),
-        ));
+
+        child: FutureBuilder(
+            future: energy,
+            builder: (context, snapshot) {
+              return GridTile(
+                child: Center(
+                    child: Text(
+                  content[0],
+                  textAlign: TextAlign.center,
+                  style:
+                      TextStyle(color: content[4], fontWeight: FontWeight.w600),
+                )),
+              );
+            }));
+    //}));
   }
 
   Widget dialog() {
@@ -630,8 +646,49 @@ class _dashboardState extends State<dashboard> {
         .then((value) {
       userGoal = value.data()!["userGoal"];
       print('user goal: $userGoal');
-      print('init');
     });
+  }
+
+  Future<void> totalEnergy() async {
+    print('inside');
+    var i = 0;
+//     var collection = await FirebaseFirestore.instance
+//         .collection('dashboard')
+//         .doc(widget.dashId)
+//         .collection('dashboard_readings');
+//     collection.snapshots().listen((querySnapshot) {
+//       for (var doc in querySnapshot.docs) {
+//         Map<String, dynamic> data = doc.data();
+//         var fooValue = data['energy_consumption'];
+//         print(fooValue); // <-- Retrieving the value.
+//         total += int.parse(fooValue);
+//       }
+
+//     print('t0tal: $total');
+//     setState(() {
+//       int val = 0;
+//       val = total;
+//       text[1][0] =
+//           'اجمالي استهلاك الطاقة\n\n$val kWh\n\n  تم بلوغ 50% من هدف الشهر';
+//     });
+// });
+    var collection = await FirebaseFirestore.instance
+        .collection('dashboard')
+        .doc(widget.dashId)
+        .collection('dashboard_readings');
+    var querySnapshot = await collection.get();
+    for (var doc in querySnapshot.docs) {
+      Map<String, dynamic> data = doc.data();
+      var fooValue = data['energy_consumption'];
+      i += int.parse(fooValue);
+      // <-- Retrieving the value.
+    }
+    print('t0tal: $i');
+    setState(() {
+      text[1][0] =
+          'اجمالي استهلاك الطاقة\n\n$i kWh\n\n  تم بلوغ 50% من هدف الشهر';
+    });
+    print('after');
   }
 }
 
