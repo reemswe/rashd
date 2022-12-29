@@ -3,6 +3,7 @@ import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:rashd/list_of_houseMembers.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'create_house_account.dart';
 
@@ -55,16 +56,32 @@ class _dashboardState extends State<dashboard> {
     ChartData('المكيف', 230),
     ChartData('التلفاز', 340),
     ChartData('المايكرويف', 250),
-    ChartData('الفريزر', 400)
+    ChartData('الفريزر', 400),
+    ChartData('المكيف1', 230),
+    ChartData('1التلفاز', 340),
+    ChartData('1المايكرويف', 250),
+    ChartData('1الفريزر', 400),
+    ChartData('المكيف2', 230),
+    ChartData('2التلفاز', 340),
+    ChartData('2المايكرويف', 250),
+    ChartData('2الفريزر', 400),
+    ChartData('1التلفاز', 340),
+    ChartData('1المايكرويف', 250),
+    ChartData('1الفريزر', 400),
+    ChartData('المكيف2', 230),
+    ChartData('2التلفاز', 340),
+    ChartData('2المايكرويف', 250),
+    ChartData('2الفريزر', 400)
   ];
   int i = 0;
   var date = DateTime.now();
   var formatted = '';
   TextEditingController goalController = TextEditingController();
-
+  String houseName = '';
   @override
   void initState() {
     setState(() {
+      String houseID = '';
       int index = date.month;
       formatted = months[index];
       FirebaseFirestore.instance
@@ -72,10 +89,18 @@ class _dashboardState extends State<dashboard> {
           .doc(widget.dashId)
           .get()
           .then((value) {
+        houseID = value.data()!["houseID"];
         userGoal = value.data()!["userGoal"];
         energy = totalEnergy();
+        FirebaseFirestore.instance
+            .collection("houseAccount")
+            .doc(houseID)
+            .get()
+            .then((value) {
+          houseName = value.data()!["houseName"];
+          print('houseName: $houseName');
+        });
       });
-      //totalEnergy();
     });
 
     super.initState();
@@ -88,10 +113,15 @@ class _dashboardState extends State<dashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          ' البيت',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
+        title: FutureBuilder(
+            future: goal(),
+            builder: (context, snapshot) {
+              return Text(
+                houseName,
+                style: const TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold),
+              );
+            }),
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -356,36 +386,39 @@ class _dashboardState extends State<dashboard> {
                   )),
                   //chart
                   Container(
-                      margin: const EdgeInsets.fromLTRB(0, 170, 0, 12),
-                      padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-                      child: Material(
-                        elevation: 20,
-                        borderRadius: BorderRadius.circular(30),
-                        child: TextFormField(
-                          readOnly: true,
-                          maxLines: 6,
-                          textAlign: TextAlign.right,
-                          decoration: InputDecoration(
-                            labelText: 'استهلاك الطاقة لكل جهاز',
-                            hintStyle: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Color.fromARGB(0, 100, 100, 100)),
-                            contentPadding:
-                                const EdgeInsets.fromLTRB(20, 10, 5, 10),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                    color: Color.fromARGB(0, 158, 158, 158))),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                                borderSide: const BorderSide(
-                                    color: Color.fromARGB(0, 189, 189, 189))),
-                            prefixIcon: Padding(
+                    margin: const EdgeInsets.fromLTRB(0, 170, 0, 12),
+                    padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
+                    child: Material(
+                      elevation: 20,
+                      borderRadius: BorderRadius.circular(30),
+                      child: TextFormField(
+                        readOnly: true,
+                        maxLines: 6,
+                        textAlign: TextAlign.right,
+                        decoration: InputDecoration(
+                          labelText: 'استهلاك الطاقة لكل جهاز',
+                          hintStyle: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Color.fromARGB(0, 100, 100, 100)),
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(20, 10, 5, 10),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: const BorderSide(
+                                  color: Color.fromARGB(0, 158, 158, 158))),
+                          enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: const BorderSide(
+                                  color: Color.fromARGB(0, 189, 189, 189))),
+                          prefixIcon: Padding(
                               padding: const EdgeInsets.all(12),
+                              //child: SingleChildScrollView(
                               child: SfCartesianChart(
                                   primaryXAxis: CategoryAxis(
-                                      title: AxisTitle(text: 'Devices')),
+                                      visibleMinimum: 0,
+                                      visibleMaximum: 10,
+                                      title: AxisTitle(text: 'الأجهزة')),
                                   primaryYAxis: NumericAxis(
                                       title: AxisTitle(text: 'kWh')),
                                   series: <ChartSeries<ChartData, String>>[
@@ -403,11 +436,11 @@ class _dashboardState extends State<dashboard> {
                                             data.x,
                                         yValueMapper: (ChartData data, _) =>
                                             data.y),
-                                  ]),
-                            ),
-                          ),
+                                  ])),
                         ),
-                      ))
+                      ),
+                    ),
+                  )
                 ]),
               )
             ]),
@@ -424,11 +457,19 @@ class _dashboardState extends State<dashboard> {
           () => global.index = index,
         );
         if (global.index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const HouseMembers()),
+          );
+        } else if (global.index == 1) {
           // Navigator.push(
           //   context,
-          //   MaterialPageRoute(builder: (context) => const devicesList()),
+          //   MaterialPageRoute(
+          //       builder: (context) => const dashboard(
+          //             dashId: 'fIgVgfieeVqGRB9oRne1',
+          //           )),
           // );
-        } else if (global.index == 1) {
+        } else if (global.index == 2) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -436,15 +477,17 @@ class _dashboardState extends State<dashboard> {
                       dashId: 'fIgVgfieeVqGRB9oRne1',
                     )),
           );
-        } else if (global.index == 2) {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //       builder: (context) => const ListOfHouseAccounts()),
-          // );
-        }
+        } else if (global.index == 3) {}
       },
       items: <BottomNavyBarItem>[
+        BottomNavyBarItem(
+          icon: const Icon(Icons.people_alt_rounded),
+          title: const Text(
+            ' الأعضاء',
+            textAlign: TextAlign.center,
+          ),
+          activeColor: Colors.lightBlue,
+        ),
         BottomNavyBarItem(
           icon: const Icon(Icons.electrical_services_rounded),
           title: const Text(
@@ -647,6 +690,7 @@ class _dashboardState extends State<dashboard> {
   }
 
   Future<void> totalEnergy() async {
+    String percentage = '';
     var collection = await FirebaseFirestore.instance
         .collection('dashboard')
         .doc(widget.dashId)
@@ -663,30 +707,13 @@ class _dashboardState extends State<dashboard> {
       total = total - i;
       print('t0tal after: $total');
       setState(() {
+        percentage = ((total / int.parse(userGoal)) * 100).toStringAsFixed(1);
         text[1][0] =
-            'اجمالي استهلاك الطاقة\n\n$total kWh\n\n  تم بلوغ 50% من هدف الشهر';
+            'اجمالي استهلاك الطاقة\n\n$total kWh\n\n  تم بلوغ $percentage% من هدف الشهر';
         i = total;
       });
       print('i after: $i');
     });
-
-    // int i = 0;
-    // var collection = FirebaseFirestore.instance
-    //     .collection('dashboard')
-    //     .doc(widget.dashId)
-    //     .collection('dashboard_readings');
-    // var querySnapshot = await collection.get();
-    // for (var doc in querySnapshot.docs) {
-    //   Map<String, dynamic> data = doc.data();
-    //   var fooValue = data['energy_consumption']; // <-- Retrieving the value.
-    //   i += int.parse(fooValue);
-    // }
-    // print('t0tal: $i');
-    // setState(() {
-    //   // text[1][0] =
-    //   //     'اجمالي استهلاك الطاقة\n\n$i kWh\n\n  تم بلوغ 50% من هدف الشهر';
-    //   total = i;
-    // });
   }
 }
 
