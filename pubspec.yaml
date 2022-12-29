@@ -46,6 +46,8 @@ dependencies:
   intl: ^0.17.0
   flutter_localizations:
     sdk: flutter
+  firebase_database: ^10.0.9
+  phosphor_flutter: ^1.4.0
 
 dev_dependencies:
   flutter_test:

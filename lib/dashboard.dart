@@ -78,10 +78,11 @@ class _dashboardState extends State<dashboard> {
   var formatted = '';
   TextEditingController goalController = TextEditingController();
   String houseName = '';
+  String houseID = '';
   @override
   void initState() {
     setState(() {
-      String houseID = '';
+      global.index = 2;
       int index = date.month;
       formatted = months[index];
       FirebaseFirestore.instance
@@ -295,7 +296,6 @@ class _dashboardState extends State<dashboard> {
                       ),
                     ),
                   ])),
-              // changeeee
               Stack(children: [
                 Container(
                     padding: const EdgeInsets.fromLTRB(6, 12, 6, 0),
@@ -366,7 +366,6 @@ class _dashboardState extends State<dashboard> {
                               });
                         }))
               ]),
-
               Expanded(
                 child: Stack(children: [
                   Container(
@@ -459,7 +458,10 @@ class _dashboardState extends State<dashboard> {
         if (global.index == 0) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const HouseMembers()),
+            MaterialPageRoute(
+                builder: (context) => HouseMembers(
+                      houseId: houseID,
+                    )),
           );
         } else if (global.index == 1) {
           // Navigator.push(
