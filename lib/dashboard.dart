@@ -57,7 +57,7 @@ class _dashboardState extends State<dashboard> {
     ChartData('المايكرويف', 250),
     ChartData('الفريزر', 400)
   ];
-
+  int i = 0;
   var date = DateTime.now();
   var formatted = '';
   TextEditingController goalController = TextEditingController();
@@ -67,7 +67,6 @@ class _dashboardState extends State<dashboard> {
     setState(() {
       int index = date.month;
       formatted = months[index];
-      print('formatted: $formatted');
       FirebaseFirestore.instance
           .collection("dashboard")
           .doc(widget.dashId)
@@ -629,13 +628,11 @@ class _dashboardState extends State<dashboard> {
   }
 
   Future<void> UpdateDB() async {
-    print('will be added to db');
     var Edit_info =
         FirebaseFirestore.instance.collection('dashboard').doc(widget.dashId);
     Edit_info.update({
       'userGoal': goalController.text,
     });
-    print('profile edited');
   }
 
   Future<void> goal() async {
@@ -650,45 +647,46 @@ class _dashboardState extends State<dashboard> {
   }
 
   Future<void> totalEnergy() async {
-    print('inside');
-    var i = 0;
-//     var collection = await FirebaseFirestore.instance
-//         .collection('dashboard')
-//         .doc(widget.dashId)
-//         .collection('dashboard_readings');
-//     collection.snapshots().listen((querySnapshot) {
-//       for (var doc in querySnapshot.docs) {
-//         Map<String, dynamic> data = doc.data();
-//         var fooValue = data['energy_consumption'];
-//         print(fooValue); // <-- Retrieving the value.
-//         total += int.parse(fooValue);
-//       }
-
-//     print('t0tal: $total');
-//     setState(() {
-//       int val = 0;
-//       val = total;
-//       text[1][0] =
-//           'اجمالي استهلاك الطاقة\n\n$val kWh\n\n  تم بلوغ 50% من هدف الشهر';
-//     });
-// });
     var collection = await FirebaseFirestore.instance
         .collection('dashboard')
         .doc(widget.dashId)
         .collection('dashboard_readings');
-    var querySnapshot = await collection.get();
-    for (var doc in querySnapshot.docs) {
-      Map<String, dynamic> data = doc.data();
-      var fooValue = data['energy_consumption'];
-      i += int.parse(fooValue);
-      // <-- Retrieving the value.
-    }
-    print('t0tal: $i');
-    setState(() {
-      text[1][0] =
-          'اجمالي استهلاك الطاقة\n\n$i kWh\n\n  تم بلوغ 50% من هدف الشهر';
+    collection.snapshots().listen((querySnapshot) {
+      for (var doc in querySnapshot.docs) {
+        Map<String, dynamic> data = doc.data();
+        var fooValue = data['energy_consumption']; // <-- Retrieving the value.
+        setState(() {
+          total += int.parse(fooValue);
+        });
+      }
+      print('i: $i and total: $total');
+      total = total - i;
+      print('t0tal after: $total');
+      setState(() {
+        text[1][0] =
+            'اجمالي استهلاك الطاقة\n\n$total kWh\n\n  تم بلوغ 50% من هدف الشهر';
+        i = total;
+      });
+      print('i after: $i');
     });
-    print('after');
+
+    // int i = 0;
+    // var collection = FirebaseFirestore.instance
+    //     .collection('dashboard')
+    //     .doc(widget.dashId)
+    //     .collection('dashboard_readings');
+    // var querySnapshot = await collection.get();
+    // for (var doc in querySnapshot.docs) {
+    //   Map<String, dynamic> data = doc.data();
+    //   var fooValue = data['energy_consumption']; // <-- Retrieving the value.
+    //   i += int.parse(fooValue);
+    // }
+    // print('t0tal: $i');
+    // setState(() {
+    //   // text[1][0] =
+    //   //     'اجمالي استهلاك الطاقة\n\n$i kWh\n\n  تم بلوغ 50% من هدف الشهر';
+    //   total = i;
+    // });
   }
 }
 
