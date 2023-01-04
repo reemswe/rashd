@@ -5,15 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
-
 import '../HouseAccount/add_house_member.dart';
 import '../Dashboard/dashboard.dart';
 import '../HouseAccount/list_of_house_accounts.dart';
@@ -56,7 +52,7 @@ class listOfDevicesState extends State<listOfDevices> {
         .collection('dashboard')
         .doc(dashboardID)
         .collection('sharedCode')
-        .add({'code': codeNumber, 'isExpired': false});
+        .add({'dashID': dashboardID, 'code': codeNumber, 'isExpired': false});
   }
 
   TextEditingController phoneController = TextEditingController();

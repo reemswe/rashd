@@ -1,11 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'Devices/listOfDevices.dart';
-import 'Firebase/firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-// import 'accessSharedDashboard.dart';
-// import 'houseDevicesList.dart';
 import 'HouseAccount/list_of_house_accounts.dart';
 import 'Registration/login.dart';
 import 'Registration/register.dart';

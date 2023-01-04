@@ -197,17 +197,17 @@ class satisfies extends State<accessSharedDashboard> {
                                           inProgress = false;
                                         });
 
-                                        Fluttertoast.showToast(
-                                            msg: "مرحبا بك في رشد",
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity
-                                                .BOTTOM, // Also possible "TOP" and "CENTER"
-                                            backgroundColor: Colors.blue,
-                                            textColor: Colors.white);
+                                        // Fluttertoast.showToast(
+                                        //     msg: "مرحبا بك في رشد",
+                                        //     toastLength: Toast.LENGTH_SHORT,
+                                        //     gravity: ToastGravity
+                                        //         .BOTTOM, // Also possible "TOP" and "CENTER"
+                                        //     backgroundColor: Colors.blue,
+                                        //     textColor: Colors.white);
 
                                         var sharedDashboard =
                                             await FirebaseFirestore.instance
-                                                .collection('shared_user')
+                                                .collectionGroup('sharedCode')
                                                 .where('code',
                                                     isEqualTo: int.parse(
                                                         codeController.text))
@@ -215,9 +215,22 @@ class satisfies extends State<accessSharedDashboard> {
                                                     isEqualTo: false)
                                                 .get();
 
-                                        print("dashID: " +
-                                            sharedDashboard.docs[0]
-                                                .data()['dashId']);
+                                        await FirebaseFirestore.instance
+                                            .collectionGroup('sharedCode')
+                                            .where('code',
+                                                isEqualTo: int.parse(
+                                                    codeController.text))
+                                            .where('isExpired',
+                                                isEqualTo: false)
+                                            .get();
+
+                                        FirebaseFirestore.instance
+                                            .collection('dashboard')
+                                            .doc(sharedDashboard.docs[0]
+                                                .data()["dashID"])
+                                            .collection('sharedCode')
+                                            .doc(sharedDashboard.docs[0].id)
+                                            .update({'isExpired': true});
 
                                         clearForm();
 
@@ -226,7 +239,7 @@ class satisfies extends State<accessSharedDashboard> {
                                             MaterialPageRoute(
                                               builder: (context) => dashboard(
                                                 ID: sharedDashboard.docs[0]
-                                                    .data()['dashId'],
+                                                    .data()['dashID'],
                                                 isShared: true,
                                               ),
                                             ));
@@ -281,19 +294,19 @@ class satisfies extends State<accessSharedDashboard> {
   //Returns true if code satisfies the above.
   Future<bool> isCodeValid() async {
     QuerySnapshot codeExistQuery = await FirebaseFirestore.instance
-        .collection('shared_user')
+        .collectionGroup('sharedCode')
         .where('code',
             isEqualTo: int.parse(codeController
                 .text)) //parse the input string value to int and it will work correctly, then change the status of isExpired
         .get();
-    QuerySnapshot codeExpiredQuery = await FirebaseFirestore.instance
-        .collection('shared_user')
-        .where('code', isEqualTo: int.parse(codeController.text))
-        .where('isExpired', isEqualTo: false)
-        .get();
 
     if (codeExistQuery.docs.isNotEmpty) {
       print('NOT EMPTY');
+      QuerySnapshot codeExpiredQuery = await FirebaseFirestore.instance
+          .collectionGroup('sharedCode')
+          .where('code', isEqualTo: int.parse(codeController.text))
+          .where('isExpired', isEqualTo: false)
+          .get();
       if (codeExpiredQuery.docs.isNotEmpty) {
         invalidCode = false;
       } else {
@@ -306,7 +319,7 @@ class satisfies extends State<accessSharedDashboard> {
       codeErrorMessage = 'رمز لوحة المعلومات غير صالح.';
     }
 
-    return codeExpiredQuery.docs.isEmpty;
+    return invalidCode;
   }
 
   void clearForm() {

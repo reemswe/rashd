@@ -400,7 +400,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                 validator: (value) {
                                   if (value != null &&
                                       value.isNotEmpty &&
-                                      value!.length < 10) {
+                                      value.length < 10) {
                                     return 'ادخل رقمًا صحيحًا مكونًا من ١٠ أرقام';
                                   }
                                   return null;

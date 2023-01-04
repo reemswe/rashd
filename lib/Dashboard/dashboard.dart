@@ -1,19 +1,23 @@
 import 'dart:core';
+import 'dart:math';
 
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:uuid/uuid.dart';
 import '../Devices/listOfDevices.dart';
 import '../HouseAccount/add_house_member.dart';
 import '../HouseAccount/list_of_house_accounts.dart';
+import '../Registration/welcomePage.dart';
 
 class dashboard extends StatefulWidget {
   final ID; //house id
-  var isShared = false;
-  dashboard({super.key, required this.ID, this.isShared = false});
+  final isShared;
+  const dashboard({super.key, required this.ID, this.isShared = false});
 
   @override
   State<dashboard> createState() => _dashboardState();
@@ -26,12 +30,32 @@ Future<Map<String, dynamic>> readHouseData(var id) =>
       },
     );
 
-// Future<Map<String, dynamic>> readSharedData(var dashID) =>
-// FirebaseFirestore.instance.collection('houseAccount').where(dashID).get().then(
-//   (DocumentSnapshot doc) {
-//     return doc.data() as Map<String, dynamic>;
-//   },
-// );
+Future<Map<String, dynamic>> readSharedData(var dashID) =>
+    FirebaseFirestore.instance.collection('dashboard').doc(dashID).get().then(
+      (DocumentSnapshot doc) {
+        return doc.data() as Map<String, dynamic>;
+      },
+    );
+
+Future<void> share(dashboardID) async {
+  var uuid = Uuid();
+  uuid.v1();
+  var value = new Random();
+  var codeNumber = value.nextInt(900000) + 100000;
+
+  await FlutterShare.share(
+      title: 'Share Dashboard',
+      text:
+          'لعرض لوحة المعلومات المشتركة ادخل الرمز ${codeNumber} في صفحة عرض لوحة المعلومات المشتركة',
+      linkUrl: 'https://flutter.dev/',
+      chooserTitle: 'Example Chooser Title'); //expired
+
+  await FirebaseFirestore.instance
+      .collection('dashboard')
+      .doc(dashboardID)
+      .collection('sharedCode')
+      .add({'dashID': dashboardID, 'code': codeNumber, 'isExpired': false});
+}
 
 class _dashboardState extends State<dashboard> {
   List text = [
@@ -65,7 +89,7 @@ class _dashboardState extends State<dashboard> {
 
     return FutureBuilder<Map<String, dynamic>>(
         future: widget.isShared
-            ? readHouseData(widget.ID)
+            ? readSharedData(widget.ID)
             : readHouseData(widget.ID),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
@@ -79,7 +103,7 @@ class _dashboardState extends State<dashboard> {
                     children: <Widget>[
                       SizedBox(height: height * 0.01),
                       Text(
-                        houseData['houseName'],
+                        widget.isShared ? 'null' : houseData['houseName'],
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -88,10 +112,12 @@ class _dashboardState extends State<dashboard> {
                         ),
                       ),
                       Text(
-                        houseData['OwnerID'] ==
-                                FirebaseAuth.instance.currentUser!.uid
-                            ? 'مالك المنزل'
-                            : "عضو في المنزل",
+                        widget.isShared
+                            ? ''
+                            : (houseData['OwnerID'] ==
+                                    FirebaseAuth.instance.currentUser!.uid
+                                ? 'مالك المنزل'
+                                : "عضو في المنزل"),
                         style: TextStyle(
                           color: Colors.grey.shade900,
                           fontWeight: FontWeight.w400,
@@ -103,143 +129,197 @@ class _dashboardState extends State<dashboard> {
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.black,
                 actions: [
-                  PopupMenuButton(
-                    onSelected: (value) {
-                      if (value == 'share') {
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: const Text(
-                              "مشاركة لوحة المعلومات",
-                              textAlign: TextAlign.left,
-                            ),
-                            content: const Text(
-                              'رجاء ادخل رقم جوال لمشاركة لوحة المعلومات',
-                              textAlign: TextAlign.left,
-                            ),
-                            actions: <Widget>[
-                              TextFormField(
-                                textAlign: TextAlign.right,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: <TextInputFormatter>[
-                                  LengthLimitingTextInputFormatter(10),
-                                  FilteringTextInputFormatter.digitsOnly
-                                ],
-                                decoration: InputDecoration(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 13.0, horizontal: 15),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(30.0),
+                  Visibility(
+                    visible: !widget.isShared,
+                    child: PopupMenuButton(
+                      onSelected: (value) {
+                        if (value == 'share') {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text(
+                                "مشاركة لوحة المعلومات",
+                                textAlign: TextAlign.left,
+                              ),
+                              content: const Text(
+                                'رجاء ادخل رقم جوال لمشاركة لوحة المعلومات',
+                                textAlign: TextAlign.left,
+                              ),
+                              actions: <Widget>[
+                                TextFormField(
+                                  textAlign: TextAlign.right,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: <TextInputFormatter>[
+                                    LengthLimitingTextInputFormatter(10),
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 13.0, horizontal: 15),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                    ),
+                                    filled: true,
+                                    hintStyle:
+                                        TextStyle(color: Colors.grey[800]),
+                                    hintText: " رقم الهاتف",
                                   ),
-                                  filled: true,
-                                  hintStyle: TextStyle(color: Colors.grey[800]),
-                                  hintText: " رقم الهاتف",
+                                  // The validator receives the text that the user has entered.
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return '  رجاء ادخل رقم هاتف';
+                                    }
+                                    if (value.length < 10) {
+                                      return '  رجاء ادخل رقم هاتف صحيح';
+                                    }
+                                    return null;
+                                  },
                                 ),
-                                // The validator receives the text that the user has entered.
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return '  رجاء ادخل رقم هاتف';
-                                  }
-                                  if (value.length < 10) {
-                                    return '  رجاء ادخل رقم هاتف صحيح';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(ctx).pop();
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(14),
-                                  child: const Text("الغاء"),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(ctx).pop();
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(14),
+                                    child: const Text("الغاء"),
+                                  ),
                                 ),
-                              ),
-                              //log in ok button
-                              TextButton(
-                                onPressed: () {
-                                  // pop out
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(14),
-                                  child: const Text("مشاركة",
-                                      style: TextStyle(
-                                          color:
-                                              Color.fromARGB(255, 35, 129, 6))),
+                                //log in ok button
+                                TextButton(
+                                  onPressed: () {
+                                    // pop out
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(14),
+                                    child: const Text("مشاركة",
+                                        style: TextStyle(
+                                            color: Color.fromARGB(
+                                                255, 35, 129, 6))),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(builder: (context) => const Share()),
-                        // );
-                      }
-                      if (value == 'delete') {
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: const Text(
-                              "حذف المنزل",
-                              textAlign: TextAlign.left,
+                              ],
                             ),
-                            content: const Text(
-                              "هل أنت متأكد من حذف حساب المنزل ؟",
-                              textAlign: TextAlign.left,
+                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(builder: (context) => const Share()),
+                          // );
+                        }
+                        if (value == 'delete') {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text(
+                                "حذف المنزل",
+                                textAlign: TextAlign.left,
+                              ),
+                              content: const Text(
+                                "هل أنت متأكد من حذف حساب المنزل ؟",
+                                textAlign: TextAlign.left,
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(ctx).pop();
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(14),
+                                    child: const Text("الغاء"),
+                                  ),
+                                ),
+                                //log in ok button
+                                TextButton(
+                                  onPressed: () {
+                                    // pop out
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(14),
+                                    child: const Text("حذف",
+                                        style: TextStyle(
+                                            color: Color.fromARGB(
+                                                255, 164, 10, 10))),
+                                  ),
+                                ),
+                              ],
                             ),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(ctx).pop();
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(14),
-                                  child: const Text("الغاء"),
-                                ),
-                              ),
-                              //log in ok button
-                              TextButton(
-                                onPressed: () {
-                                  // pop out
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(14),
-                                  child: const Text("حذف",
-                                      style: TextStyle(
-                                          color: Color.fromARGB(
-                                              255, 164, 10, 10))),
-                                ),
-                              ),
-                            ],
+                          );
+                        }
+                        // your logic
+                      },
+                      itemBuilder: (BuildContext bc) {
+                        return const [
+                          PopupMenuItem(
+                            value: 'share',
+                            child: Text("مشاركة لوحة المعلومات "),
                           ),
-                        );
-                      }
-                      // your logic
-                    },
-                    itemBuilder: (BuildContext bc) {
-                      return const [
-                        PopupMenuItem(
-                          value: 'share',
-                          child: Text("مشاركة لوحة المعلومات "),
-                        ),
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Text("حذف حساب المنرل",
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 167, 32, 32))),
-                        ),
-                      ];
-                    },
-                  ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Text("حذف حساب المنرل",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 167, 32, 32))),
+                          ),
+                        ];
+                      },
+                    ),
+                  )
                 ],
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back_ios),
                   onPressed: () {
+                    if (widget.isShared) {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text("Exit Shared Dashboard?"),
+                          content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Text(
+                                  "Are you sure you want to exit the shared dashboard?",
+                                  textAlign: TextAlign.left,
+                                ),
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "\n*Please note that the shared code is a one time use code.",
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w300),
+                                      textAlign: TextAlign.left,
+                                    ))
+                              ]),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(ctx).pop();
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(14),
+                                child: const Text("إلغاء"),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.of(ctx).pop();
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(14),
+                                child: const Text("خروج",
+                                    style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 194, 98, 98))),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ListOfHouseAccounts(),
+                          builder: (context) => widget.isShared
+                              ? welcomePage()
+                              : ListOfHouseAccounts(),
                         ));
                   },
                 ),
@@ -259,17 +339,14 @@ class _dashboardState extends State<dashboard> {
                                 child: Text('لوحة المعلومات',
                                     style: TextStyle(fontSize: 25)),
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.ios_share),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ListOfHouseAccounts(),
-                                      ));
-                                },
-                              ),
+                              Visibility(
+                                  visible: !widget.isShared,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.ios_share),
+                                    onPressed: () {
+                                      share(houseData['dashboardID']);
+                                    },
+                                  )),
                             ]),
                         Container(
                           padding: EdgeInsets.only(right: 20),
@@ -416,7 +493,7 @@ class _dashboardState extends State<dashboard> {
 
   Widget buildBottomNavigation(height) {
     return Visibility(
-        visible: widget.isShared || true,
+        visible: !widget.isShared,
         child: BottomNavyBar(
           containerHeight: height * 0.07,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
