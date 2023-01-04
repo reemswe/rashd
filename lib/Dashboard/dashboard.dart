@@ -103,7 +103,7 @@ class _dashboardState extends State<dashboard> {
                     children: <Widget>[
                       SizedBox(height: height * 0.01),
                       Text(
-                        widget.isShared ? 'null' : houseData['houseName'],
+                        widget.isShared ? 'nuljjl' : houseData['houseName'],
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -270,37 +270,37 @@ class _dashboardState extends State<dashboard> {
                       showDialog(
                         context: context,
                         builder: (ctx) => AlertDialog(
-                          title: const Text("Exit Shared Dashboard?"),
+                          // titlePadding:
+                          //     const EdgeInsets.fromLTRB(5, 10, 15, 10),
+                          title: const Text("الخروج من لوحة المعلومات؟"),
                           content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: const [
                                 Text(
-                                  "Are you sure you want to exit the shared dashboard?",
-                                  textAlign: TextAlign.left,
+                                  "هل أنت متأكد أنك تريد الخروج من لوحة المعلومات المشتركة؟",
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500),
                                 ),
                                 Align(
-                                    alignment: Alignment.centerLeft,
+                                    alignment: Alignment.centerRight,
                                     child: Text(
-                                      "\n*Please note that the shared code is a one time use code.",
+                                      "\n*يرجى ملاحظة أن الرمز المشترك يستخدم مرة واحدة.",
                                       style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 15,
                                           fontWeight: FontWeight.w300),
-                                      textAlign: TextAlign.left,
+                                      textAlign: TextAlign.right,
                                     ))
                               ]),
                           actions: <Widget>[
                             TextButton(
-                              onPressed: () {
-                                Navigator.of(ctx).pop();
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(14),
-                                child: const Text("إلغاء"),
-                              ),
-                            ),
-                            TextButton(
                               onPressed: () async {
-                                Navigator.of(ctx).pop();
+                                // Navigator.of(ctx).pop();
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => welcomePage()));
                               },
                               child: Container(
                                 padding: const EdgeInsets.all(14),
@@ -310,17 +310,25 @@ class _dashboardState extends State<dashboard> {
                                             Color.fromARGB(255, 194, 98, 98))),
                               ),
                             ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(ctx).pop();
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(14),
+                                child: const Text("إلغاء"),
+                              ),
+                            ),
                           ],
                         ),
                       );
+                    } else {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ListOfHouseAccounts(),
+                          ));
                     }
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => widget.isShared
-                              ? welcomePage()
-                              : ListOfHouseAccounts(),
-                        ));
                   },
                 ),
                 elevation: 1.5,
