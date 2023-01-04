@@ -16,8 +16,8 @@ import 'package:path/path.dart' as Path;
 //import 'share_Dash.dart';
 
 class add_house_member extends StatefulWidget {
-  final houseID;
-  const add_house_member({super.key, required this.houseID});
+  final ID;
+  const add_house_member({super.key, required this.ID});
   @override
   add_house_memberState createState() => add_house_memberState();
 }
@@ -66,7 +66,7 @@ class add_house_memberState extends State<add_house_member> {
 
     final _formKey = GlobalKey<FormState>();
     return FutureBuilder<Map<String, dynamic>>(
-        future: readHouseData(widget.houseID),
+        future: readHouseData(widget.ID),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
@@ -492,7 +492,7 @@ class add_house_memberState extends State<add_house_member> {
             context,
             MaterialPageRoute(
                 builder: (context) => dashboard(
-                      houseID: widget.houseID,
+                      ID: widget.ID,
                     )),
           );
         } else if (index == 1) {
@@ -500,7 +500,7 @@ class add_house_memberState extends State<add_house_member> {
             context,
             MaterialPageRoute(
                 builder: (context) => listOfDevices(
-                      houseID: widget.houseID,
+                      ID: widget.ID,
                     )),
           );
         } else if (index == 2) {
@@ -508,7 +508,7 @@ class add_house_memberState extends State<add_house_member> {
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    add_house_member(houseID: widget.houseID)),
+                    add_house_member(ID: widget.ID)),
           );
         }
       },

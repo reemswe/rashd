@@ -31,8 +31,6 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
     super.initState();
   }
 
-
-
   String name = 'null';
   Future<Map<String, dynamic>> readUserData(var id) =>
       FirebaseFirestore.instance.collection('userAccount').doc(id).get().then(
@@ -129,9 +127,9 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => dashboard(
-                                            houseID: 'ffDQbRQQ8k9RzlGQ57FL')
+                                            ID: 'ffDQbRQQ8k9RzlGQ57FL')
                                         // const listOfDevices(
-                                        //   houseID: 'ffDQbRQQ8k9RzlGQ57FL',
+                                        //   ID: 'ffDQbRQQ8k9RzlGQ57FL',
                                         // )
                                         ),
                                   );

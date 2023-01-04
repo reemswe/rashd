@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:rashd/Dashboard/dashboard.dart';
 
 import '../HouseAccount/list_of_house_accounts.dart';
 import '../Registration/register.dart';
@@ -204,14 +205,31 @@ class satisfies extends State<accessSharedDashboard> {
                                             backgroundColor: Colors.blue,
                                             textColor: Colors.white);
 
+                                        var sharedDashboard =
+                                            await FirebaseFirestore.instance
+                                                .collection('shared_user')
+                                                .where('code',
+                                                    isEqualTo: int.parse(
+                                                        codeController.text))
+                                                .where('isExpired',
+                                                    isEqualTo: false)
+                                                .get();
+
+                                        print("dashID: " +
+                                            sharedDashboard.docs[0]
+                                                .data()['dashId']);
+
                                         clearForm();
 
-                                        // Navigator.push(
-                                        //     context,
-                                        //     MaterialPageRoute(
-                                        //       builder: (context) =>
-                                        //           const ListOfHouseAccounts(),
-                                        //     ));
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => dashboard(
+                                                ID: sharedDashboard.docs[0]
+                                                    .data()['dashId'],
+                                                isShared: true,
+                                              ),
+                                            ));
                                       }
                                     },
                                     child: const Text('التالي'),
@@ -265,12 +283,12 @@ class satisfies extends State<accessSharedDashboard> {
     QuerySnapshot codeExistQuery = await FirebaseFirestore.instance
         .collection('shared_user')
         .where('code',
-            isEqualTo: codeController
-                .value) //parse the input string value to int and it will work correctly, then change the status of isExpired
+            isEqualTo: int.parse(codeController
+                .text)) //parse the input string value to int and it will work correctly, then change the status of isExpired
         .get();
     QuerySnapshot codeExpiredQuery = await FirebaseFirestore.instance
         .collection('shared_user')
-        .where('code', isEqualTo: codeController.text)
+        .where('code', isEqualTo: int.parse(codeController.text))
         .where('isExpired', isEqualTo: false)
         .get();
 

@@ -75,124 +75,114 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
 
     return Container(
         padding: const EdgeInsets.fromLTRB(12, 12, 6, 12),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
-            Widget>[
-          const SizedBox(
-            height: 40,
-          ),
-          Text(
-            'عضو المنزل $place',
-            textAlign: TextAlign.right,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          // Text('  عضو المنزل $place ', textAlign: TextAlign.right),
-          TextFormField(
-            maxLength: 20,
-            controller: membersNames[num],
-            textAlign: TextAlign.right,
-            decoration: InputDecoration(
-              hintText: ' الاسم ',
-              contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: const BorderSide(color: Colors.grey)),
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: BorderSide(color: Colors.grey.shade400)),
-              errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: const BorderSide(color: Colors.red, width: 2.0)),
-              focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: const BorderSide(color: Colors.red, width: 2.0)),
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          TextFormField(
-            controller: membersPhones[num],
-            maxLength: 10,
-            textAlign: TextAlign.right,
-            decoration: InputDecoration(
-              hintText: ' رقم الجوال ',
-              contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: const BorderSide(color: Colors.grey)),
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: BorderSide(color: Colors.grey.shade400)),
-              errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: const BorderSide(color: Colors.red, width: 2.0)),
-              focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.0),
-                  borderSide: const BorderSide(color: Colors.red, width: 2.0)),
-            ),
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-            child: ToggleSwitch(
-              minWidth: 210.0,
-              minHeight: 50.0,
-              borderWidth: 1,
-              borderColor: const [
-                Color.fromARGB(255, 149, 149, 149),
-                Color.fromARGB(255, 149, 149, 149)
-              ],
-              customTextStyles: const [
-                TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const SizedBox(
+                height: 40,
+              ),
+              Text(
+                'عضو المنزل $place',
+                textAlign: TextAlign.right,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              // Text('  عضو المنزل $place ', textAlign: TextAlign.right),
+              TextFormField(
+                maxLength: 20,
+                controller: membersNames[num],
+                textAlign: TextAlign.right,
+                decoration: InputDecoration(
+                  hintText: ' الاسم ',
                 ),
-                TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                )
-              ],
-              initialLabelIndex: privilege_index2,
-              cornerRadius: 100.0,
-              activeFgColor: const Color.fromARGB(255, 255, 255, 255),
-              inactiveBgColor: Colors.white,
-              inactiveFgColor: Colors.black,
-              totalSwitches: 2,
-              labels: const ['محرر', 'مشاهد'],
-              activeBgColors: const [
-                [Colors.blue],
-                [Colors.blue],
-              ],
-              onToggle: (index) {
-                if (index == 0) {
-                  privilege_index2 = 0;
-                  privilege_edit2 = 'editor';
-                  setState(() {
-                    privilege2 = 'editor';
-                    roles[num] = 'editor';
-                  });
-                  print('switched to: editor');
-                  print(privilege2);
-                } else {
-                  privilege_index2 = 1;
-                  privilege_edit2 = 'viewer';
-                  setState(() {
-                    privilege2 = 'viewer';
-                    roles[num] = 'viewer';
-                  });
-                  print('switched to: viewer');
-                  print(privilege2);
-                }
-              },
-            ),
-          ),
-        ]));
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              TextFormField(
+                controller: membersPhones[num],
+                maxLength: 10,
+                textAlign: TextAlign.right,
+                decoration: InputDecoration(
+                  hintText: ' رقم الجوال ',
+                  contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(100.0),
+                      borderSide: const BorderSide(color: Colors.grey)),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(100.0),
+                      borderSide: BorderSide(color: Colors.grey.shade400)),
+                  errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(100.0),
+                      borderSide:
+                          const BorderSide(color: Colors.red, width: 2.0)),
+                  focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(100.0),
+                      borderSide:
+                          const BorderSide(color: Colors.red, width: 2.0)),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: ToggleSwitch(
+                  minWidth: 210.0,
+                  minHeight: 50.0,
+                  borderWidth: 1,
+                  borderColor: const [
+                    Color.fromARGB(255, 149, 149, 149),
+                    Color.fromARGB(255, 149, 149, 149)
+                  ],
+                  customTextStyles: const [
+                    TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                    TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    )
+                  ],
+                  initialLabelIndex: privilege_index2,
+                  cornerRadius: 100.0,
+                  activeFgColor: const Color.fromARGB(255, 255, 255, 255),
+                  inactiveBgColor: Colors.white,
+                  inactiveFgColor: Colors.black,
+                  totalSwitches: 2,
+                  labels: const ['محرر', 'مشاهد'],
+                  activeBgColors: const [
+                    [Colors.blue],
+                    [Colors.blue],
+                  ],
+                  onToggle: (index) {
+                    if (index == 0) {
+                      privilege_index2 = 0;
+                      privilege_edit2 = 'editor';
+                      setState(() {
+                        privilege2 = 'editor';
+                        roles[num] = 'editor';
+                      });
+                      print('switched to: editor');
+                      print(privilege2);
+                    } else {
+                      privilege_index2 = 1;
+                      privilege_edit2 = 'viewer';
+                      setState(() {
+                        privilege2 = 'viewer';
+                        roles[num] = 'viewer';
+                      });
+                      print('switched to: viewer');
+                      print(privilege2);
+                    }
+                  },
+                ),
+              ),
+            ]));
   }
 
   final _formKey = GlobalKey<FormState>();

@@ -19,8 +19,8 @@ import '../Dashboard/dashboard.dart';
 import '../HouseAccount/list_of_house_accounts.dart';
 
 class listOfDevices extends StatefulWidget {
-  final houseID;
-  const listOfDevices({super.key, required this.houseID});
+  final ID; //house ID
+  const listOfDevices({super.key, required this.ID});
 
   @override
   State<listOfDevices> createState() => listOfDevicesState();
@@ -39,7 +39,7 @@ class listOfDevicesState extends State<listOfDevices> {
         },
       );
 
-  Future<void> share() async {
+  Future<void> share(dashboardID) async {
     var uuid = Uuid();
     uuid.v1();
     var value = new Random();
@@ -52,11 +52,11 @@ class listOfDevicesState extends State<listOfDevices> {
         linkUrl: 'https://flutter.dev/',
         chooserTitle: 'Example Chooser Title'); //expired
 
-    await FirebaseFirestore.instance.collection('shared_user').add({
-      'dashId': 'inXOD5QBJgPbjje7vMn3',
-      'code': codeNumber,
-      'isExpired': false
-    });
+    await FirebaseFirestore.instance
+        .collection('dashboard')
+        .doc(dashboardID)
+        .collection('sharedCode')
+        .add({'code': codeNumber, 'isExpired': false});
   }
 
   TextEditingController phoneController = TextEditingController();
@@ -68,7 +68,7 @@ class listOfDevicesState extends State<listOfDevices> {
     final double width = MediaQuery.of(context).size.width;
 
     return FutureBuilder<Map<String, dynamic>>(
-        future: readHouseData(widget.houseID),
+        future: readHouseData(widget.ID),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
@@ -142,7 +142,7 @@ class listOfDevicesState extends State<listOfDevices> {
                               //     context,
                               //     MaterialPageRoute(builder: (context) => {},//add_device(),
                               //         ));
-                              share();
+                              share(houseData['dashboardID']);
                             },
                           )),
                     ]),
@@ -172,15 +172,15 @@ class listOfDevicesState extends State<listOfDevices> {
         ];
       },
       onSelected: (value) {
-        if (value == 'share') {
-          share();
-          // showModalBottomSheet(
-          //     isScrollControlled: true,
-          //     backgroundColor: Colors.transparent,
-          //     context: context,
-          //     builder: (context) =>
-          //         ShareDashboard('ffDQbRQQ8k9RzlGQ57FL', height, width));
-        }
+        // if (value == 'share') {
+        //   share();
+        //   // showModalBottomSheet(
+        //   //     isScrollControlled: true,
+        //   //     backgroundColor: Colors.transparent,
+        //   //     context: context,
+        //   //     builder: (context) =>
+        //   //         ShareDashboard('ffDQbRQQ8k9RzlGQ57FL', height, width));
+        // }
         if (value == 'delete') {
           showDialog(
             context: context,
@@ -223,7 +223,7 @@ class listOfDevicesState extends State<listOfDevices> {
     );
   }
 
-  Widget ShareDashboard(houseID, height, width) {
+  Widget ShareDashboard(ID, height, width) {
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: DraggableScrollableSheet(
@@ -415,7 +415,7 @@ class listOfDevicesState extends State<listOfDevices> {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection("houseAccount")
-          .doc(widget.houseID)
+          .doc(widget.ID)
           .collection('houseDevices')
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -491,7 +491,7 @@ class listOfDevicesState extends State<listOfDevices> {
                             onChanged: (bool state) {
                               FirebaseFirestore.instance
                                   .collection("houseAccount")
-                                  .doc(widget.houseID)
+                                  .doc(widget.ID)
                                   .collection('houseDevices')
                                   .doc(devices.docs[index].id)
                                   .update({'status': state});
@@ -527,7 +527,7 @@ class listOfDevicesState extends State<listOfDevices> {
             context,
             MaterialPageRoute(
                 builder: (context) => dashboard(
-                      houseID: widget.houseID,
+                      ID: widget.ID,
                     )),
           );
         } else if (index == 1) {
@@ -535,15 +535,14 @@ class listOfDevicesState extends State<listOfDevices> {
             context,
             MaterialPageRoute(
                 builder: (context) => listOfDevices(
-                      houseID: widget.houseID,
+                      ID: widget.ID,
                     )),
           );
         } else if (index == 2) {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    add_house_member(houseID: widget.houseID)),
+                builder: (context) => add_house_member(ID: widget.ID)),
           );
         }
       },
@@ -574,7 +573,6 @@ class listOfDevicesState extends State<listOfDevices> {
       ],
     );
   }
-
 }
 
 class global {
