@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:rashd/create_house_account.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -58,6 +59,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int i = 7;
+  int con = 200;
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -102,7 +105,24 @@ class _MyHomePageState extends State<MyHomePage> {
                           builder: (context) => const ListOfHouseAccounts()));
                 },
                 child: const Text('houseAccounts')),
+            ElevatedButton(
+                onPressed: () {
+                  setData();
+                },
+                child: const Text('setdata')),
           ]),
     );
+  }
+
+  Future<void> setData() async {
+    i++;
+    con += 100;
+    CollectionReference houses = FirebaseFirestore.instance
+        .collection('houseAccount')
+        .doc('12Tk9jBwrDGhYe2Yjzrl')
+        .collection('houseDevices');
+
+    DocumentReference docReference =
+        await houses.add({'name': 'dev$i', 'consumption': con});
   }
 }

@@ -31,8 +31,11 @@ class _dashboardState extends State<dashboard> {
     'اكتوبر',
     'ديسمبر'
   ];
+
   Future<void>? energy;
+  Future? data;
   final _formKey = GlobalKey<FormState>();
+  List? devices = [];
   List text = [
     [
       'فاتورة الكهرباء\n\n500.25 SR',
@@ -51,27 +54,28 @@ class _dashboardState extends State<dashboard> {
       const EdgeInsets.fromLTRB(0, 15, 10, 23),
     ]
   ];
+  //List<ChartData>? chartData;
   final List<ChartData> chartData = [
-    ChartData('الثلاجة', 350),
-    ChartData('المكيف', 230),
-    ChartData('التلفاز', 340),
-    ChartData('المايكرويف', 250),
-    ChartData('الفريزر', 400),
-    ChartData('المكيف1', 230),
-    ChartData('1التلفاز', 340),
-    ChartData('1المايكرويف', 250),
-    ChartData('1الفريزر', 400),
-    ChartData('المكيف2', 230),
-    ChartData('2التلفاز', 340),
-    ChartData('2المايكرويف', 250),
-    ChartData('2الفريزر', 400),
-    ChartData('1التلفاز', 340),
-    ChartData('1المايكرويف', 250),
-    ChartData('1الفريزر', 400),
-    ChartData('المكيف2', 230),
-    ChartData('2التلفاز', 340),
-    ChartData('2المايكرويف', 250),
-    ChartData('2الفريزر', 400)
+    // ChartData('الثلاجة', 350),
+    // ChartData('المكيف', 230),
+    // ChartData('التلفاز', 340),
+    // ChartData('المايكرويف', 250),
+    // ChartData('الفريزر', 400),
+    // ChartData('المكيف1', 230),
+    // ChartData('1التلفاز', 340),
+    // ChartData('1المايكرويف', 250),
+    // ChartData('1الفريزر', 400),
+    // ChartData('المكيف2', 230),
+    // ChartData('2التلفاز', 340),
+    // ChartData('2المايكرويف', 250),
+    // ChartData('2الفريزر', 400),
+    // ChartData('1التلفاز', 340),
+    // ChartData('1المايكرويف', 250),
+    // ChartData('1الفريزر', 400),
+    // ChartData('المكيف2', 230),
+    // ChartData('2التلفاز', 340),
+    // ChartData('2المايكرويف', 250),
+    //ChartData('2الفريزر', 400)
   ];
   int i = 0;
   var date = DateTime.now();
@@ -82,6 +86,7 @@ class _dashboardState extends State<dashboard> {
   @override
   void initState() {
     setState(() {
+      data = getData();
       global.index = 2;
       int index = date.month;
       formatted = months[index];
@@ -262,188 +267,200 @@ class _dashboardState extends State<dashboard> {
         ],
       ),
       body: Container(
-        transformAlignment: Alignment.topRight,
-        child: Column(
-            //padding: const EdgeInsets.all(20),
-            //shrinkWrap: true,
-            children: [
-              Container(
-                  padding: const EdgeInsets.fromLTRB(6, 0, 0, 0),
-                  child: Column(children: [
-                    TextFormField(
-                      readOnly: true,
-                      textAlign: TextAlign.right,
-                      decoration: const InputDecoration(
-                        hintText: ' لوحة المعلومات',
-                        hintStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.black),
-                        contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 0),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                    TextFormField(
-                      // maxLength: 20,
-                      readOnly: true,
-                      textAlign: TextAlign.right,
-                      decoration: InputDecoration(
-                        hintText: formatted,
-                        hintStyle: const TextStyle(fontSize: 15),
-                        contentPadding:
-                            const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ])),
-              Stack(children: [
+          transformAlignment: Alignment.topRight,
+          child: Column(
+              //padding: const EdgeInsets.all(20),
+              //shrinkWrap: true,
+              children: [
                 Container(
-                    padding: const EdgeInsets.fromLTRB(6, 12, 6, 0),
-                    child: FutureBuilder(
-                        future: goal(),
-                        builder: (context, snapshot) {
-                          return Material(
-                              elevation: 20,
-                              borderRadius: BorderRadius.circular(30),
-                              child: TextFormField(
-                                readOnly: true,
-                                maxLines: 4,
-                                textAlign: TextAlign.right,
-                                decoration: InputDecoration(
-                                  suffixIcon: const Padding(
-                                      padding: EdgeInsets.only(right: 30),
-                                      child: Text(
-                                        'الهدف لإجمالي استهلاك \n :الطاقة',
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.bold),
-                                      )),
-                                  hintStyle: const TextStyle(
-                                    fontSize: 10,
-                                    decoration: TextDecoration.underline,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color.fromARGB(255, 17, 184, 97),
-                                  ),
-                                  contentPadding:
-                                      const EdgeInsets.fromLTRB(20, 15, 5, 10),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                      borderSide: const BorderSide(
-                                          color: Color.fromARGB(
-                                              0, 158, 158, 158))),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: const BorderSide(
-                                          color: Color.fromARGB(
-                                              0, 189, 189, 189))),
-                                  prefixIcon: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 60, top: 8, right: 0),
-                                    child: Text(
-                                      '$userGoal kWh',
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          // decoration: TextDecoration.underline,
-                                          color: Colors.green),
+                    padding: const EdgeInsets.fromLTRB(6, 0, 0, 0),
+                    child: Column(children: [
+                      TextFormField(
+                        readOnly: true,
+                        textAlign: TextAlign.right,
+                        decoration: const InputDecoration(
+                          hintText: ' لوحة المعلومات',
+                          hintStyle: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.black),
+                          contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                      TextFormField(
+                        // maxLength: 20,
+                        readOnly: true,
+                        textAlign: TextAlign.right,
+                        decoration: InputDecoration(
+                          hintText: formatted,
+                          hintStyle: const TextStyle(fontSize: 15),
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(20, 0, 20, 10),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ])),
+                Stack(children: [
+                  Container(
+                      padding: const EdgeInsets.fromLTRB(6, 12, 6, 0),
+                      child: FutureBuilder(
+                          future: goal(),
+                          builder: (context, snapshot) {
+                            return Material(
+                                elevation: 20,
+                                borderRadius: BorderRadius.circular(30),
+                                child: TextFormField(
+                                  readOnly: true,
+                                  maxLines: 4,
+                                  textAlign: TextAlign.right,
+                                  decoration: InputDecoration(
+                                    suffixIcon: const Padding(
+                                        padding: EdgeInsets.only(right: 30),
+                                        child: Text(
+                                          'الهدف لإجمالي استهلاك \n :الطاقة',
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.bold),
+                                        )),
+                                    hintStyle: const TextStyle(
+                                      fontSize: 10,
+                                      decoration: TextDecoration.underline,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color.fromARGB(255, 17, 184, 97),
                                     ),
+                                    contentPadding: const EdgeInsets.fromLTRB(
+                                        20, 15, 5, 10),
+                                    focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                        borderSide: const BorderSide(
+                                            color: Color.fromARGB(
+                                                0, 158, 158, 158))),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0),
+                                        borderSide: const BorderSide(
+                                            color: Color.fromARGB(
+                                                0, 189, 189, 189))),
+                                    prefixIcon: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 60, top: 8, right: 0),
+                                      child: Text(
+                                        '$userGoal kWh',
+                                        style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            // decoration: TextDecoration.underline,
+                                            color: Colors.green),
+                                      ),
+                                    ),
+                                  ),
+                                ));
+                          })),
+                  //floating action button
+                  Container(
+                      margin: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+                      child: FloatingActionButton(
+                          backgroundColor: Colors.lightGreen,
+                          child: const Icon(Icons.edit),
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return dialog();
+                                });
+                          }))
+                ]),
+                Expanded(
+                  child: Stack(children: [
+                    Container(
+                        child: GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: 2,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 0.0,
+                              mainAxisSpacing: 4.0),
+                      itemBuilder: (BuildContext context, int index) {
+                        final item = text[index];
+
+                        return buildCard(item);
+                      },
+                    )),
+                    //chart
+                    FutureBuilder(
+                        future: data,
+                        builder: (context, snapshot) {
+                          return Container(
+                              margin: const EdgeInsets.fromLTRB(0, 170, 0, 12),
+                              padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
+                              child: Material(
+                                elevation: 20,
+                                borderRadius: BorderRadius.circular(30),
+                                child: TextFormField(
+                                  readOnly: true,
+                                  maxLines: 6,
+                                  textAlign: TextAlign.right,
+                                  decoration: InputDecoration(
+                                    labelText: 'استهلاك الطاقة لكل جهاز',
+                                    hintStyle: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color:
+                                            Color.fromARGB(0, 100, 100, 100)),
+                                    contentPadding: const EdgeInsets.fromLTRB(
+                                        20, 10, 5, 10),
+                                    focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                        borderSide: const BorderSide(
+                                            color: Color.fromARGB(
+                                                0, 158, 158, 158))),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0),
+                                        borderSide: const BorderSide(
+                                            color: Color.fromARGB(
+                                                0, 189, 189, 189))),
+                                    prefixIcon: Padding(
+                                        padding: const EdgeInsets.all(12),
+                                        //child: SingleChildScrollView(
+                                        child: SfCartesianChart(
+                                            primaryXAxis: CategoryAxis(
+                                                visibleMinimum: 0,
+                                                visibleMaximum: 10,
+                                                title:
+                                                    AxisTitle(text: 'الأجهزة')),
+                                            primaryYAxis: NumericAxis(
+                                                title: AxisTitle(text: 'kWh')),
+                                            series: <
+                                                ChartSeries<ChartData, String>>[
+                                              // Renders column chart
+                                              ColumnSeries<ChartData, String>(
+                                                  color: const Color.fromARGB(
+                                                      255, 98, 227, 165),
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                          Radius.circular(0)),
+                                                  dataSource: chartData,
+                                                  dataLabelSettings:
+                                                      const DataLabelSettings(
+                                                          isVisible: true),
+                                                  xValueMapper:
+                                                      (ChartData data, _) =>
+                                                          data.x,
+                                                  yValueMapper:
+                                                      (ChartData data, _) =>
+                                                          data.y),
+                                            ])),
                                   ),
                                 ),
                               ));
-                        })),
-                //floating action button
-                Container(
-                    margin: const EdgeInsets.fromLTRB(0, 70, 0, 0),
-                    child: FloatingActionButton(
-                        backgroundColor: Colors.lightGreen,
-                        child: const Icon(Icons.edit),
-                        onPressed: () {
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return dialog();
-                              });
-                        }))
-              ]),
-              Expanded(
-                child: Stack(children: [
-                  Container(
-                      child: GridView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: 2,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 0.0,
-                            mainAxisSpacing: 4.0),
-                    itemBuilder: (BuildContext context, int index) {
-                      final item = text[index];
-
-                      return buildCard(item);
-                    },
-                  )),
-                  //chart
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 170, 0, 12),
-                    padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-                    child: Material(
-                      elevation: 20,
-                      borderRadius: BorderRadius.circular(30),
-                      child: TextFormField(
-                        readOnly: true,
-                        maxLines: 6,
-                        textAlign: TextAlign.right,
-                        decoration: InputDecoration(
-                          labelText: 'استهلاك الطاقة لكل جهاز',
-                          hintStyle: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Color.fromARGB(0, 100, 100, 100)),
-                          contentPadding:
-                              const EdgeInsets.fromLTRB(20, 10, 5, 10),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: const BorderSide(
-                                  color: Color.fromARGB(0, 158, 158, 158))),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: const BorderSide(
-                                  color: Color.fromARGB(0, 189, 189, 189))),
-                          prefixIcon: Padding(
-                              padding: const EdgeInsets.all(12),
-                              //child: SingleChildScrollView(
-                              child: SfCartesianChart(
-                                  primaryXAxis: CategoryAxis(
-                                      visibleMinimum: 0,
-                                      visibleMaximum: 10,
-                                      title: AxisTitle(text: 'الأجهزة')),
-                                  primaryYAxis: NumericAxis(
-                                      title: AxisTitle(text: 'kWh')),
-                                  series: <ChartSeries<ChartData, String>>[
-                                    // Renders column chart
-                                    ColumnSeries<ChartData, String>(
-                                        color: const Color.fromARGB(
-                                            255, 98, 227, 165),
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10)),
-                                        dataSource: chartData,
-                                        dataLabelSettings:
-                                            const DataLabelSettings(
-                                                isVisible: true),
-                                        xValueMapper: (ChartData data, _) =>
-                                            data.x,
-                                        yValueMapper: (ChartData data, _) =>
-                                            data.y),
-                                  ])),
-                        ),
-                      ),
-                    ),
-                  )
-                ]),
-              )
-            ]),
-      ),
+                        })
+                  ]),
+                ),
+              ])),
       bottomNavigationBar: buildBottomNavigation(),
     );
   }
@@ -716,6 +733,34 @@ class _dashboardState extends State<dashboard> {
       });
       print('i after: $i');
     });
+  }
+
+  Future getData() async {
+    var collection = await FirebaseFirestore.instance
+        .collection('houseAccount')
+        // .doc(houseID)
+        .doc('12Tk9jBwrDGhYe2Yjzrl')
+        .collection('houseDevices');
+
+    // to get data from all documents sequentially
+    collection.snapshots().listen((querySnapshot) {
+      chartData.clear();
+      for (var doc in querySnapshot.docs) {
+        Map<String, dynamic> data = doc.data(); // <-- Retrieving the value.
+        setState(() {
+          devices!.add([
+            {'name': data['name'], 'consumption': data['consumption']}
+          ]);
+          String name = data['name'];
+          double consum = double.parse(data['consumption']);
+          chartData.add(ChartData(name, consum));
+          print("name: $name consum: $consum");
+        });
+      }
+      print(chartData);
+    });
+    // print(membersList);
+    return devices;
   }
 }
 
