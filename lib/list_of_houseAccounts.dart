@@ -1,6 +1,5 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_segmented_tab_control/animated_segmented_tab_control.dart';
 import 'package:rashd/dashboard.dart';
@@ -137,10 +136,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
               child: Stack(children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child:
-                  //     child: SingleChildScrollView(
-
-                  SegmentedTabControl(
+              child: SegmentedTabControl(
                 // Customization of widget
 
                 backgroundColor: Colors.grey[100],
@@ -186,32 +182,96 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                           }
                           return const Center(
                               child: CircularProgressIndicator());
-                          // membersList.removeAt(0);
-                          // print(membersList);
-                          // return buildItems(membersList);
                         },
                       ),
-                      FutureBuilder(
-                        future: owner,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasError) {
-                            return const Text(
-                              "Something went wrong",
-                            );
-                          }
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
-                            houseOwner = snapshot.data as List;
-                            print(houseOwner);
-                            return buildItems(houseOwner);
-                          }
-                          return const Center(
-                              child: CircularProgressIndicator());
-                          // membersList.removeAt(0);
-                          // print(membersList);
-                          // return buildItems(membersList);
-                        },
-                      ),
+                      Stack(
+                        children: [
+                          Container(
+                              margin: EdgeInsets.fromLTRB(0, 0, 15, 0),
+                              child: TextFormField(
+                                // maxLength: 20,
+                                readOnly: true,
+                                textAlign: TextAlign.right,
+                                decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.fromLTRB(
+                                        20, 10, 20, 10),
+                                    border: InputBorder.none,
+                                    suffixIcon: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(
+                                              // Based on passwordVisible state choose the icon
+                                              Icons.add),
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const CreateHouseAccount()),
+                                            );
+                                          },
+                                        ),
+                                        Text('إضافة منزل جديد',
+                                            style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontWeight: FontWeight.bold)),
+                                      ],
+                                    )),
+                              )),
+                          Container(
+                              margin: EdgeInsets.fromLTRB(0, 30, 0, 0),
+                              child: FutureBuilder(
+                                future: owner,
+                                builder: (context, snapshot) {
+                                  // TextFormField(
+                                  //   // maxLength: 20,
+                                  //   readOnly: true,
+                                  //   textAlign: TextAlign.right,
+                                  //   decoration: InputDecoration(
+                                  //       contentPadding:
+                                  //           const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                  //       border: InputBorder.none,
+                                  //       suffixIcon: Row(
+                                  //         mainAxisAlignment: MainAxisAlignment.end,
+                                  //         children: [
+                                  //           IconButton(
+                                  //             icon: const Icon(
+                                  //                 // Based on passwordVisible state choose the icon
+                                  //                 Icons.add),
+                                  //             onPressed: () {
+                                  //               Navigator.push(
+                                  //                 context,
+                                  //                 MaterialPageRoute(
+                                  //                     builder: (context) =>
+                                  //                         const CreateHouseAccount()),
+                                  //               );
+                                  //             },
+                                  //           ),
+                                  //           Text('إضافة منزل جديد',
+                                  //               style: TextStyle(
+                                  //                   color: Colors.grey[600],
+                                  //                   fontWeight: FontWeight.bold)),
+                                  //         ],
+                                  //       )),
+                                  // );
+                                  if (snapshot.hasError) {
+                                    return const Text(
+                                      "Something went wrong",
+                                    );
+                                  }
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.done) {
+                                    houseOwner = snapshot.data as List;
+                                    print(houseOwner);
+                                    return buildItems(houseOwner);
+                                  }
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                },
+                              )),
+                        ],
+                      )
                     ])
                 // padding: const EdgeInsets.fromLTRB(6, 12, 0, 12),
                 )
