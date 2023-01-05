@@ -518,7 +518,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                             if (membersPhones[i]
                                                     .text
                                                     .isNotEmpty &&
-                                                await isDuplicatePhoneNum(
+                                                await exixts(
                                                     membersPhones[i].text)) {
                                               duplicates[i] = true;
                                               print('true-->' +
@@ -674,7 +674,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
     );
   }
 
-  Future<bool> isDuplicatePhoneNum(String number) async {
+  Future<bool> exixts(String number) async {
     bool invalidPhone = false;
     QuerySnapshot query = await FirebaseFirestore.instance
         .collection('userAccount')

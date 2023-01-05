@@ -3,6 +3,7 @@ import 'package:rashd/create_house_account.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:rashd/dashboard.dart';
 import 'firebase_options.dart';
+import 'list_of_houseAccounts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,6 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -94,6 +94,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               )));
                 },
                 child: const Text('dashboard')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ListOfHouseAccounts()));
+                },
+                child: const Text('houseAccounts')),
           ]),
     );
   }
