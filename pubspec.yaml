@@ -48,6 +48,7 @@ dependencies:
     sdk: flutter
   firebase_database: ^10.0.9
   phosphor_flutter: ^1.4.0
+  animated_segmented_tab_control: ^1.0.1
 
 dev_dependencies:
   flutter_test:
