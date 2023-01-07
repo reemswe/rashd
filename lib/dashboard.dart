@@ -55,7 +55,7 @@ class _dashboardState extends State<dashboard> {
     ]
   ];
   //List<ChartData>? chartData;
-  final List<ChartData> chartData = [
+  List<ChartData> chartData = [
     // ChartData('الثلاجة', 350),
     // ChartData('المكيف', 230),
     // ChartData('التلفاز', 340),
@@ -404,12 +404,6 @@ class _dashboardState extends State<dashboard> {
                                   maxLines: 6,
                                   textAlign: TextAlign.right,
                                   decoration: InputDecoration(
-                                    labelText: 'استهلاك الطاقة لكل جهاز',
-                                    hintStyle: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color:
-                                            Color.fromARGB(0, 100, 100, 100)),
                                     contentPadding: const EdgeInsets.fromLTRB(
                                         20, 10, 5, 10),
                                     focusedBorder: OutlineInputBorder(
@@ -424,36 +418,54 @@ class _dashboardState extends State<dashboard> {
                                             color: Color.fromARGB(
                                                 0, 189, 189, 189))),
                                     prefixIcon: Padding(
-                                        padding: const EdgeInsets.all(12),
+                                        padding: const EdgeInsets.all(5),
                                         //child: SingleChildScrollView(
-                                        child: SfCartesianChart(
-                                            primaryXAxis: CategoryAxis(
-                                                visibleMinimum: 0,
-                                                visibleMaximum: 10,
-                                                title:
-                                                    AxisTitle(text: 'الأجهزة')),
-                                            primaryYAxis: NumericAxis(
-                                                title: AxisTitle(text: 'kWh')),
-                                            series: <
-                                                ChartSeries<ChartData, String>>[
-                                              // Renders column chart
-                                              ColumnSeries<ChartData, String>(
-                                                  color: const Color.fromARGB(
-                                                      255, 98, 227, 165),
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(0)),
-                                                  dataSource: chartData,
-                                                  dataLabelSettings:
-                                                      const DataLabelSettings(
-                                                          isVisible: true),
-                                                  xValueMapper:
-                                                      (ChartData data, _) =>
-                                                          data.x,
-                                                  yValueMapper:
-                                                      (ChartData data, _) =>
-                                                          data.y),
-                                            ])),
+                                        child: Stack(children: <Widget>[
+                                          const AnimatedPositioned(
+                                            // use top,bottom,left and right property to set the location and Transform.rotate to rotate the widget if needed
+                                            right: 15,
+
+                                            duration: Duration(seconds: 3),
+                                            child: Text(
+                                              'الأجهزة الأعلى استهلاكًا للطاقة',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Color.fromARGB(
+                                                      255, 62, 62, 62)),
+                                            ),
+                                          ),
+                                          SfCartesianChart(
+                                              margin: const EdgeInsets.all(20),
+                                              primaryXAxis: CategoryAxis(
+                                                  // visibleMinimum: 0,
+                                                  // visibleMaximum: 29,
+                                                  title: AxisTitle(
+                                                      text: 'الأجهزة')),
+                                              primaryYAxis: NumericAxis(
+                                                  title:
+                                                      AxisTitle(text: 'kWh')),
+                                              series: <
+                                                  ChartSeries<ChartData,
+                                                      String>>[
+                                                // Renders column chart
+                                                ColumnSeries<ChartData, String>(
+                                                    color: const Color.fromARGB(
+                                                        255, 98, 227, 165),
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(4)),
+                                                    dataSource: chartData,
+                                                    dataLabelSettings:
+                                                        const DataLabelSettings(
+                                                            isVisible: true),
+                                                    xValueMapper:
+                                                        (ChartData data, _) =>
+                                                            data.x,
+                                                    yValueMapper:
+                                                        (ChartData data, _) =>
+                                                            data.y),
+                                              ])
+                                        ])),
                                   ),
                                 ),
                               ));
@@ -752,12 +764,16 @@ class _dashboardState extends State<dashboard> {
             {'name': data['name'], 'consumption': data['consumption']}
           ]);
           String name = data['name'];
-          double consum = double.parse(data['consumption']);
+          double consum = double.parse(data['consumption'].toString());
           chartData.add(ChartData(name, consum));
+
           print("name: $name consum: $consum");
         });
       }
-      print(chartData);
+      chartData.sort((a, b) => b.y.compareTo(a.y));
+      chartData = chartData.take(10).toList();
+      chartData.shuffle();
+      print(chartData.take(20));
     });
     // print(membersList);
     return devices;
