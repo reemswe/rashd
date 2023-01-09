@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
     required this.auth,
   });
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -86,11 +87,97 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale("ar", "SA"), // OR Locale('ar', 'AE') OR Other RTL locales
       ],
-      locale: const Locale(
-          "ar", "SA"), // OR Locale('ar', 'AE') OR Other RTL locales,
-      // home: const listOfDevices(),
+      locale: const Locale("ar", "SA"),
     );
   }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int i = 7;
+  int con = 200;
+
+  @override
+  Widget build(BuildContext context) {
+    // This method is rerun every time setState is called, for instance as done
+    // by the _incrementCounter method above.
+    //
+    // The Flutter framework has been optimized to make rerunning build methods
+    // fast, so that you can just rebuild anything that needs updating rather
+    // than having to individually change instances of widgets.
+    return Scaffold(
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
+      body: ListView(
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          children: [
+            ElevatedButton(
+                onPressed: () {
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (context) => const CreateHouseAccount()));
+                },
+                child: const Text('create house account')),
+            ElevatedButton(
+                onPressed: () {
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (context) => const dashboard(
+                  //               dashId: 'fIgVgfieeVqGRB9oRne1',
+                  //             )));
+                },
+                child: const Text('dashboard')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ListOfHouseAccounts()));
+                },
+                child: const Text('houseAccounts')),
+            ElevatedButton(
+                onPressed: () {
+                  // setData();
+                },
+                child: const Text('setdata')),
+          ]),
+    );
+  }
+
+  // Future<void> setData() async {
+  //   i++;
+  //   con += 100;
+  //   CollectionReference houses = FirebaseFirestore.instance
+  //       .collection('houseAccount')
+  //       .doc('12Tk9jBwrDGhYe2Yjzrl')
+  //       .collection('houseDevices');
+
+  //   DocumentReference docReference =
+  //       await houses.add({'name': 'dev$i', 'consumption': con});
+  // }
 }
 
 class global {
