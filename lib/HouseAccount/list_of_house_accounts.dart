@@ -127,7 +127,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => dashboard(
-                                            ID: 'ffDQbRQQ8k9RzlGQ57FL')
+                                            dashId: 'ffDQbRQQ8k9RzlGQ57FL')
                                         // const listOfDevices(
                                         //   ID: 'ffDQbRQQ8k9RzlGQ57FL',
                                         // )
@@ -219,17 +219,17 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                       //         ),
                       //       ),
                       //     )),
-                      // TextButton(
-                      //   onPressed: () async {
-                      //     await _signOut();
-                      //   },
-                      //   child: Container(
-                      //     padding: const EdgeInsets.all(14),
-                      //     child: const Text("Log out",
-                      //         style: TextStyle(
-                      //             color: Color.fromARGB(255, 164, 10, 10))),
-                      //   ),
-                      // ),
+                      TextButton(
+                        onPressed: () async {
+                          await _signOut();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          child: const Text("Log out",
+                              style: TextStyle(
+                                  color: Color.fromARGB(255, 164, 10, 10))),
+                        ),
+                      ),
                     ],
                   ),
                 ),

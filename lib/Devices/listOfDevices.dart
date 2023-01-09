@@ -523,7 +523,7 @@ class listOfDevicesState extends State<listOfDevices> {
             context,
             MaterialPageRoute(
                 builder: (context) => dashboard(
-                      ID: widget.ID,
+                      dashId: widget.ID,
                     )),
           );
         } else if (index == 1) {

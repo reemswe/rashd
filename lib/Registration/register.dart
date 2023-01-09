@@ -26,7 +26,7 @@ TextEditingController cofirmPasswordController = TextEditingController();
 TextEditingController fullNameController = TextEditingController();
 TextEditingController DOBController = TextEditingController();
 TextEditingController PhoneNumController = TextEditingController();
-final _codeController = TextEditingController();
+TextEditingController _codeController = TextEditingController();
 
 String password = "";
 String confirm_password = "";
@@ -36,6 +36,9 @@ String emailErrorMessage = '';
 bool invalidPhone = false;
 String phoneErrorMessage = '';
 
+String otpPin = '';
+String countryDial = '+966';
+
 void clearForm() {
   emailController.text = "";
   usernameController.text = '';
@@ -43,6 +46,7 @@ void clearForm() {
   fullNameController.text = '';
   DOBController.text = '';
   PhoneNumController.text = '';
+  _codeController.text = '';
 
   invalidEmail = false;
   emailErrorMessage = '';

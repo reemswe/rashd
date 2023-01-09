@@ -492,7 +492,7 @@ class add_house_memberState extends State<add_house_member> {
             context,
             MaterialPageRoute(
                 builder: (context) => dashboard(
-                      ID: widget.ID,
+                      dashId: widget.ID,
                     )),
           );
         } else if (index == 1) {
@@ -507,8 +507,7 @@ class add_house_memberState extends State<add_house_member> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    add_house_member(ID: widget.ID)),
+                builder: (context) => add_house_member(ID: widget.ID)),
           );
         }
       },

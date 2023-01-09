@@ -234,15 +234,15 @@ class satisfies extends State<accessSharedDashboard> {
 
                                         clearForm();
 
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => dashboard(
-                                                ID: sharedDashboard.docs[0]
-                                                    .data()['dashID'],
-                                                isShared: true,
-                                              ),
-                                            ));
+                                        // Navigator.push(
+                                        //     context,
+                                        //     MaterialPageRoute(
+                                        //       builder: (context) => dashboard(
+                                        //         dashIdD: sharedDashboard.docs[0]
+                                        //             .data()['dashID'],
+
+                                        //       ),
+                                        //     ));
                                       }
                                     },
                                     child: const Text('التالي'),
