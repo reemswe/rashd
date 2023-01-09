@@ -13,6 +13,7 @@ import '../Devices/listOfDevices.dart';
 import '../HouseAccount/add_house_member.dart';
 import '../HouseAccount/list_of_house_accounts.dart';
 import '../Registration/welcomePage.dart';
+import 'Goal.dart';
 
 class dashboard extends StatefulWidget {
   final ID; //house id
@@ -414,12 +415,11 @@ class _dashboardState extends State<dashboard> {
                                           color: Colors.green),
                                     ),
                                     onTap: () {
-                                      // navigate to set goal or popup window
+                                      //  navigate to set goal or popup window
                                       // Navigator.push(
-
-                                      // context,
-                                      // MaterialPageRoute(
-                                      //     builder: (context) => const Goal()),
+                                      //   context,
+                                      //   MaterialPageRoute(
+                                      //       builder: (context) => const Goal()),
                                       // );
                                     },
                                   )),

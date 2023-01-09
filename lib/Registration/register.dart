@@ -6,9 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:email_validator/email_validator.dart';
 
 import 'package:intl/intl.dart';
+import 'package:rashd/Registration/profile.dart';
 
 import '../HouseAccount/list_of_house_accounts.dart';
 import 'login.dart';
+import 'package:flutter/material.dart';
 
 class register extends StatefulWidget {
   const register({
@@ -24,6 +26,7 @@ TextEditingController cofirmPasswordController = TextEditingController();
 TextEditingController fullNameController = TextEditingController();
 TextEditingController DOBController = TextEditingController();
 TextEditingController PhoneNumController = TextEditingController();
+final _codeController = TextEditingController();
 
 String password = "";
 String confirm_password = "";
@@ -358,6 +361,66 @@ class registerFormState extends State<registerForm> {
                   await isDuplicatePhoneNum();
                   if ((_formKey.currentState!.validate())) {
                     if (await checkEmail() && await isDuplicatePhoneNum()) {
+                      // FirebaseAuth.instance.verifyPhoneNumber(
+                      //     phoneNumber: "+966 55 119 0202",
+                      //     timeout: Duration(seconds: 60),
+                      //     verificationCompleted: await signUp(),
+                      //     verificationFailed:
+                      //         (FirebaseAuthException authException) {
+                      //       print(authException.message);
+                      //     },
+                      //     codeSent: (String verificationId,
+                      //         [int? forceResendingToken]) {
+                      //       //show dialog to take input from the user
+                      //       showDialog(
+                      //           context: context,
+                      //           barrierDismissible: false,
+                      //           builder: (context) => AlertDialog(
+                      //                 title: Text("Enter SMS Code"),
+                      //                 content: Column(
+                      //                   mainAxisSize: MainAxisSize.min,
+                      //                   children: <Widget>[
+                      //                     TextField(
+                      //                       controller: _codeController,
+                      //                     ),
+                      //                   ],
+                      //                 ),
+                      //                 actions: <Widget>[
+                      //                   ElevatedButton(
+                      //                     child: Text("Done"),
+                      //                     //     textColor: Colors.white,
+                      //                     //     color: Colors.redAccent,
+                      //                     onPressed: () {
+                      //                       FirebaseAuth auth =
+                      //                           FirebaseAuth.instance;
+
+                      //                       final smsCode =
+                      //                           _codeController.text.trim();
+
+                      //                       AuthCredential _credential =
+                      //                           PhoneAuthProvider.credential(
+                      //                               verificationId:
+                      //                                   verificationId,
+                      //                               smsCode: smsCode);
+                      //                       auth
+                      //                           .signInWithCredential(
+                      //                               _credential)
+                      //                           .then((AuthResult result) {
+                      //                         Navigator.pushReplacement(
+                      //                             context,
+                      //                             MaterialPageRoute(
+                      //                                 builder: (context) =>
+                      //                                     HomeScreen(
+                      //                                         result.user)));
+                      //                       }).catchError((e) {
+                      //                         print(e);
+                      //                       });
+                      //                     },
+                      //                   )
+                      //                 ],
+                      //               ));
+                      //     },
+                      //     codeAutoRetrievalTimeout: null);
                       await signUp();
                     }
                   }
