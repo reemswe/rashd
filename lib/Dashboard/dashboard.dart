@@ -125,9 +125,9 @@ class _dashboardState extends State<dashboard> {
     calculateEnergy(1080);
     List text2 = [
       [
-        'فاتورة الكهرباء\n\n$electricityBill SR',
+        'فاتورة الكهرباء\n\n$electricityBill SR\n \n*الفاتورة تشمل ضريبة القيمة المضافة',
         '.25 SR',
-        '\t',
+        '*الفاتورة تشمل ضريبة القيمة المضافة',
         const Color.fromARGB(255, 92, 226, 233),
         Colors.black,
         const EdgeInsets.fromLTRB(15, 15, 12, 23),
