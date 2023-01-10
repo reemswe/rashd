@@ -84,6 +84,7 @@ class _dashboardState extends State<dashboard> {
   String houseName = '';
   String houseID = '';
   double electricityBill = 0;
+  double energyFromBill = 0;
   @override
   void initState() {
     setState(() {
@@ -107,6 +108,7 @@ class _dashboardState extends State<dashboard> {
           houseName = value.data()!["houseName"];
           print('houseName: $houseName');
           double electricityBill = 0;
+          double energyFromBill = 0;
         });
       });
     });
@@ -119,6 +121,26 @@ class _dashboardState extends State<dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    calculateBill(6000);
+    calculateEnergy(1080);
+    List text2 = [
+      [
+        'فاتورة الكهرباء\n\n$electricityBill SR',
+        '.25 SR',
+        '\t',
+        const Color.fromARGB(255, 92, 226, 233),
+        Colors.black,
+        const EdgeInsets.fromLTRB(15, 15, 12, 23),
+      ],
+      [
+        'اجمالي استهلاك الطاقة\n\n$energyFromBill kwh\n\n  تم بلوغ 50% من هدف الشهر',
+        '',
+        'تم بلوغ 50% من هدف الشهر',
+        const Color.fromARGB(255, 107, 217, 245),
+        Colors.white,
+        const EdgeInsets.fromLTRB(0, 15, 10, 23),
+      ]
+    ];
     return Scaffold(
       appBar: AppBar(
         title: FutureBuilder(
@@ -374,6 +396,11 @@ class _dashboardState extends State<dashboard> {
                                 });
                           }))
                 ]),
+                // Container(child: Text(electricityBill.toString())),
+                // SizedBox(
+                //   height: 20,
+                // ),
+                // Container(child: Text(energyFromBill.toString())),
                 Expanded(
                   child: Stack(children: [
                     Container(
@@ -386,12 +413,12 @@ class _dashboardState extends State<dashboard> {
                               crossAxisSpacing: 0.0,
                               mainAxisSpacing: 4.0),
                       itemBuilder: (BuildContext context, int index) {
-                        final item = text[index];
+                        final item = text2[index];
 
                         return buildCard(item);
                       },
                     )),
-                    Container(child: Text(electricityBill.toString())),
+
                     //chart
                     FutureBuilder(
                         future: data,
@@ -672,7 +699,6 @@ class _dashboardState extends State<dashboard> {
                           setState(() {
                             double e = double.parse(goalController.text);
                             goal();
-                            calculateBill(e);
                           });
                           UpdateDB();
                           Navigator.of(context).pop();
@@ -786,17 +812,33 @@ class _dashboardState extends State<dashboard> {
 
 //calculate electricity bill for 30 days
 //بدون رسوم خدمة العداد
-  void calculateBill(double e) {
+  void calculateBill(double energy) {
     double slat_1 = 0;
     double slat_2 = 0;
-    if (e > 6000) {
+    if (energy > 6000) {
       slat_1 = 6000 * 0.18;
-      slat_2 = (e - 6000) * 0.30;
+      slat_2 = (energy - 6000) * 0.30;
     } else {
-      slat_1 = e * 0.18;
+      slat_1 = energy * 0.18;
     }
     setState(() {
       electricityBill = (slat_1 + slat_2) * 1.15;
+    });
+  }
+//calculate energy from electricity bill
+
+  void calculateEnergy(double bill) {
+    double slat_1 = 0;
+    double slat_2 = 0;
+    //double energy = 0;
+    if (bill > 1080) {
+      slat_1 = 6000; // 1080/0.18
+      slat_2 = (bill - 1080) / 0.30;
+    } else {
+      slat_1 = bill / 0.18;
+    }
+    setState(() {
+      energyFromBill = (slat_1 + slat_2);
     });
   }
 }
