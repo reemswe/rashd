@@ -92,7 +92,7 @@ class satisfies extends State<accessSharedDashboard> {
                                         },
                                       ),
                                       const Text(
-                                        "لوحة المعلومات المشتركة",
+                                        "لوحة المعلومات\n المشتركة",
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 25.0,

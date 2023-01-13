@@ -17,7 +17,8 @@ class _welcomePageState extends State<welcomePage> {
     final double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      body: Center(
+        body: Stack(children: [
+      Center(
         child: Column(
           children: <Widget>[
             SizedBox(height: height * 0.1),
@@ -156,6 +157,64 @@ class _welcomePageState extends State<welcomePage> {
           ],
         ),
       ),
-    );
+      Positioned(
+        bottom: height * 0,
+        top: height * -0.992,
+        left: width * 0.59,
+        child: Container(
+          width: width * 0.8,
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                  colors: [Colors.lightBlue.shade200, Colors.blue]),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.blue.shade100,
+                    offset: const Offset(4.0, 4.0),
+                    blurRadius: 10.0)
+              ]),
+        ),
+      ),
+      Positioned(
+        bottom: height * 0,
+        top: height * -0.992,
+        left: width * 0.5,
+        child: Opacity(
+            opacity: 0.3,
+            child: Container(
+              width: width * 0.9,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                      colors: [Colors.lightBlue.shade200, Colors.blue]),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.blue.shade100,
+                        offset: const Offset(4.0, 4.0),
+                        blurRadius: 10.0)
+                  ]),
+            )),
+      ),
+      Positioned(
+        top: height * 0,
+        bottom: height * -1.1,
+        left: width * -0.3,
+        child: Opacity(
+            opacity: 0.3,
+            child: Container(
+              width: width * 0.9,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                      colors: [Colors.lightBlue.shade200, Colors.blue]),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.blue.shade100,
+                        offset: const Offset(4.0, 4.0),
+                        blurRadius: 10.0)
+                  ]),
+            )),
+      ),
+    ]));
   }
 }
