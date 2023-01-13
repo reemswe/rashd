@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
-
-import '../HouseAccount/list_of_house_accounts.dart';
+import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../Registration/register.dart';
 
 class accessSharedDashboard extends StatefulWidget {

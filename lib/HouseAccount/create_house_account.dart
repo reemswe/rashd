@@ -3,8 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rashd/Registration/profile.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
-
-import 'list_of_house_accounts.dart';
+import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 
 class CreateHouseAccount extends StatefulWidget {
   const CreateHouseAccount({super.key});

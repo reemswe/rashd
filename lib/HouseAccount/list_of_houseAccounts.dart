@@ -2,9 +2,11 @@ import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_segmented_tab_control/animated_segmented_tab_control.dart';
-import 'package:rashd/dashboard.dart';
+// import 'package:rashd/dashboard.dart';
+import 'package:rashd/Dashboard/dashboard.dart';
 
-import 'create_house_account.dart';
+import '../Registration/profile.dart';
+import '../create_house_account.dart';
 
 class ListOfHouseAccounts extends StatefulWidget {
   const ListOfHouseAccounts({super.key});
@@ -109,6 +111,9 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
 
   @override
   Widget build(BuildContext context) {
+    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery.of(context).size.width;
+
     return DefaultTabController(
         length: 2,
         child: Scaffold(
@@ -119,7 +124,6 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                   print('name:$name');
                   return Text(
                     '!مرحبًا $name',
-                    textAlign: TextAlign.right,
                   );
                 }),
             leading: const Text(''),
@@ -152,10 +156,10 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                 // All specified values will override the [SegmentedTabControl] setting
                 tabs: const [
                   SegmentTab(
-                    label: 'اشتراكاتي',
+                    label: 'منازلي',
                   ),
                   SegmentTab(
-                    label: 'منازلي',
+                    label: 'اشتراكاتي',
                   ),
                 ],
               ),
@@ -165,25 +169,6 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                 child: TabBarView(
                     physics: const BouncingScrollPhysics(),
                     children: [
-                      FutureBuilder(
-                        future: member,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasError) {
-                            return const Text(
-                              "Something went wrong",
-                            );
-                          }
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
-                            houseMember = snapshot.data as List;
-                            print(houseMember);
-
-                            return buildItems(houseMember);
-                          }
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        },
-                      ),
                       Stack(
                         children: [
                           Container(
@@ -191,13 +176,13 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                               child: TextFormField(
                                 // maxLength: 20,
                                 readOnly: true,
-                                textAlign: TextAlign.right,
                                 decoration: InputDecoration(
                                     contentPadding: const EdgeInsets.fromLTRB(
                                         20, 10, 20, 10),
                                     border: InputBorder.none,
                                     suffixIcon: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       children: [
                                         IconButton(
                                           icon: const Icon(
@@ -240,12 +225,29 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                                 },
                               )),
                         ],
-                      )
-                    ])
-                // padding: const EdgeInsets.fromLTRB(6, 12, 0, 12),
-                )
+                      ),
+                      FutureBuilder(
+                        future: member,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return const Text(
+                              "Something went wrong",
+                            );
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            houseMember = snapshot.data as List;
+                            print(houseMember);
+
+                            return buildItems(houseMember);
+                          }
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        },
+                      ),
+                    ]))
           ])),
-          bottomNavigationBar: buildBottomNavigation(),
+          bottomNavigationBar: buildBottomNavigation(height),
         ));
   }
 
@@ -278,25 +280,29 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => dashboard(
-                              dashId: dataList[index][0]["dashboardID"],
+                              ID: dataList[index][0]["dashboardID"],
                             )),
                   );
                 }));
       });
 
-  Widget buildBottomNavigation() {
+  int index = 0;
+  Widget buildBottomNavigation(height) {
     return BottomNavyBar(
-      selectedIndex: global.index,
+      containerHeight: height * 0.07,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      selectedIndex: index,
+      iconSize: 28,
       onItemSelected: (index) {
         setState(
-          () => global.index = index,
+          () => index = index,
         );
-        if (global.index == 0) {
+        if (index == 1) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const CreateHouseAccount()),
+            MaterialPageRoute(builder: (context) => const profile()),
           );
-        } else if (global.index == 1) {
+        } else if (index == 0) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -306,47 +312,21 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
       },
       items: <BottomNavyBarItem>[
         BottomNavyBarItem(
-          icon: const Icon(Icons.person_outline_rounded),
-          // icon: IconButton(
-          //     icon: const Icon(Icons.person_outline_rounded),
-          //     onPressed: () {
-          //       setState(
-          //         () => this.index = index,
-          //       );
-          //       Navigator.push(
-          //         context,
-          //         MaterialPageRoute(
-          //             builder: (context) => const CreateHouseAccount()),
-          //       );
-          //     }),
-          title: const Text(
-            'الملف الشخصي',
-            textAlign: TextAlign.center,
-          ),
-          activeColor: Colors.lightBlue,
-        ),
-        BottomNavyBarItem(
             icon: const Icon(Icons.holiday_village_rounded),
-            // icon: IconButton(
-            //     icon: const Icon(Icons.holiday_village_rounded),
-            //     onPressed: () {
-
-            //       setState(
-            //         () => this.index = index,
-            //       );
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //             builder: (context) => const ListOfHouseAccounts()),
-            //       );
-            //     }),
             title: const Text(
               'منازلي',
               textAlign: TextAlign.center,
             ),
             activeColor: Colors.lightBlue),
+        BottomNavyBarItem(
+          icon: const Icon(Icons.person_outline_rounded),
+          title: const Text(
+            'حسابي',
+            textAlign: TextAlign.center,
+          ),
+          activeColor: Colors.lightBlue,
+        ),
       ],
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
     );
   }
 }

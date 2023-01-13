@@ -56,9 +56,6 @@ dependencies:
   persistent_bottom_nav_bar: ^5.0.2
   date_format: ^2.0.7
   intl: ^0.17.0
-  flutter_localizations:
-    sdk: flutter
-  firebase_database: ^10.0.9
   phosphor_flutter: ^1.4.0
   animated_segmented_tab_control: ^1.0.1
 

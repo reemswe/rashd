@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'HouseAccount/list_of_house_accounts.dart';
+import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import 'Registration/login.dart';
 import 'Registration/register.dart';
 import 'Registration/welcomePage.dart';

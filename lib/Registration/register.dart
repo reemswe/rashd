@@ -3,11 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:email_validator/email_validator.dart';
-
 import 'package:intl/intl.dart';
-
-import '../HouseAccount/list_of_house_accounts.dart';
+import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import 'login.dart';
 
 class register extends StatefulWidget {

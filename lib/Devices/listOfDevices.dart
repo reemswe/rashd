@@ -12,7 +12,7 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:uuid/uuid.dart';
 import '../HouseAccount/add_house_member.dart';
 import '../Dashboard/dashboard.dart';
-import '../HouseAccount/list_of_house_accounts.dart';
+import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 
 class listOfDevices extends StatefulWidget {
   final ID; //house ID
