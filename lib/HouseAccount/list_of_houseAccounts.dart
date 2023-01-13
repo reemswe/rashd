@@ -1,5 +1,6 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_segmented_tab_control/animated_segmented_tab_control.dart';
 // import 'package:rashd/dashboard.dart';
@@ -36,7 +37,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
   Future getData() async {
     await FirebaseFirestore.instance
         .collection("userAccount")
-        .doc('XTVOlBbBjSbQA7VN9IOrCnbSU1h1')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
         .get()
         .then((value) {
       name = value.data()!["full_name"];
@@ -46,7 +47,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
   Future getOwner() async {
     var collection = await FirebaseFirestore.instance
         .collection('houseAccount')
-        .where('OwnerID', isEqualTo: 'XTVOlBbBjSbQA7VN9IOrCnbSU1h1');
+        .where('OwnerID', isEqualTo: FirebaseAuth.instance.currentUser!.uid);
 
     // to get data from all documents sequentially
     collection.snapshots().listen((querySnapshot) {
@@ -98,7 +99,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
         .collection('houseAccount')
         .doc(id)
         .collection('houseMember')
-        .where('memberID', isEqualTo: 'XTVOlBbBjSbQA7VN9IOrCnbSU1h1')
+        .where('memberID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .get();
     if (query.docs.isNotEmpty) {
       exists = true;

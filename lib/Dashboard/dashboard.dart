@@ -61,7 +61,7 @@ Future<void> share(dashboardID) async {
 class _dashboardState extends State<dashboard> {
   List months = [
     '',
-    'جانيوري',
+    'يناير',
     'فبراير',
     'مارس',
     'ابريل',
@@ -120,6 +120,7 @@ class _dashboardState extends State<dashboard> {
     // ChartData('2المايكرويف', 250),
     //ChartData('2الفريزر', 400)
   ];
+
   int i = 0;
   var date = DateTime.now();
   var formatted = '';
@@ -139,6 +140,7 @@ class _dashboardState extends State<dashboard> {
           .doc(widget.ID)
           .get()
           .then((value) {
+        print("Dashboard ID : " + widget.ID);
         houseID = value.data()!["houseID"];
         userGoal = value.data()!["userGoal"];
         energy = totalEnergy();
@@ -172,505 +174,519 @@ class _dashboardState extends State<dashboard> {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
             return Scaffold(
-              appBar: AppBar(
-                toolbarHeight: height * 0.085,
-                title: Wrap(
-                    direction: Axis.vertical,
-                    spacing: 1, // to apply margin in the main axis of the wrap
-                    children: <Widget>[
-                      SizedBox(height: height * 0.01),
-                      Text(
-                        widget.isShared ? 'nuljjl' : houseData['houseName'],
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          height: 1,
-                        ),
-                      ),
-                      Text(
-                        widget.isShared
-                            ? ''
-                            : (houseData['OwnerID'] ==
-                                    FirebaseAuth.instance.currentUser!.uid
-                                ? 'مالك المنزل'
-                                : "عضو في المنزل"),
-                        style: TextStyle(
-                          color: Colors.grey.shade900,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                          height: 1,
-                        ),
-                      )
-                    ]),
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                actions: [
-                  Visibility(
-                    visible: !widget.isShared,
-                    child: PopupMenuButton(
-                      onSelected: (value) {
-                        if (value == 'share') {
-                          showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text(
-                                "مشاركة لوحة المعلومات",
-                                textAlign: TextAlign.left,
-                              ),
-                              content: const Text(
-                                'رجاء ادخل رقم جوال لمشاركة لوحة المعلومات',
-                                textAlign: TextAlign.left,
-                              ),
-                              actions: <Widget>[
-                                TextFormField(
-                                  textAlign: TextAlign.right,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: <TextInputFormatter>[
-                                    LengthLimitingTextInputFormatter(10),
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  decoration: InputDecoration(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        vertical: 13.0, horizontal: 15),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                    ),
-                                    filled: true,
-                                    hintStyle:
-                                        TextStyle(color: Colors.grey[800]),
-                                    hintText: " رقم الهاتف",
-                                  ),
-                                  // The validator receives the text that the user has entered.
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return '  رجاء ادخل رقم هاتف';
-                                    }
-                                    if (value.length < 10) {
-                                      return '  رجاء ادخل رقم هاتف صحيح';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(ctx).pop();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(14),
-                                    child: const Text("الغاء"),
-                                  ),
-                                ),
-                                //log in ok button
-                                TextButton(
-                                  onPressed: () {
-                                    // pop out
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(14),
-                                    child: const Text("مشاركة",
-                                        style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 35, 129, 6))),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(builder: (context) => const Share()),
-                          // );
-                        }
-                        if (value == 'delete') {
-                          showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text(
-                                "حذف المنزل",
-                                textAlign: TextAlign.left,
-                              ),
-                              content: const Text(
-                                "هل أنت متأكد من حذف حساب المنزل ؟",
-                                textAlign: TextAlign.left,
-                              ),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(ctx).pop();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(14),
-                                    child: const Text("الغاء"),
-                                  ),
-                                ),
-                                //log in ok button
-                                TextButton(
-                                  onPressed: () {
-                                    // pop out
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(14),
-                                    child: const Text("حذف",
-                                        style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 164, 10, 10))),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                        // your logic
-                      },
-                      itemBuilder: (BuildContext bc) {
-                        return const [
-                          PopupMenuItem(
-                            value: 'share',
-                            child: Text("مشاركة لوحة المعلومات "),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Text("حذف حساب المنرل",
-                                style: TextStyle(
-                                    color: Color.fromARGB(255, 167, 32, 32))),
-                          ),
-                        ];
-                      },
-                    ),
-                  )
-                ],
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () {
-                    if (widget.isShared) {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          // titlePadding:
-                          //     const EdgeInsets.fromLTRB(5, 10, 15, 10),
-                          title: const Text("الخروج من لوحة المعلومات؟"),
-                          content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                Text(
-                                  "هل أنت متأكد أنك تريد الخروج من لوحة المعلومات المشتركة؟",
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      "\n*يرجى ملاحظة أن الرمز المشترك يستخدم مرة واحدة.",
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w300),
-                                      textAlign: TextAlign.right,
-                                    ))
-                              ]),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () async {
-                                // Navigator.of(ctx).pop();
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const welcomePage()));
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(14),
-                                child: const Text("خروج",
-                                    style: TextStyle(
-                                        color:
-                                            Color.fromARGB(255, 194, 98, 98))),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(ctx).pop();
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(14),
-                                child: const Text("إلغاء"),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ListOfHouseAccounts(),
-                          ));
-                    }
-                  },
-                ),
-                elevation: 1.5,
-              ),
+              // appBar: AppBar(
+              //   shape: const RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.vertical(
+              //       bottom: Radius.circular(30),
+              //     ),
+              //   ),
+              //   toolbarHeight: height * 0.15,
+              //   title: Wrap(
+              //       direction: Axis.vertical,
+              //       spacing: 1,
+              //       children: <Widget>[
+              //         SizedBox(height: height * 0.01),
+              //         Text(
+              //           widget.isShared ? 'البيت' : houseData['houseName'],
+              //           style: const TextStyle(
+              //             color: Colors.black,
+              //             fontWeight: FontWeight.bold,
+              //             fontSize: 25,
+              //             height: 1,
+              //           ),
+              //         ),
+              //         Text(
+              //           widget.isShared
+              //               ? ''
+              //               : (houseData['OwnerID'] ==
+              //                       FirebaseAuth.instance.currentUser!.uid
+              //                   ? 'مالك المنزل'
+              //                   : "عضو في المنزل"),
+              //           style: TextStyle(
+              //             color: Colors.grey.shade900,
+              //             fontWeight: FontWeight.w400,
+              //             fontSize: 16,
+              //             height: 1,
+              //           ),
+              //         )
+              //       ]),
+              //   backgroundColor: Colors.white,
+              //   foregroundColor: Colors.black,
+              //   actions: [
+              //     Visibility(
+              //       visible: !widget.isShared,
+              //       child: PopupMenuButton(
+              //         onSelected: (value) {
+              //           if (value == 'share') {
+              //             showDialog(
+              //               context: context,
+              //               builder: (ctx) => AlertDialog(
+              //                 title: const Text(
+              //                   "مشاركة لوحة المعلومات",
+              //                   textAlign: TextAlign.left,
+              //                 ),
+              //                 content: const Text(
+              //                   'رجاء ادخل رقم جوال لمشاركة لوحة المعلومات',
+              //                   textAlign: TextAlign.left,
+              //                 ),
+              //                 actions: <Widget>[
+              //                   TextFormField(
+              //                     textAlign: TextAlign.right,
+              //                     keyboardType: TextInputType.number,
+              //                     inputFormatters: <TextInputFormatter>[
+              //                       LengthLimitingTextInputFormatter(10),
+              //                       FilteringTextInputFormatter.digitsOnly
+              //                     ],
+              //                     decoration: InputDecoration(
+              //                       contentPadding: const EdgeInsets.symmetric(
+              //                           vertical: 13.0, horizontal: 15),
+              //                       border: OutlineInputBorder(
+              //                         borderRadius: BorderRadius.circular(30.0),
+              //                       ),
+              //                       filled: true,
+              //                       hintStyle:
+              //                           TextStyle(color: Colors.grey[800]),
+              //                       hintText: " رقم الهاتف",
+              //                     ),
+              //                     // The validator receives the text that the user has entered.
+              //                     validator: (value) {
+              //                       if (value == null || value.isEmpty) {
+              //                         return '  رجاء ادخل رقم هاتف';
+              //                       }
+              //                       if (value.length < 10) {
+              //                         return '  رجاء ادخل رقم هاتف صحيح';
+              //                       }
+              //                       return null;
+              //                     },
+              //                   ),
+              //                   TextButton(
+              //                     onPressed: () {
+              //                       Navigator.of(ctx).pop();
+              //                     },
+              //                     child: Container(
+              //                       padding: const EdgeInsets.all(14),
+              //                       child: const Text("الغاء"),
+              //                     ),
+              //                   ),
+              //                   //log in ok button
+              //                   TextButton(
+              //                     onPressed: () {
+              //                       // pop out
+              //                     },
+              //                     child: Container(
+              //                       padding: const EdgeInsets.all(14),
+              //                       child: const Text("مشاركة",
+              //                           style: TextStyle(
+              //                               color: Color.fromARGB(
+              //                                   255, 35, 129, 6))),
+              //                     ),
+              //                   ),
+              //                 ],
+              //               ),
+              //             );
+              //             // Navigator.push(
+              //             //   context,
+              //             //   MaterialPageRoute(builder: (context) => const Share()),
+              //             // );
+              //           }
+              //           if (value == 'delete') {
+              //             showDialog(
+              //               context: context,
+              //               builder: (ctx) => AlertDialog(
+              //                 title: const Text(
+              //                   "حذف المنزل",
+              //                   textAlign: TextAlign.left,
+              //                 ),
+              //                 content: const Text(
+              //                   "هل أنت متأكد من حذف حساب المنزل ؟",
+              //                   textAlign: TextAlign.left,
+              //                 ),
+              //                 actions: <Widget>[
+              //                   TextButton(
+              //                     onPressed: () {
+              //                       Navigator.of(ctx).pop();
+              //                     },
+              //                     child: Container(
+              //                       padding: const EdgeInsets.all(14),
+              //                       child: const Text("الغاء"),
+              //                     ),
+              //                   ),
+              //                   //log in ok button
+              //                   TextButton(
+              //                     onPressed: () {
+              //                       // pop out
+              //                     },
+              //                     child: Container(
+              //                       padding: const EdgeInsets.all(14),
+              //                       child: const Text("حذف",
+              //                           style: TextStyle(
+              //                               color: Color.fromARGB(
+              //                                   255, 164, 10, 10))),
+              //                     ),
+              //                   ),
+              //                 ],
+              //               ),
+              //             );
+              //           }
+              //           // your logic
+              //         },
+              //         itemBuilder: (BuildContext bc) {
+              //           return const [
+              //             PopupMenuItem(
+              //               value: 'share',
+              //               child: Text("مشاركة لوحة المعلومات "),
+              //             ),
+              //             PopupMenuItem(
+              //               value: 'delete',
+              //               child: Text("حذف حساب المنرل",
+              //                   style: TextStyle(
+              //                       color: Color.fromARGB(255, 167, 32, 32))),
+              //             ),
+              //           ];
+              //         },
+              //       ),
+              //     )
+              //   ],
+              //   leading:
+              // IconButton(
+              //     icon: const Icon(Icons.arrow_back_ios),
+              //     onPressed: () {
+              //       if (widget.isShared) {
+              //         showDialog(
+              //           context: context,
+              //           builder: (ctx) => AlertDialog(
+              //             title: const Text("الخروج من لوحة المعلومات؟"),
+              //             content: Column(
+              //                 mainAxisSize: MainAxisSize.min,
+              //                 children: const [
+              //                   Text(
+              //                     "هل أنت متأكد أنك تريد الخروج من لوحة المعلومات المشتركة؟",
+              //                     textAlign: TextAlign.right,
+              //                     style: TextStyle(
+              //                         fontSize: 18,
+              //                         fontWeight: FontWeight.w500),
+              //                   ),
+              //                   Align(
+              //                       alignment: Alignment.centerRight,
+              //                       child: Text(
+              //                         "\n*يرجى ملاحظة أن الرمز المشترك يستخدم مرة واحدة.",
+              //                         style: TextStyle(
+              //                             fontSize: 15,
+              //                             fontWeight: FontWeight.w300),
+              //                         textAlign: TextAlign.right,
+              //                       ))
+              //                 ]),
+              //             actions: <Widget>[
+              //               TextButton(
+              //                 onPressed: () async {
+              //                   // Navigator.of(ctx).pop();
+              //                   Navigator.push(
+              //                       context,
+              //                       MaterialPageRoute(
+              //                           builder: (context) =>
+              //                               const welcomePage()));
+              //                 },
+              //                 child: Container(
+              //                   padding: const EdgeInsets.all(14),
+              //                   child: const Text("خروج",
+              //                       style: TextStyle(
+              //                           color:
+              //                               Color.fromARGB(255, 194, 98, 98))),
+              //                 ),
+              //               ),
+              //               TextButton(
+              //                 onPressed: () {
+              //                   Navigator.of(ctx).pop();
+              //                 },
+              //                 child: Container(
+              //                   padding: const EdgeInsets.all(14),
+              //                   child: const Text("إلغاء"),
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //         );
+              //       } else {
+              //         Navigator.push(
+              //             context,
+              //             MaterialPageRoute(
+              //               builder: (context) => const ListOfHouseAccounts(),
+              //             ));
+              //       }
+              //     },
+              //   ),
+              //   elevation: 1.5,
+              // ),
+
               body: Container(
                 transformAlignment: Alignment.topRight,
-                child: Column(children: [
-                  Container(
-                      padding: const EdgeInsets.fromLTRB(6, 0, 0, 0),
-                      child: Column(children: [
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                                child: Text('لوحة المعلومات',
-                                    style: TextStyle(fontSize: 25)),
-                              ),
-                              Visibility(
-                                  visible: !widget.isShared,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.ios_share),
-                                    onPressed: () {
-                                      share(houseData['dashboardID']);
-                                    },
-                                  )),
-                            ]),
-                        Container(
-                          padding: const EdgeInsets.only(right: 20),
-                          alignment: Alignment.topRight,
-                          child: Text(formatted,
-                              style: TextStyle(
-                                  fontSize: 16,
+                child: Stack(children: [
+                  Positioned(
+                    bottom: height * 0,
+                    top: height * -1.1,
+                    left: width * 0.1,
+                    child: Container(
+                      width: width * 1.5,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                              colors: [Colors.lightBlue.shade200, Colors.blue]),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.blue.shade100,
+                                offset: const Offset(4.0, 4.0),
+                                blurRadius: 10.0)
+                          ]),
+                    ),
+                  ),
+                  ListView(children: [
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(
+                            width * 0.01, 5, width * 0.05, 5),
+                        child: Wrap(
+                            direction: Axis.vertical,
+                            spacing: 1,
+                            children: <Widget>[
+                              SizedBox(height: height * 0.02),
+                              Text(
+                                widget.isShared
+                                    ? 'البيت'
+                                    : houseData['houseName'],
+                                style: const TextStyle(
+                                  letterSpacing: 1.2,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 30,
                                   height: 1,
-                                  fontWeight: FontWeight.w300)),
-                        )
-                      ])),
-                  Stack(children: [
-                    FutureBuilder(
-                        future: goal(),
-                        builder: (context, snapshot) {
-                          return Container(
-                              decoration: const BoxDecoration(
-                                  border: Border(top: BorderSide.none)),
-                              width: width * 0.95,
-                              padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-                              child: Material(
-                                  elevation: 20,
-                                  borderRadius: BorderRadius.circular(30),
-                                  child: TextFormField(
-                                    readOnly: true,
-                                    maxLines: 4,
-                                    textAlign: TextAlign.right,
-                                    decoration: InputDecoration(
-                                      prefixIcon: const Padding(
-                                          padding: EdgeInsets.only(right: 30),
-                                          child: Text(
-                                            'الهدف الإجمالي لإستهلاك الطاقة',
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(fontSize: 20),
-                                          )),
-                                      hintStyle: const TextStyle(
-                                        fontSize: 10,
-                                        decoration: TextDecoration.underline,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color.fromARGB(255, 17, 184, 97),
-                                      ),
-                                      contentPadding: const EdgeInsets.fromLTRB(
-                                          20, 15, 5, 10),
-                                      focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                          borderSide: const BorderSide(
-                                              color: Colors.white)),
-                                      enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(30.0),
-                                          borderSide: const BorderSide(
-                                              color: Colors.white)),
-                                      suffixIcon: Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 20, top: 8, right: 0),
-                                          child: InkWell(
-                                            child: const Text(
-                                              '300 kWh',
-                                              textDirection: TextDirection.ltr,
-                                              style: TextStyle(
-                                                  fontSize: 20,
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                  color: Colors.green),
-                                            ),
-                                            onTap: () {
-                                              // navigate to set goal or popup window
-                                              // Navigator.push(
-
-                                              // context,
-                                              // MaterialPageRoute(
-                                              //     builder: (context) => const Goal()),
-                                              // );
-                                            },
-                                          )),
-                                    ),
-                                  )));
-                        }),
-                    Container(
-                        margin: const EdgeInsets.fromLTRB(0, 70, 0, 0),
-                        child: FloatingActionButton(
-                            backgroundColor: Colors.lightGreen,
-                            child: const Icon(Icons.edit),
-                            onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return dialog();
-                                  });
-                            }))
-                  ]),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        buildCard(text[0], width, height),
-                        buildCard(text[1], width, height),
-                      ]),
-                  FutureBuilder(
-                      future: data,
-                      builder: (context, snapshot) {
-                        return Container(
-                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-                            padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-                            child: Material(
-                              elevation: 20,
-                              borderRadius: BorderRadius.circular(30),
-                              child: TextFormField(
-                                readOnly: true,
-                                maxLines: 6,
-                                textAlign: TextAlign.right,
-                                decoration: InputDecoration(
-                                  contentPadding:
-                                      const EdgeInsets.fromLTRB(20, 10, 5, 10),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                      borderSide: const BorderSide(
-                                          color: Color.fromARGB(
-                                              0, 158, 158, 158))),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: const BorderSide(
-                                          color: Color.fromARGB(
-                                              0, 189, 189, 189))),
-                                  prefixIcon: Padding(
-                                      padding: const EdgeInsets.all(5),
-                                      //child: SingleChildScrollView(
-                                      child: Stack(children: <Widget>[
-                                        const AnimatedPositioned(
-                                          // use top,bottom,left and right property to set the location and Transform.rotate to rotate the widget if needed
-                                          right: 15,
-
-                                          duration: Duration(seconds: 3),
-                                          child: Text(
-                                            'الأجهزة الأعلى استهلاكًا للطاقة',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                color: Color.fromARGB(
-                                                    255, 62, 62, 62)),
-                                          ),
-                                        ),
-                                        SfCartesianChart(
-                                            margin: const EdgeInsets.all(20),
-                                            primaryXAxis: CategoryAxis(
-                                                // visibleMinimum: 0,
-                                                // visibleMaximum: 29,
-                                                title:
-                                                    AxisTitle(text: 'الأجهزة')),
-                                            primaryYAxis: NumericAxis(
-                                                title: AxisTitle(text: 'kWh')),
-                                            series: <
-                                                ChartSeries<ChartData, String>>[
-                                              // Renders column chart
-                                              ColumnSeries<ChartData, String>(
-                                                  color: const Color.fromARGB(
-                                                      255, 98, 227, 165),
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(4)),
-                                                  dataSource: chartData,
-                                                  dataLabelSettings:
-                                                      const DataLabelSettings(
-                                                          isVisible: true),
-                                                  xValueMapper:
-                                                      (ChartData data, _) =>
-                                                          data.x,
-                                                  yValueMapper:
-                                                      (ChartData data, _) =>
-                                                          data.y),
-                                            ])
-                                      ])),
                                 ),
                               ),
-                            ));
-                      }),
-                  // Container(
-                  //     margin: const EdgeInsets.fromLTRB(10, 10, 10, 15),
-                  //     padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
-                  //     decoration: BoxDecoration(
-                  //         color: Colors.white,
-                  //         boxShadow: const [
-                  //           BoxShadow(
-                  //               blurRadius: 30,
-                  //               color: Colors.black45,
-                  //               spreadRadius: -10)
-                  //         ],
-                  //         borderRadius: BorderRadius.circular(20)),
-                  //     child: Material(
-                  //       child: TextFormField(
-                  //         readOnly: true,
-                  //         maxLines: 6,
-                  //         textAlign: TextAlign.right,
-                  //         decoration: InputDecoration(
-                  //           labelText: 'استهلاك الطاقة لكل جهاز',
-                  //           hintStyle: const TextStyle(
-                  //               fontSize: 16,
-                  //               fontWeight: FontWeight.w500,
-                  //               color: Color.fromARGB(255, 100, 100, 100)),
-                  //           contentPadding:
-                  //               const EdgeInsets.fromLTRB(20, 10, 5, 10),
-                  //           focusedBorder: OutlineInputBorder(
-                  //               borderRadius: BorderRadius.circular(30),
-                  //               borderSide:
-                  //                   const BorderSide(color: Colors.white)),
-                  //           enabledBorder: OutlineInputBorder(
-                  //               borderRadius: BorderRadius.circular(30.0),
-                  //               borderSide:
-                  //                   const BorderSide(color: Colors.white)),
-                  //           prefixIcon: Padding(
-                  //             padding: const EdgeInsets.all(12),
-                  //             child: SfCartesianChart(
-                  //                 primaryXAxis: CategoryAxis(
-                  //                     title: AxisTitle(text: 'Devices')),
-                  //                 primaryYAxis: NumericAxis(
-                  //                     title: AxisTitle(text: 'kWh')),
-                  //                 series: <ChartSeries<ChartData, String>>[
-                  //                   // Renders column chart
-                  //                   ColumnSeries<ChartData, String>(
-                  //                       color: const Color.fromARGB(
-                  //                           255, 98, 227, 165),
-                  //                       borderRadius: const BorderRadius.all(
-                  //                           Radius.circular(10)),
-                  //                       dataSource: chartData,
-                  //                       dataLabelSettings:
-                  //                           const DataLabelSettings(
-                  //                               isVisible: true),
-                  //                       xValueMapper: (ChartData data, _) =>
-                  //                           data.x,
-                  //                       yValueMapper: (ChartData data, _) =>
-                  //                           data.y),
-                  //                 ]),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ))
+                              Text(
+                                widget.isShared
+                                    ? ''
+                                    : (houseData['OwnerID'] ==
+                                            FirebaseAuth
+                                                .instance.currentUser!.uid
+                                        ? 'مالك المنزل'
+                                        : "عضو في المنزل"),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 16,
+                                  height: 1,
+                                ),
+                              )
+                            ])),
+                    Container(
+                        padding: const EdgeInsets.fromLTRB(6, 0, 0, 0),
+                        child: Column(children: [
+                          Row(children: [
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                              child: Text('لوحة المعلومات',
+                                  style: TextStyle(
+                                      fontSize: 25, color: Colors.white)),
+                            ),
+                            SizedBox(width: width * 0.02),
+                            Container(
+                              width: width * 0.2,
+                              padding: EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.lightBlue.shade100,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(formatted,
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.blue,
+                                      height: 1,
+                                      fontWeight: FontWeight.w300)),
+                            ),
+                            SizedBox(width: width * 0.26),
+                            Visibility(
+                                visible: !widget.isShared,
+                                child: IconButton(
+                                  icon: const Icon(Icons.ios_share),
+                                  onPressed: () {
+                                    share(houseData['dashboardID']);
+                                  },
+                                )),
+                          ]),
+                        ])),
+                    Stack(children: [
+                      FutureBuilder(
+                          future: goal(),
+                          builder: (context, snapshot) {
+                            return Container(
+                                decoration: const BoxDecoration(
+                                    border: Border(top: BorderSide.none)),
+                                width: width * 0.95,
+                                padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+                                child: Material(
+                                    elevation: 20,
+                                    borderRadius: BorderRadius.circular(30),
+                                    child: TextFormField(
+                                      readOnly: true,
+                                      maxLines: 4,
+                                      textAlign: TextAlign.right,
+                                      decoration: InputDecoration(
+                                        prefixIcon: const Padding(
+                                            padding: EdgeInsets.only(right: 30),
+                                            child: Text(
+                                              'الهدف الإجمالي لإستهلاك الطاقة',
+                                              textAlign: TextAlign.right,
+                                              style: TextStyle(fontSize: 20),
+                                            )),
+                                        hintStyle: const TextStyle(
+                                          fontSize: 10,
+                                          decoration: TextDecoration.underline,
+                                          fontWeight: FontWeight.w500,
+                                          color:
+                                              Color.fromARGB(255, 17, 184, 97),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.fromLTRB(
+                                                20, 15, 5, 10),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                            borderSide: const BorderSide(
+                                                color: Colors.white)),
+                                        enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                            borderSide: const BorderSide(
+                                                color: Colors.white)),
+                                        suffixIcon: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 20, top: 8, right: 0),
+                                            child: InkWell(
+                                              child: const Text(
+                                                '300 kWh',
+                                                textDirection:
+                                                    TextDirection.ltr,
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                    color: Colors.green),
+                                              ),
+                                              onTap: () {
+                                                // navigate to set goal or popup window
+                                                // Navigator.push(
+
+                                                // context,
+                                                // MaterialPageRoute(
+                                                //     builder: (context) => const Goal()),
+                                                // );
+                                              },
+                                            )),
+                                      ),
+                                    )));
+                          }),
+                      Container(
+                          margin: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+                          child: FloatingActionButton(
+                              backgroundColor: Colors.lightGreen,
+                              child: const Icon(Icons.edit),
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return dialog();
+                                    });
+                              }))
+                    ]),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          buildCard(text[0], width, height),
+                          buildCard(text[1], width, height),
+                        ]),
+                    FutureBuilder(
+                        future: data,
+                        builder: (context, snapshot) {
+                          return Container(
+                              margin: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+                              padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
+                              child: Material(
+                                elevation: 20,
+                                borderRadius: BorderRadius.circular(30),
+                                child: TextFormField(
+                                  readOnly: true,
+                                  maxLines: 6,
+                                  textAlign: TextAlign.right,
+                                  decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.fromLTRB(
+                                        20, 10, 5, 10),
+                                    focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                        borderSide: const BorderSide(
+                                            color: Color.fromARGB(
+                                                0, 158, 158, 158))),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0),
+                                        borderSide: const BorderSide(
+                                            color: Color.fromARGB(
+                                                0, 189, 189, 189))),
+                                    prefixIcon: Padding(
+                                        padding: const EdgeInsets.all(5),
+                                        //child: SingleChildScrollView(
+                                        child: Stack(children: <Widget>[
+                                          const AnimatedPositioned(
+                                            // use top,bottom,left and right property to set the location and Transform.rotate to rotate the widget if needed
+                                            right: 15,
+
+                                            duration: Duration(seconds: 3),
+                                            child: Text(
+                                              'الأجهزة الأعلى استهلاكًا للطاقة',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Color.fromARGB(
+                                                      255, 62, 62, 62)),
+                                            ),
+                                          ),
+                                          SfCartesianChart(
+                                              margin: const EdgeInsets.all(20),
+                                              primaryXAxis: CategoryAxis(
+                                                  // visibleMinimum: 0,
+                                                  // visibleMaximum: 29,
+                                                  title: AxisTitle(
+                                                      text: 'الأجهزة')),
+                                              primaryYAxis: NumericAxis(
+                                                  title:
+                                                      AxisTitle(text: 'kWh')),
+                                              series: <
+                                                  ChartSeries<ChartData,
+                                                      String>>[
+                                                // Renders column chart
+                                                ColumnSeries<ChartData, String>(
+                                                    color: const Color.fromARGB(
+                                                        255, 98, 227, 165),
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(4)),
+                                                    dataSource: chartData,
+                                                    dataLabelSettings:
+                                                        const DataLabelSettings(
+                                                            isVisible: true),
+                                                    xValueMapper:
+                                                        (ChartData data, _) =>
+                                                            data.x,
+                                                    yValueMapper:
+                                                        (ChartData data, _) =>
+                                                            data.y),
+                                              ])
+                                        ])),
+                                  ),
+                                ),
+                              ));
+                        }),
+                  ]),
                 ]),
               ),
-              bottomNavigationBar: buildBottomNavigation(height),
+              bottomNavigationBar: buildBottomNavigation(height, houseID),
             );
           } else {
             return const Text('');
@@ -678,7 +694,7 @@ class _dashboardState extends State<dashboard> {
         });
   }
 
-  Widget buildBottomNavigation(height) {
+  Widget buildBottomNavigation(height, houseID) {
     return Visibility(
         visible: !widget.isShared,
         child: BottomNavyBar(
@@ -691,19 +707,12 @@ class _dashboardState extends State<dashboard> {
               () => index = index,
             );
             if (index == 0) {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //       builder: (context) => dashboard(
-              //             ID: widget.houseID,
-              //           )),
-              // );
             } else if (index == 1) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => listOfDevices(
-                          ID: widget.ID,
+                          ID: houseID, //house ID
                         )),
               );
             } else if (index == 2) {
