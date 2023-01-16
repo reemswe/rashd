@@ -541,6 +541,7 @@ class profileState extends State<profile> {
                                           if (isEdited) {
                                             if (_formKey.currentState!
                                                 .validate()) {
+                                              //Wedd
                                                 if (await isDuplicatePhoneNum(
                                       phoneController.text) &&
                                   Oldphone != phoneController.text) {
@@ -806,6 +807,7 @@ class profileState extends State<profile> {
   }
 }
 
+//Wedd
 isDuplicatePhoneNum(String phoneNum) async {
   bool phoneExist = false;
   QuerySnapshot query = await FirebaseFirestore.instance
