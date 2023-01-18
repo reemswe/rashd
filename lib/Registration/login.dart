@@ -150,7 +150,7 @@ class loginFormState extends State<loginForm> {
 
     TextStyle defaultStyle =
         const TextStyle(color: Colors.grey, fontSize: 17.0);
-    TextStyle linkStyle = const TextStyle(color: Colors.blue);
+    TextStyle linkStyle = const TextStyle(color: Colors.blue, decoration: TextDecoration.underline);
 
     return Form(
       key: _formKey,

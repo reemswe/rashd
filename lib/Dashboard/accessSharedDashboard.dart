@@ -30,7 +30,8 @@ class satisfies extends State<accessSharedDashboard> {
 
     TextStyle defaultStyle =
         const TextStyle(color: Colors.grey, fontSize: 17.0);
-    TextStyle linkStyle = const TextStyle(color: Colors.blue);
+    TextStyle linkStyle = const TextStyle(
+        color: Colors.blue, decoration: TextDecoration.underline);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -195,14 +196,6 @@ class satisfies extends State<accessSharedDashboard> {
                                         setState(() {
                                           inProgress = false;
                                         });
-
-                                        // Fluttertoast.showToast(
-                                        //     msg: "مرحبا بك في رشد",
-                                        //     toastLength: Toast.LENGTH_SHORT,
-                                        //     gravity: ToastGravity
-                                        //         .BOTTOM, // Also possible "TOP" and "CENTER"
-                                        //     backgroundColor: Colors.blue,
-                                        //     textColor: Colors.white);
 
                                         var sharedDashboard =
                                             await FirebaseFirestore.instance

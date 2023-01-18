@@ -131,7 +131,6 @@ class listOfDevicesState extends State<listOfDevices> {
                                         ])
                                   ]),
                                 ])),
-
                         SizedBox(height: height * 0.01),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -159,7 +158,10 @@ class listOfDevicesState extends State<listOfDevices> {
                       ]),
                 ]),
               ),
-              bottomNavigationBar: buildBottomNavigation(height),
+              bottomNavigationBar: buildBottomNavigation(
+                  height,
+                  houseData['OwnerID'] ==
+                      FirebaseAuth.instance.currentUser!.uid),
             );
           } else {
             return Center(child: CircularProgressIndicator());
@@ -260,59 +262,77 @@ class listOfDevicesState extends State<listOfDevices> {
   }
 
   int index = 1;
-  Widget buildBottomNavigation(height) {
-    return BottomNavyBar(
-      containerHeight: height * 0.07,
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      selectedIndex: index,
-      iconSize: 28,
-      onItemSelected: (index) {
-        setState(
-          () => index = index,
-        );
-        if (index == 0) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => dashboard(
-                      ID: dashID,
-                    )),
-          );
-        } else if (index == 1) {
-        } else if (index == 2) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => HouseMembers(houseId: widget.ID)),
-          );
-        }
-      },
-      items: <BottomNavyBarItem>[
-        BottomNavyBarItem(
-            icon: const Icon(Icons.bar_chart_rounded),
-            title: const Text(
-              'لوحة المعلومات',
-              textAlign: TextAlign.center,
+  Widget buildBottomNavigation(height, isOwner) {
+    var items = isOwner
+        ? <BottomNavyBarItem>[
+            BottomNavyBarItem(
+                icon: const Icon(Icons.bar_chart_rounded),
+                title: const Text(
+                  'لوحة المعلومات',
+                  textAlign: TextAlign.center,
+                ),
+                activeColor: Colors.lightBlue),
+            BottomNavyBarItem(
+              icon: const Icon(Icons.electrical_services_rounded),
+              title: const Text(
+                'الأجهزة',
+                textAlign: TextAlign.center,
+              ),
+              activeColor: Colors.lightBlue,
             ),
-            activeColor: Colors.lightBlue),
-        BottomNavyBarItem(
-          icon: const Icon(Icons.electrical_services_rounded),
-          title: const Text(
-            'الأجهزة',
-            textAlign: TextAlign.center,
-          ),
-          activeColor: Colors.lightBlue,
-        ),
-        BottomNavyBarItem(
-          icon: const Icon(Icons.people_alt_rounded),
-          title: const Text(
-            'اعضاء المنزل',
-            style: TextStyle(fontSize: 12),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
-    );
+            BottomNavyBarItem(
+              icon: const Icon(Icons.people_alt_rounded),
+              title: const Text(
+                'اعضاء المنزل',
+                style: TextStyle(fontSize: 12),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ]
+        : <BottomNavyBarItem>[
+            BottomNavyBarItem(
+                icon: const Icon(Icons.bar_chart_rounded),
+                title: const Text(
+                  'لوحة المعلومات',
+                  textAlign: TextAlign.center,
+                ),
+                activeColor: Colors.lightBlue),
+            BottomNavyBarItem(
+              icon: const Icon(Icons.electrical_services_rounded),
+              title: const Text(
+                'الأجهزة',
+                textAlign: TextAlign.center,
+              ),
+              activeColor: Colors.lightBlue,
+            ),
+          ];
+    return BottomNavyBar(
+        containerHeight: height * 0.07,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        selectedIndex: index,
+        iconSize: 28,
+        onItemSelected: (index) {
+          setState(
+            () => index = index,
+          );
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => dashboard(
+                        ID: dashID,
+                      )),
+            );
+          } else if (index == 1) {
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HouseMembers(houseId: widget.ID)),
+            );
+          }
+        },
+        items: items);
   }
 }
 

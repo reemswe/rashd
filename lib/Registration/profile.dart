@@ -293,54 +293,54 @@ class profileState extends State<profile> {
                           ),
 
                           //DOB field
-                          SizedBox(height: height * 0.04),
-                          TextFormField(
-                            enabled: Editing,
-                            controller: DOBController,
-                            readOnly: true,
-                            onTap: () async {
-                              DateTime? newDate = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.parse(DOBController.text),
-                                firstDate: DateTime(1922),
-                                lastDate: DateTime.now(),
-                              );
-                              if (newDate != null) {
-                                setState(() {
-                                  DOBController.text =
-                                      DateFormat('yyyy-MM-dd').format(newDate);
-                                  print(newDate);
-                                  print('controller :' + DOBController.text);
-                                });
-                                if (DOBController.text != userData['DOB']) {
-                                  editing(true);
-                                } else {
-                                  editing(false);
-                                }
-                              } else {
-                                print("Date is not selected");
-                              }
-                            },
-                            decoration: InputDecoration(
-                              labelText: "تاريخ الميلاد",
-                              enabledBorder: const UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    width: 2, color: Colors.lightBlue),
-                              ),
-                              focusedBorder: const UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(width: 2, color: Colors.blue),
-                              ),
-                              contentPadding: const EdgeInsets.only(bottom: 3),
-                              hintText: DOBController.text,
-                              hintStyle: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                              ),
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.always,
-                            ),
-                          ),
+                          // SizedBox(height: height * 0.04),
+                          // TextFormField(
+                          //   enabled: Editing,
+                          //   controller: DOBController,
+                          //   readOnly: true,
+                          //   onTap: () async {
+                          //     DateTime? newDate = await showDatePicker(
+                          //       context: context,
+                          //       initialDate: DateTime.parse(DOBController.text),
+                          //       firstDate: DateTime(1922),
+                          //       lastDate: DateTime.now(),
+                          //     );
+                          //     if (newDate != null) {
+                          //       setState(() {
+                          //         DOBController.text =
+                          //             DateFormat('yyyy-MM-dd').format(newDate);
+                          //         print(newDate);
+                          //         print('controller :' + DOBController.text);
+                          //       });
+                          //       if (DOBController.text != userData['DOB']) {
+                          //         editing(true);
+                          //       } else {
+                          //         editing(false);
+                          //       }
+                          //     } else {
+                          //       print("Date is not selected");
+                          //     }
+                          //   },
+                          //   decoration: InputDecoration(
+                          //     labelText: "تاريخ الميلاد",
+                          //     enabledBorder: const UnderlineInputBorder(
+                          //       borderSide: BorderSide(
+                          //           width: 2, color: Colors.lightBlue),
+                          //     ),
+                          //     focusedBorder: const UnderlineInputBorder(
+                          //       borderSide:
+                          //           BorderSide(width: 2, color: Colors.blue),
+                          //     ),
+                          //     contentPadding: const EdgeInsets.only(bottom: 3),
+                          //     hintText: DOBController.text,
+                          //     hintStyle: const TextStyle(
+                          //       fontSize: 18,
+                          //       color: Colors.black,
+                          //     ),
+                          //     floatingLabelBehavior:
+                          //         FloatingLabelBehavior.always,
+                          //   ),
+                          // ),
 
                           //phone number field
                           SizedBox(height: height * 0.04),
@@ -792,7 +792,6 @@ class profileState extends State<profile> {
       ],
     );
   }
-
 }
 
 Future<void> UpdateDB() async {

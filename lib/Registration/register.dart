@@ -173,7 +173,10 @@ class registerFormState extends State<registerForm> {
 
     TextStyle defaultStyle =
         const TextStyle(color: Colors.grey, fontSize: 17.0);
-    TextStyle linkStyle = const TextStyle(color: Colors.blue, fontSize: 17.0);
+    TextStyle linkStyle = const TextStyle(
+        color: Colors.blue,
+        fontSize: 17.0,
+        decoration: TextDecoration.underline);
 
     return Form(
       key: _formKey,
@@ -259,6 +262,8 @@ class registerFormState extends State<registerForm> {
               ),
             ],
           ),
+          SizedBox(height: height * 0.02),
+
           //Confirm Password
           Stack(
             children: [

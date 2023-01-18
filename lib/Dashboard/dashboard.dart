@@ -31,9 +31,17 @@ Future<Map<String, dynamic>> readHouseData(var id) =>
       },
     );
 
+var sharedHouseName = '';
 Future<Map<String, dynamic>> readSharedData(var dashID) =>
     FirebaseFirestore.instance.collection('dashboard').doc(dashID).get().then(
       (DocumentSnapshot doc) {
+        FirebaseFirestore.instance
+            .collection("houseAccount")
+            .doc(doc["houseID"])
+            .get()
+            .then((value) {
+          sharedHouseName = value.data()!["houseName"];
+        });
         return doc.data() as Map<String, dynamic>;
       },
     );
@@ -289,7 +297,7 @@ class _dashboardState extends State<dashboard> {
                                     children: [
                                       Text(
                                         widget.isShared
-                                            ? 'البيت'
+                                            ? sharedHouseName
                                             : houseData['houseName'],
                                         style: const TextStyle(
                                           letterSpacing: 1.2,
@@ -299,21 +307,23 @@ class _dashboardState extends State<dashboard> {
                                           height: 1,
                                         ),
                                       ),
-                                      Text(
-                                        widget.isShared
-                                            ? ''
-                                            : (houseData['OwnerID'] ==
-                                                    FirebaseAuth.instance
-                                                        .currentUser!.uid
-                                                ? 'مالك المنزل'
-                                                : "عضو في المنزل"),
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          height: 1,
-                                        ),
-                                      )
+                                      Visibility(
+                                          visible: !widget.isShared,
+                                          child: Text(
+                                            widget.isShared
+                                                ? ''
+                                                : (houseData['OwnerID'] ==
+                                                        FirebaseAuth.instance
+                                                            .currentUser!.uid
+                                                    ? 'مالك المنزل'
+                                                    : "عضو في المنزل"),
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 16,
+                                              height: 1,
+                                            ),
+                                          ))
                                     ])
                               ]),
                             ])),
@@ -393,19 +403,22 @@ class _dashboardState extends State<dashboard> {
                                               ),
                                             ]))));
                           }),
-                      Container(
-                          margin: EdgeInsets.fromLTRB(
-                              0, height * 0.08, width * 0.02, 0),
-                          child: FloatingActionButton(
-                              backgroundColor: Colors.lightGreen,
-                              child: const Icon(Icons.edit),
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return dialog(formatted, height, width);
-                                    });
-                              }))
+                      Visibility(
+                          visible: !widget.isShared,
+                          child: Container(
+                              margin: EdgeInsets.fromLTRB(
+                                  0, height * 0.08, width * 0.02, 0),
+                              child: FloatingActionButton(
+                                  backgroundColor: Colors.lightGreen,
+                                  child: const Icon(Icons.edit),
+                                  onPressed: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return dialog(
+                                              formatted, height, width);
+                                        });
+                                  })))
                     ]),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -476,7 +489,9 @@ class _dashboardState extends State<dashboard> {
                   ]),
                 ]),
               ),
-              bottomNavigationBar: buildBottomNavigation(height, houseID),
+              bottomNavigationBar: buildBottomNavigation(height, houseID,
+                  houseData['OwnerID'] ==
+                      FirebaseAuth.instance.currentUser!.uid),
             );
           } else {
             return const Text('');
@@ -484,7 +499,51 @@ class _dashboardState extends State<dashboard> {
         });
   }
 
-  Widget buildBottomNavigation(height, houseID) {
+  Widget buildBottomNavigation(height, houseID, isOwner) {
+    var items = isOwner
+        ? <BottomNavyBarItem>[
+            BottomNavyBarItem(
+                icon: const Icon(Icons.bar_chart_rounded),
+                title: const Text(
+                  'لوحة المعلومات',
+                  textAlign: TextAlign.center,
+                ),
+                activeColor: Colors.lightBlue),
+            BottomNavyBarItem(
+              icon: const Icon(Icons.electrical_services_rounded),
+              title: const Text(
+                'الأجهزة',
+                textAlign: TextAlign.center,
+              ),
+              activeColor: Colors.lightBlue,
+            ),
+            BottomNavyBarItem(
+              icon: const Icon(Icons.people_alt_rounded),
+              title: const Text(
+                'اعضاء المنزل',
+                style: TextStyle(fontSize: 12),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ]
+        : <BottomNavyBarItem>[
+            BottomNavyBarItem(
+                icon: const Icon(Icons.bar_chart_rounded),
+                title: const Text(
+                  'لوحة المعلومات',
+                  textAlign: TextAlign.center,
+                ),
+                activeColor: Colors.lightBlue),
+            BottomNavyBarItem(
+              icon: const Icon(Icons.electrical_services_rounded),
+              title: const Text(
+                'الأجهزة',
+                textAlign: TextAlign.center,
+              ),
+              activeColor: Colors.lightBlue,
+            ),
+          ];
+    
     return Visibility(
         visible: !widget.isShared,
         child: BottomNavyBar(
@@ -513,31 +572,7 @@ class _dashboardState extends State<dashboard> {
               );
             }
           },
-          items: <BottomNavyBarItem>[
-            BottomNavyBarItem(
-                icon: const Icon(Icons.bar_chart_rounded),
-                title: const Text(
-                  'لوحة المعلومات',
-                  textAlign: TextAlign.center,
-                ),
-                activeColor: Colors.lightBlue),
-            BottomNavyBarItem(
-              icon: const Icon(Icons.electrical_services_rounded),
-              title: const Text(
-                'الأجهزة',
-                textAlign: TextAlign.center,
-              ),
-              activeColor: Colors.lightBlue,
-            ),
-            BottomNavyBarItem(
-              icon: const Icon(Icons.people_alt_rounded),
-              title: const Text(
-                'اعضاء المنزل',
-                style: TextStyle(fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
+          items: items
         ));
   }
 

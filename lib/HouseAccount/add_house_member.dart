@@ -689,13 +689,6 @@
 // class global {
 //   static var index = 0;
 // }
-
-
-
-
-
-
-
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
@@ -729,15 +722,13 @@ class add_house_memberState extends State<add_house_member> {
   List<bool> duplicates = [true, true, true, true, true];
 
   ScrollController list = ScrollController();
-  String existing = '';
-  String privilege_edit = 'viewer', privilege = '';
+  String privilege_edit = 'viewer', privilege = '', ErorrMes = 'العضو :';
   var privilege_index = 1;
   String privilege_edit2 = 'viewer', privilege2 = '';
   var privilege_index2 = 1;
   String privilege_edit3 = 'viewer', privilege3 = '';
   var privilege_index3 = 1;
 
-  //toggle switch
   List indexes = ['الأول', 'الثاني', 'الثالث'];
   int num = 0;
 
@@ -877,13 +868,16 @@ class add_house_memberState extends State<add_house_member> {
 
   final _formKey = GlobalKey<FormState>();
   void clearText() {
+    ErorrMes = 'العضو :';
     Member2 = false;
     Member3 = false;
     membersPhoneNumber1.clear();
     membersPhoneNumber2.clear();
     membersPhoneNumber3.clear();
+    membersNames1.clear();
+    membersNames2.clear();
+    membersNames3.clear();
     counter = 1;
-    existing = '';
     privilege_edit = 'viewer';
     privilege = '';
     privilege_index = 1;
@@ -1290,8 +1284,8 @@ class add_house_memberState extends State<add_house_member> {
                                 IconButton(
                                     onPressed: () {
                                       setState(() {
-                                        Member3 = false;
-                                        membersNames2.text = '';
+                                        Member2 = false;
+                                        membersPhoneNumber2.text = '';
                                         membersNames2.text = '';
                                         privilege_edit2 = 'viewer';
                                         privilege2 = '';
@@ -1455,7 +1449,7 @@ class add_house_memberState extends State<add_house_member> {
                                     onPressed: () {
                                       setState(() {
                                         Member3 = false;
-                                        membersNames3.text = '';
+                                        membersPhoneNumber3.text = '';
                                         membersNames3.text = '';
                                         privilege_edit3 = 'viewer';
                                         privilege3 = '';
@@ -1524,24 +1518,26 @@ class add_house_memberState extends State<add_house_member> {
                             ),
                             child: ElevatedButton(
                               onPressed: () async {
-                                existing = '';
                                 bool flag = true;
                                 if (!_formKey.currentState!.validate()) {
                                 } else {
-                                  String ErorrMes = 'العضو :';
-                                  if (await exixts(membersPhoneNumber1.text)) {
+                                  ErorrMes = 'العضو :';
+                                  if (await exixts(membersPhoneNumber1.text) ==
+                                      false) {
                                     flag = false;
-                                    ErorrMes = ' الأول،';
+                                    ErorrMes += ' الأول،';
                                   }
                                   if (Member2 &&
-                                      await exixts(membersPhoneNumber2.text)) {
+                                      await exixts(membersPhoneNumber2.text) ==
+                                          false) {
                                     flag = false;
-                                    ErorrMes = ' الثاني،';
+                                    ErorrMes += ' الثاني،';
                                   }
                                   if (Member3 &&
-                                      await exixts(membersPhoneNumber3.text)) {
+                                      await exixts(membersPhoneNumber3.text) ==
+                                          false) {
                                     flag = false;
-                                    ErorrMes = ' الثالث،';
+                                    ErorrMes += ' الثالث،';
                                   }
                                   if (flag) {
                                     setData();
@@ -1553,11 +1549,11 @@ class add_house_memberState extends State<add_house_member> {
                                             ),
                                             backgroundColor: Colors.green));
                                   } else {
-                                    existing += ' غير موجود بالنظام';
+                                    ErorrMes += ' غير موجود بالنظام';
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(SnackBar(
                                             content: Text(
-                                              existing,
+                                              ErorrMes,
                                               textAlign: TextAlign.center,
                                             ),
                                             backgroundColor: Colors.redAccent));
@@ -1691,8 +1687,4 @@ Future<bool> exixts(String number) async {
   }
 
   return invalidPhone;
-}
-
-class global {
-  static var index = 0;
 }
