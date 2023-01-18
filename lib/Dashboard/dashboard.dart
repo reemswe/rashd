@@ -793,6 +793,7 @@ class _dashboardState extends State<dashboard> {
             content[0],
             textAlign: TextAlign.center,
             style: TextStyle(color: content[4], fontWeight: FontWeight.w600),
+            textDirection: TextDirection.ltr,
           )),
         ));
   }
@@ -1008,6 +1009,8 @@ class _dashboardState extends State<dashboard> {
     }
     setState(() {
       electricityBill = (slat_1 + slat_2) * 1.15;
+      electricityBill.toInt();
+      print(electricityBill);
     });
   }
 //calculate energy from electricity bill
