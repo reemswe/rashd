@@ -1,5 +1,6 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_segmented_tab_control/animated_segmented_tab_control.dart';
 import 'package:rashd/dashboard.dart';
@@ -111,6 +112,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
   Widget build(BuildContext context) {
     return DefaultTabController(
         length: 2,
+        initialIndex: 1,
         child: Scaffold(
           appBar: AppBar(
             title: FutureBuilder(
@@ -143,7 +145,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                 indicatorColor: Colors.grey[400],
                 tabTextColor: Colors.black45,
                 selectedTabTextColor: Colors.white,
-                squeezeIntensity: 2,
+                squeezeIntensity: 1,
                 height: 45,
 
                 tabPadding: const EdgeInsets.symmetric(horizontal: 8),
@@ -152,10 +154,10 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                 // All specified values will override the [SegmentedTabControl] setting
                 tabs: const [
                   SegmentTab(
-                    label: 'اشتراكاتي',
+                    label: 'منازلي',
                   ),
                   SegmentTab(
-                    label: 'منازلي',
+                    label: 'اشتراكاتي',
                   ),
                 ],
               ),
@@ -163,6 +165,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
             Padding(
                 padding: const EdgeInsets.only(top: 70),
                 child: TabBarView(
+                    dragStartBehavior: DragStartBehavior.start,
                     physics: const BouncingScrollPhysics(),
                     children: [
                       FutureBuilder(
@@ -187,38 +190,34 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
                       Stack(
                         children: [
                           Container(
-                              margin: EdgeInsets.fromLTRB(0, 0, 15, 0),
-                              child: TextFormField(
-                                // maxLength: 20,
+                            margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                            child: TextFormField(
                                 readOnly: true,
-                                textAlign: TextAlign.right,
+                                textAlign: TextAlign.left,
                                 decoration: InputDecoration(
                                     contentPadding: const EdgeInsets.fromLTRB(
                                         20, 10, 20, 10),
                                     border: InputBorder.none,
-                                    suffixIcon: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(
+                                    prefixIcon: InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const CreateHouseAccount()),
+                                          );
+                                        },
+                                        child: Row(children: [
+                                          Text('إضافة منزل جديد',
+                                              style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontWeight: FontWeight.bold)),
+                                          Icon(
                                               // Based on passwordVisible state choose the icon
+                                              color: Colors.grey[600],
                                               Icons.add),
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const CreateHouseAccount()),
-                                            );
-                                          },
-                                        ),
-                                        Text('إضافة منزل جديد',
-                                            style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontWeight: FontWeight.bold)),
-                                      ],
-                                    )),
-                              )),
+                                        ])))),
+                          ),
                           Container(
                               margin: EdgeInsets.fromLTRB(0, 30, 0, 0),
                               child: FutureBuilder(
@@ -269,10 +268,10 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
               ],
             ),
             child: ListTile(
-                trailing: Text(
+                leading: Text(
                   dataList[index][0]["houseName"],
                 ),
-                leading: const Icon(Icons.arrow_back_ios),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded),
                 onTap: () {
                   Navigator.push(
                     context,
