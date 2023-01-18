@@ -14,6 +14,9 @@ import '../HouseAccount/add_house_member.dart';
 import '../Dashboard/dashboard.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 
+import '../HouseAccount/list_of_houseMembers.dart';
+import '../Registration/welcomePage.dart';
+
 class listOfDevices extends StatefulWidget {
   final ID; //house ID
   const listOfDevices({super.key, required this.ID});
@@ -52,71 +55,110 @@ class listOfDevicesState extends State<listOfDevices> {
             var houseData = snapshot.data as Map<String, dynamic>;
             dashID = houseData['dashboardID'];
             return Scaffold(
-              appBar: AppBar(
-                automaticallyImplyLeading: false,
-                toolbarHeight: height * 0.085,
-                title: Wrap(
-                    direction: Axis.vertical,
-                    spacing: 1, // to apply margin in the main axis of the wrap
-                    children: <Widget>[
-                      SizedBox(height: height * 0.01),
-                      Text(
-                        houseData['houseName'],
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          height: 1,
-                        ),
-                      ),
-                      Text(
-                        houseData['OwnerID'] ==
-                                FirebaseAuth.instance.currentUser!.uid
-                            ? 'مالك المنزل'
-                            : "عضو في المنزل",
-                        style: TextStyle(
-                          color: Colors.grey.shade900,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                          height: 1,
-                        ),
-                      )
-                    ]),
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                elevation: 1.5,
+              body: Container(
+                transformAlignment: Alignment.topRight,
+                child: Stack(children: [
+                  Positioned(
+                    bottom: height * 0,
+                    top: height * -1.4,
+                    left: width * 0.01,
+                    child: Container(
+                      width: width * 1.5,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                              colors: [Colors.lightBlue.shade200, Colors.blue]),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.blue.shade100,
+                                offset: const Offset(4.0, 4.0),
+                                blurRadius: 10.0)
+                          ]),
+                    ),
+                  ),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: height * 0.02),
+                        Padding(
+                            padding: EdgeInsets.fromLTRB(
+                                width * 0.01, 5, width * 0.05, 5),
+                            child: Wrap(
+                                direction: Axis.vertical,
+                                spacing: 1,
+                                children: <Widget>[
+                                  SizedBox(height: height * 0.02),
+                                  Row(children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.arrow_back_ios),
+                                      color: Colors.white,
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const ListOfHouseAccounts(),
+                                            ));
+                                      },
+                                    ),
+                                    Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            houseData['houseName'],
+                                            style: const TextStyle(
+                                              letterSpacing: 1.2,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 30,
+                                              height: 1,
+                                            ),
+                                          ),
+                                          Text(
+                                            (houseData['OwnerID'] ==
+                                                    FirebaseAuth.instance
+                                                        .currentUser!.uid
+                                                ? 'مالك المنزل'
+                                                : "عضو في المنزل"),
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 16,
+                                              height: 1,
+                                            ),
+                                          )
+                                        ])
+                                  ]),
+                                ])),
+
+                        SizedBox(height: height * 0.01),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Padding(
+                                  padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                                  child: Text(
+                                    "قائمة الأجهزة",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 24,
+                                    ),
+                                  )),
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                  child: IconButton(
+                                    iconSize: 33,
+                                    icon: const Icon(Icons.add),
+                                    onPressed: () {},
+                                  )),
+                            ]),
+                        buildDevicesList(height),
+                      ]),
+                ]),
               ),
-              body: Column(children: [
-                SizedBox(height: height * 0.01),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Padding(
-                          padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                          child: Text(
-                            "قائمة الأجهزة",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 24,
-                            ),
-                          )),
-                      Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                          child: IconButton(
-                            iconSize: 33,
-                            icon: const Icon(Icons.add),
-                            onPressed: () {
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(builder: (context) => {},//add_device(),
-                              //         ));
-                              share(houseData['dashboardID']);
-                            },
-                          )),
-                    ]),
-                buildDevicesList(height),
-              ]),
               bottomNavigationBar: buildBottomNavigation(height),
             );
           } else {
@@ -241,7 +283,7 @@ class listOfDevicesState extends State<listOfDevices> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => add_house_member(ID: widget.ID)),
+                builder: (context) => HouseMembers(houseId: widget.ID)),
           );
         }
       },

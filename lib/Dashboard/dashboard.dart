@@ -507,11 +507,10 @@ class _dashboardState extends State<dashboard> {
               );
             } else if (index == 2) {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => add_house_member(
-                          ID: 'ffDQbRQQ8k9RzlGQ57FL')) //houseID)),
-                  );
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HouseMembers(houseId: houseID)),
+              );
             }
           },
           items: <BottomNavyBarItem>[

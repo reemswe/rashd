@@ -1,10 +1,15 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../Dashboard/dashboard.dart';
+import '../Devices/listOfDevices.dart';
 import '../create_house_account.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+import 'add_house_member.dart';
+import 'list_of_houseAccounts.dart';
 
 class HouseMembers extends StatefulWidget {
   final String houseId;
@@ -46,201 +51,194 @@ class _houseMembersState extends State<HouseMembers> {
     return membersList;
   }
 
+  var dashID;
   List dataList = [];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text(
-          ' الأعضاء',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        actions: [
-          //Icon(Icons.more_vert)
-          PopupMenuButton(
-            onSelected: (value) {
-              if (value == 'share') {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text(
-                      "مشاركة لوحة المعلومات",
-                      textAlign: TextAlign.left,
+    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery.of(context).size.width;
+
+    return FutureBuilder<Map<String, dynamic>>(
+        future: readHouseData(widget.houseId),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            var houseData = snapshot.data as Map<String, dynamic>;
+            dashID = houseData['dashboardID'];
+            return Scaffold(
+              body: Container(
+                transformAlignment: Alignment.topRight,
+                child: Stack(children: [
+                  Positioned(
+                    bottom: height * 0,
+                    top: height * -1.4,
+                    left: width * 0.01,
+                    child: Container(
+                      width: width * 1.5,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                              colors: [Colors.lightBlue.shade200, Colors.blue]),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.blue.shade100,
+                                offset: const Offset(4.0, 4.0),
+                                blurRadius: 10.0)
+                          ]),
                     ),
-                    content: const Text(
-                      'رجاء ادخل رقم جوال لمشاركة لوحة المعلومات',
-                      textAlign: TextAlign.left,
-                    ),
-                    actions: <Widget>[
-                      TextFormField(
-                        textAlign: TextAlign.right,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          LengthLimitingTextInputFormatter(10),
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 13.0, horizontal: 15),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(color: Colors.grey[800]),
-                          hintText: " رقم الهاتف",
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '  رجاء ادخل رقم هاتف';
-                          }
-                          if (value.length < 10) {
-                            return '  رجاء ادخل رقم هاتف صحيح';
-                          }
-                          return null;
-                        },
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(ctx).pop();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(14),
-                          child: const Text("الغاء"),
-                        ),
-                      ),
-                      //log in ok button
-                      TextButton(
-                        onPressed: () {
-                          // pop out
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(14),
-                          child: const Text("مشاركة",
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 35, 129, 6))),
-                        ),
-                      ),
-                    ],
                   ),
-                );
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => const Share()),
-                // );
-              }
-              if (value == 'delete') {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text(
-                      "حذف المنزل",
-                      textAlign: TextAlign.left,
-                    ),
-                    content: const Text(
-                      "هل أنت متأكد من حذف حساب المنزل ؟",
-                      textAlign: TextAlign.left,
-                    ),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(ctx).pop();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(14),
-                          child: const Text("الغاء"),
-                        ),
-                      ),
-                      //log in ok button
-                      TextButton(
-                        onPressed: () {
-                          // pop out
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(14),
-                          child: const Text("حذف",
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 164, 10, 10))),
-                        ),
-                      ),
-                    ],
+                  FutureBuilder(
+                    future: data,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return const Text(
+                          "Something went wrong",
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        dataList = snapshot.data as List;
+
+                        return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: height * 0.02),
+                              Padding(
+                                  padding: EdgeInsets.fromLTRB(
+                                      width * 0.01, 5, width * 0.05, 5),
+                                  child: Wrap(
+                                      direction: Axis.vertical,
+                                      spacing: 1,
+                                      children: <Widget>[
+                                        SizedBox(height: height * 0.02),
+                                        Row(children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                                Icons.arrow_back_ios),
+                                            color: Colors.white,
+                                            onPressed: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const ListOfHouseAccounts(),
+                                                  ));
+                                            },
+                                          ),
+                                          Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  houseData['houseName'],
+                                                  style: const TextStyle(
+                                                    letterSpacing: 1.2,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 30,
+                                                    height: 1,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  (houseData['OwnerID'] ==
+                                                          FirebaseAuth.instance
+                                                              .currentUser!.uid
+                                                      ? 'مالك المنزل'
+                                                      : "عضو في المنزل"),
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 16,
+                                                    height: 1,
+                                                  ),
+                                                )
+                                              ])
+                                        ]),
+                                      ])),
+                              SizedBox(height: height * 0.01),
+                              Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(0, 0, 20, 0),
+                                        child: Text(
+                                          "قائمة الأعضاء",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 24,
+                                          ),
+                                        )),
+                                    Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            5, 0, 0, 0),
+                                        child: IconButton(
+                                          iconSize: 33,
+                                          icon: const Icon(Icons.add),
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      add_house_member(
+                                                          ID: widget.houseId)),
+                                            );
+                                          },
+                                        )),
+                                  ]),
+                              buildItems(dataList, width, height)
+                            ]);
+                      }
+                      return const Center(child: CircularProgressIndicator());
+                      // membersList.removeAt(0);
+                      // print(membersList);
+                      // return buildItems(membersList);
+                    },
                   ),
-                );
-              }
-              // your logic
-            },
-            itemBuilder: (BuildContext bc) {
-              return const [
-                PopupMenuItem(
-                  value: 'share',
-                  child: Text("مشاركة لوحة المعلومات "),
-                ),
-                PopupMenuItem(
-                    value: 'delete',
-                    child: Text("حذف حساب المنرل",
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 167, 32, 32)))),
-              ];
-            },
-          ),
-        ],
-      ),
-      body: FutureBuilder(
-        future: data,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const Text(
-              "Something went wrong",
+                ]),
+              ),
+              bottomNavigationBar: buildBottomNavigation(height),
             );
+          } else {
+            return Center(child: CircularProgressIndicator());
           }
-          if (snapshot.connectionState == ConnectionState.done) {
-            dataList = snapshot.data as List;
-            print(dataList);
-            return buildItems(dataList);
-          }
-          return const Center(child: CircularProgressIndicator());
-          // membersList.removeAt(0);
-          // print(membersList);
-          // return buildItems(membersList);
-        },
-      ),
-      bottomNavigationBar: buildBottomNavigation(),
-    );
+        });
   }
 
   // builds the list to show house members
-  Widget buildItems(dataList) => ListView.builder(
-      padding: const EdgeInsets.all(8),
+  Widget buildItems(dataList, width, height) => ListView.builder(
+      shrinkWrap: true,
+      padding: EdgeInsets.fromLTRB(
+          width * 0.03, height * 0.003, width * 0.03, height * 0.03),
       itemCount: dataList.length,
-      // separatorBuilder: (BuildContext context, int index) => const Divider(),
       itemBuilder: (BuildContext context, int index) {
         Widget icon = const Icon(PhosphorIcons.binoculars);
         if (dataList[index][0]["privilege"] == 'editor') {
           icon = Icon(Icons.edit_note_outlined);
         }
         return Container(
-            margin: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+            padding: EdgeInsets.fromLTRB(0, height * 0.005, 0, height * 0.005),
+            margin: EdgeInsets.fromLTRB(0, height * 0.00, 0, height * 0.009),
             decoration: BoxDecoration(
               // border: Border.all(color: Color(0xff940D5A)),
               color: Colors.white,
               borderRadius: BorderRadius.circular(13.0),
               boxShadow: const <BoxShadow>[
                 BoxShadow(
-                  color: Colors.grey,
-                  offset: Offset(0, 6.0),
-                  blurRadius: 7.0,
-                ),
+                    color: Colors.black26,
+                    offset: Offset(0, 4),
+                    blurRadius: 8.0)
               ],
             ),
             child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
+                  SizedBox(width: width * 0.01),
                   Text(
                     dataList[index][0]["nickName"],
+                    style: TextStyle(fontSize: 16),
                   ),
+                  SizedBox(width: width * 0.5),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       mainAxisSize: MainAxisSize.min,
@@ -258,72 +256,60 @@ class _houseMembersState extends State<HouseMembers> {
                 ]));
       });
 
-  Widget buildBottomNavigation() {
+  int index = 2;
+  Widget buildBottomNavigation(height) {
     return BottomNavyBar(
-      selectedIndex: global.index,
+      containerHeight: height * 0.07,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      selectedIndex: index,
+      iconSize: 28,
       onItemSelected: (index) {
         setState(
-          () => global.index = index,
+          () => index = index,
         );
-        if (global.index == 0) {
+        if (index == 0) {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => HouseMembers(
-                      houseId: widget.houseId,
+                builder: (context) => dashboard(
+                      ID: dashID,
                     )),
           );
-        } else if (global.index == 1) {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //       builder: (context) => const dashboard(
-          //             dashId: 'fIgVgfieeVqGRB9oRne1',
-          //           )),
-          // );
-        } else if (global.index == 2) {
+        } else if (index == 1) {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const dashboard(
-                      ID: 'fIgVgfieeVqGRB9oRne1',
+                builder: (context) => listOfDevices(
+                      ID: widget.houseId, //house ID
                     )),
           );
-        } else if (global.index == 3) {}
+        } else if (index == 2) {}
       },
       items: <BottomNavyBarItem>[
         BottomNavyBarItem(
-          icon: const Icon(Icons.people_alt_rounded),
-          title: const Text(
-            ' الأعضاء',
-            textAlign: TextAlign.center,
-          ),
-          activeColor: Colors.lightBlue,
-        ),
-        BottomNavyBarItem(
-          icon: const Icon(Icons.electrical_services_rounded),
-          title: const Text(
-            ' اجهزتي',
-            textAlign: TextAlign.center,
-          ),
-          activeColor: Colors.lightBlue,
-        ),
-        BottomNavyBarItem(
-            icon: const Icon(Icons.auto_graph_outlined),
+            icon: const Icon(Icons.bar_chart_rounded),
             title: const Text(
               'لوحة المعلومات',
               textAlign: TextAlign.center,
             ),
             activeColor: Colors.lightBlue),
         BottomNavyBarItem(
-            icon: const Icon(Icons.holiday_village_rounded),
-            title: const Text(
-              'منازلي',
-              textAlign: TextAlign.center,
-            ),
-            activeColor: Colors.lightBlue),
+          icon: const Icon(Icons.electrical_services_rounded),
+          title: const Text(
+            'الأجهزة',
+            textAlign: TextAlign.center,
+          ),
+          activeColor: Colors.lightBlue,
+        ),
+        BottomNavyBarItem(
+          icon: const Icon(Icons.people_alt_rounded),
+          title: const Text(
+            'اعضاء المنزل',
+            style: TextStyle(fontSize: 12),
+            textAlign: TextAlign.center,
+          ),
+        ),
       ],
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
     );
   }
 }
