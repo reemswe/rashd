@@ -179,11 +179,10 @@ class _houseMembersState extends State<HouseMembers> {
                   child: Text("مشاركة لوحة المعلومات "),
                 ),
                 PopupMenuItem(
-                  value: 'delete',
-                  child: Text("حذف حساب المنرل",
-                      style:
-                          TextStyle(color: Color.fromARGB(255, 167, 32, 32))),
-                ),
+                    value: 'delete',
+                    child: Text("حذف حساب المنرل",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 167, 32, 32)))),
               ];
             },
           ),

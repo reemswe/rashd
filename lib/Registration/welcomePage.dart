@@ -186,7 +186,7 @@ class _welcomePageState extends State<welcomePage> {
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                      colors: [Colors.lightBlue.shade200, Colors.blue]),
+                      colors: [Color(0xFF81D4FA), Colors.blue]),
                   boxShadow: [
                     BoxShadow(
                         color: Colors.blue.shade100,

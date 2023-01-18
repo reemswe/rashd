@@ -81,45 +81,23 @@ class _dashboardState extends State<dashboard> {
   List? devices = [];
   List text = [
     [
-      'فاتورة الكهرباء\n\n500.25 SR',
-      '500.25 SR',
+      'فاتورة الكهرباء',
+      '500.25SR',
       '\t',
-      const Color.fromARGB(255, 92, 226, 233),
-      Colors.black,
-      const EdgeInsets.fromLTRB(15, 15, 12, 23),
+      Colors.lightBlue.shade500,
+      Colors.white,
+      Color(0xff81D4FA),
     ],
     [
-      'اجمالي استهلاك الطاقة\n\nkWh\n\n  تم بلوغ 50% من هدف الشهر',
-      '',
+      'إجمالي استهلاك الطاقة',
+      '150kWh',
       'تم بلوغ 50% من هدف الشهر',
-      const Color.fromARGB(255, 107, 217, 245),
+      Colors.lightBlue.shade200,
       Colors.white,
-      const EdgeInsets.fromLTRB(0, 15, 10, 23),
+      Colors.lightBlue.shade100,
     ]
   ];
-  //List<ChartData>? chartData;
-  List<ChartData> chartData = [
-    // ChartData('الثلاجة', 350),
-    // ChartData('المكيف', 230),
-    // ChartData('التلفاز', 340),
-    // ChartData('المايكرويف', 250),
-    // ChartData('الفريزر', 400),
-    // ChartData('المكيف1', 230),
-    // ChartData('1التلفاز', 340),
-    // ChartData('1المايكرويف', 250),
-    // ChartData('1الفريزر', 400),
-    // ChartData('المكيف2', 230),
-    // ChartData('2التلفاز', 340),
-    // ChartData('2المايكرويف', 250),
-    // ChartData('2الفريزر', 400),
-    // ChartData('1التلفاز', 340),
-    // ChartData('1المايكرويف', 250),
-    // ChartData('1الفريزر', 400),
-    // ChartData('المكيف2', 230),
-    // ChartData('2التلفاز', 340),
-    // ChartData('2المايكرويف', 250),
-    //ChartData('2الفريزر', 400)
-  ];
+  List<ChartData> chartData = [];
 
   int i = 0;
   var date = DateTime.now();
@@ -165,6 +143,7 @@ class _dashboardState extends State<dashboard> {
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
+    var LRPadding = width * 0.025;
 
     return FutureBuilder<Map<String, dynamic>>(
         future: widget.isShared
@@ -520,72 +499,41 @@ class _dashboardState extends State<dashboard> {
                             return Container(
                                 decoration: const BoxDecoration(
                                     border: Border(top: BorderSide.none)),
-                                width: width * 0.95,
-                                padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+                                padding: EdgeInsets.fromLTRB(
+                                    LRPadding, height * 0.01, LRPadding, 0),
                                 child: Material(
                                     elevation: 20,
                                     borderRadius: BorderRadius.circular(30),
-                                    child: TextFormField(
-                                      readOnly: true,
-                                      maxLines: 4,
-                                      textAlign: TextAlign.right,
-                                      decoration: InputDecoration(
-                                        prefixIcon: const Padding(
-                                            padding: EdgeInsets.only(right: 30),
-                                            child: Text(
-                                              'الهدف الإجمالي لإستهلاك الطاقة',
-                                              textAlign: TextAlign.right,
-                                              style: TextStyle(fontSize: 20),
-                                            )),
-                                        hintStyle: const TextStyle(
-                                          fontSize: 10,
-                                          decoration: TextDecoration.underline,
-                                          fontWeight: FontWeight.w500,
-                                          color:
-                                              Color.fromARGB(255, 17, 184, 97),
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.fromLTRB(
-                                                20, 15, 5, 10),
-                                        focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30),
-                                            borderSide: const BorderSide(
-                                                color: Colors.white)),
-                                        enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
-                                            borderSide: const BorderSide(
-                                                color: Colors.white)),
-                                        suffixIcon: Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 20, top: 8, right: 0),
-                                            child: InkWell(
-                                              child: const Text(
-                                                '300 kWh',
+                                    child: Padding(
+                                        padding: EdgeInsets.fromLTRB(
+                                            width * 0.01,
+                                            height * 0.035,
+                                            width * 0.01,
+                                            height * 0.035),
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              Text(
+                                                'الهدف الإجمالي لإستهلاك الطاقة',
+                                                textAlign: TextAlign.right,
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                              Text(
+                                                '$userGoal kWh',
                                                 textDirection:
                                                     TextDirection.ltr,
                                                 style: TextStyle(
                                                     fontSize: 20,
-                                                    decoration: TextDecoration
-                                                        .underline,
+                                                    // decoration: TextDecoration
+                                                    //     .underline,
                                                     color: Colors.green),
                                               ),
-                                              onTap: () {
-                                                // navigate to set goal or popup window
-                                                // Navigator.push(
-
-                                                // context,
-                                                // MaterialPageRoute(
-                                                //     builder: (context) => const Goal()),
-                                                // );
-                                              },
-                                            )),
-                                      ),
-                                    )));
+                                            ]))));
                           }),
                       Container(
-                          margin: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+                          margin: EdgeInsets.fromLTRB(
+                              0, height * 0.08, width * 0.02, 0),
                           child: FloatingActionButton(
                               backgroundColor: Colors.lightGreen,
                               child: const Icon(Icons.edit),
@@ -593,92 +541,72 @@ class _dashboardState extends State<dashboard> {
                                 showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
-                                      return dialog();
+                                      return dialog(formatted, height, width);
                                     });
                               }))
                     ]),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
+                          SizedBox(width: width * 0.025),
                           buildCard(text[0], width, height),
+                          SizedBox(width: width * 0.025),
                           buildCard(text[1], width, height),
+                          SizedBox(width: width * 0.025),
                         ]),
                     FutureBuilder(
                         future: data,
                         builder: (context, snapshot) {
                           return Container(
-                              margin: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-                              padding: const EdgeInsets.fromLTRB(6, 12, 6, 12),
+                              margin: EdgeInsets.fromLTRB(
+                                  LRPadding, 0, LRPadding, 12),
+                              // padding: EdgeInsets.fromLTRB(width * 0.01,
+                              //     height * 0.02, width * 0.05, height * 0.02),
                               child: Material(
                                 elevation: 20,
                                 borderRadius: BorderRadius.circular(30),
-                                child: TextFormField(
-                                  readOnly: true,
-                                  maxLines: 6,
-                                  textAlign: TextAlign.right,
-                                  decoration: InputDecoration(
-                                    contentPadding: const EdgeInsets.fromLTRB(
-                                        20, 10, 5, 10),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                        borderSide: const BorderSide(
+                                child: Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                        width * 0.01,
+                                        height * 0.02,
+                                        width * 0.01,
+                                        height * 0.02),
+                                    child: Stack(children: <Widget>[
+                                      Text(
+                                        'الأجهزة الأعلى استهلاكًا للطاقة',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
                                             color: Color.fromARGB(
-                                                0, 158, 158, 158))),
-                                    enabledBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(30.0),
-                                        borderSide: const BorderSide(
-                                            color: Color.fromARGB(
-                                                0, 189, 189, 189))),
-                                    prefixIcon: Padding(
-                                        padding: const EdgeInsets.all(5),
-                                        //child: SingleChildScrollView(
-                                        child: Stack(children: <Widget>[
-                                          const AnimatedPositioned(
-                                            // use top,bottom,left and right property to set the location and Transform.rotate to rotate the widget if needed
-                                            right: 15,
-
-                                            duration: Duration(seconds: 3),
-                                            child: Text(
-                                              'الأجهزة الأعلى استهلاكًا للطاقة',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Color.fromARGB(
-                                                      255, 62, 62, 62)),
-                                            ),
-                                          ),
-                                          SfCartesianChart(
-                                              margin: const EdgeInsets.all(20),
-                                              primaryXAxis: CategoryAxis(
-                                                  // visibleMinimum: 0,
-                                                  // visibleMaximum: 29,
-                                                  title: AxisTitle(
-                                                      text: 'الأجهزة')),
-                                              primaryYAxis: NumericAxis(
-                                                  title:
-                                                      AxisTitle(text: 'kWh')),
-                                              series: <
-                                                  ChartSeries<ChartData,
-                                                      String>>[
-                                                // Renders column chart
-                                                ColumnSeries<ChartData, String>(
-                                                    color: const Color.fromARGB(
-                                                        255, 98, 227, 165),
-                                                    borderRadius:
-                                                        const BorderRadius.all(
-                                                            Radius.circular(4)),
-                                                    dataSource: chartData,
-                                                    dataLabelSettings:
-                                                        const DataLabelSettings(
-                                                            isVisible: true),
-                                                    xValueMapper:
-                                                        (ChartData data, _) =>
-                                                            data.x,
-                                                    yValueMapper:
-                                                        (ChartData data, _) =>
-                                                            data.y),
-                                              ])
-                                        ])),
+                                                255, 62, 62, 62)),
+                                      ),
+                                      SizedBox(height: height * 0.0),
+                                      SfCartesianChart(
+                                          primaryXAxis: CategoryAxis(
+                                              title:
+                                                  AxisTitle(text: 'الأجهزة')),
+                                          primaryYAxis: NumericAxis(
+                                              title: AxisTitle(text: 'kWh')),
+                                          series: <
+                                              ChartSeries<ChartData, String>>[
+                                            ColumnSeries<ChartData, String>(
+                                                color: const Color.fromARGB(
+                                                    255, 98, 227, 165),
+                                                borderRadius:
+                                                    const BorderRadius.all(
+                                                        Radius.circular(4)),
+                                                dataSource: chartData,
+                                                dataLabelSettings:
+                                                    const DataLabelSettings(
+                                                        isVisible: true),
+                                                xValueMapper:
+                                                    (ChartData data, _) =>
+                                                        data.x,
+                                                yValueMapper:
+                                                    (ChartData data, _) =>
+                                                        data.y),
+                                          ])
+                                    ]),
                                   ),
                                 ),
                               ));
@@ -717,10 +645,11 @@ class _dashboardState extends State<dashboard> {
               );
             } else if (index == 2) {
               Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HouseMembers(houseId: houseID)),
-              );
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => add_house_member(
+                          ID: 'ffDQbRQQ8k9RzlGQ57FL')) //houseID)),
+                  );
             }
           },
           items: <BottomNavyBarItem>[
@@ -756,31 +685,62 @@ class _dashboardState extends State<dashboard> {
   Widget buildCard(List content, width, height) {
     return Container(
         decoration: BoxDecoration(
-            color: content[3],
-            boxShadow: const [
+            gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                stops: [0.1, 1.0],
+                colors: [content[3], content[5]]),
+            boxShadow: [
               BoxShadow(
-                  blurRadius: 30, color: Colors.black45, spreadRadius: -10)
+                  color: Colors.black26, offset: Offset(0, 4), blurRadius: 8.0)
             ],
             borderRadius: BorderRadius.circular(20)),
-        width: width * 0.44,
+        // width: width * 0.44,
         height: height * 0.15,
+        padding: EdgeInsets.fromLTRB(
+            width * 0.02, height * 0.01, width * 0.02, height * 0.01),
         margin: const EdgeInsets.fromLTRB(0, 20, 0, 10),
         child: GridTile(
-          child: Center(
-              child: Text(
-            content[0],
-            textAlign: TextAlign.center,
-            style: TextStyle(color: content[4], fontWeight: FontWeight.w600),
-          )),
-        ));
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+              Text(
+                content[0],
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                    color: content[4],
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500),
+              ),
+              Center(
+                  child: Text(
+                content[1],
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: content[4],
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600),
+              )),
+              Text(
+                content[2],
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                    color: content[4],
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500),
+              ),
+            ])));
   }
 
-  contentBox(context) {
+  contentBox(context, formatted, height, width) {
     return Stack(
       children: <Widget>[
         Container(
-          padding: const EdgeInsets.only(
-              left: 20, top: 45 + 20, right: 20, bottom: 20),
+          padding: EdgeInsets.only(
+              left: width * 0.02,
+              top: height * 0.08,
+              right: width * 0.02,
+              bottom: height * 0.05),
           margin: const EdgeInsets.only(top: 45),
           decoration: BoxDecoration(
               shape: BoxShape.rectangle,
@@ -795,58 +755,41 @@ class _dashboardState extends State<dashboard> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Text(
-                'حدد هدف الاستهلاك',
+              Text(
+                'حدد هدف استهلاك الطاقة لشهر ' + formatted,
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(
-                height: 15,
-              ),
+              SizedBox(height: height * 0.01),
               Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  padding:
+                      EdgeInsets.fromLTRB(width * 0.02, 0, width * 0.02, 0),
                   child: Form(
                       key: _formKey,
                       child: TextFormField(
                         controller: goalController,
                         keyboardType: TextInputType.number,
                         maxLines: 1,
+                        textAlign: TextAlign.center,
                         decoration: const InputDecoration(
-                            hintText: '300',
-                            suffixText: 'kWh',
-                            suffixStyle: TextStyle(color: Colors.black)),
+                            hintText: '300kWh',
+                            prefixText: 'kWh',
+                            prefixStyle: TextStyle(color: Colors.black)),
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return 'الرجاء تحديد هدف';
+                            return 'الرجاء تحديد الهدف';
                           } else {
                             return null;
                           }
                         },
                       ))),
-              const SizedBox(
-                height: 22,
-              ),
+              SizedBox(height: height * 0.02),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                      style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.redAccent)),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text(
-                        'إلغاء',
-                        style: TextStyle(fontSize: 18),
-                      )),
-                  const SizedBox(
-                    height: 10,
-                    width: 30,
-                  ),
-                  ElevatedButton(
-                      style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.lightGreen)),
+                      style: ElevatedButton.styleFrom(
+                          fixedSize: Size(width * 0.2, height * 0.05),
+                          backgroundColor: Colors.lightGreen),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           setState(() {
@@ -858,6 +801,21 @@ class _dashboardState extends State<dashboard> {
                       },
                       child: const Text(
                         'تحديد',
+                        style: TextStyle(fontSize: 18),
+                      )),
+                  const SizedBox(
+                    height: 10,
+                    width: 30,
+                  ),
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          fixedSize: Size(width * 0.2, height * 0.05),
+                          backgroundColor: Colors.redAccent),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        'إلغاء',
                         style: TextStyle(fontSize: 18),
                       )),
                 ],
@@ -884,14 +842,14 @@ class _dashboardState extends State<dashboard> {
     );
   }
 
-  Widget dialog() {
+  Widget dialog(formatted, height, width) {
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
       elevation: 0,
       backgroundColor: Colors.transparent,
-      child: contentBox(context),
+      child: contentBox(context, formatted, height, width),
     );
   }
 
@@ -933,8 +891,8 @@ class _dashboardState extends State<dashboard> {
       print('t0tal after: $total');
       setState(() {
         percentage = ((total / int.parse(userGoal)) * 100).toStringAsFixed(1);
-        text[1][0] =
-            'اجمالي استهلاك الطاقة\n\n$total kWh\n\n  تم بلوغ $percentage% من هدف الشهر';
+        text[1][1] = '${total}kWh';
+        text[1][2] = 'تم بلوغ ${percentage}% من هدف الشهر';
         i = total;
       });
       print('i after: $i');
