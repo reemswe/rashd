@@ -52,7 +52,7 @@ class _registerState extends State<register> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Column(children: [
+      body: ListView(children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Container(
             height: height * 0.22,
@@ -259,6 +259,58 @@ class registerFormState extends State<registerForm> {
               ),
             ],
           ),
+          //Confirm Password
+          Stack(
+            children: [
+              Positioned(
+                right: width * 0.450,
+                top: height * 0.035,
+                child: Tooltip(
+                  key: key,
+                  message:
+                      'كلمة المرور يجب أن تكون من ٨ خانات على الاقل، وتحتوي على:\n- حرف صغير باللغة الانجليزية.\n- حرف كبير باللغة الانجليزية.\n- رقم.',
+                  triggerMode: TooltipTriggerMode.manual,
+                ),
+              ),
+              TextFormField(
+                onTap: () {
+                  final dynamic tooltip = key.currentState;
+                  tooltip.ensureTooltipVisible();
+                },
+                controller: cofirmPasswordController,
+                obscureText: !_passwordVisible,
+                decoration: InputDecoration(
+                  labelText: 'تأكيد كلمة المرور',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _passwordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: const Color.fromRGBO(53, 152, 219, 1),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
+                  ),
+                ),
+                // autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  confirm_password = value.toString();
+                  RegExp Upper = RegExp(r"(?=.*[A-Z])");
+
+                  if (value == null || value.isEmpty) {
+                    return "الرجاء تأكيد كلمة المرور";
+                  } else if (confirm_password != password) {
+                    return "كلمة المرور غير متطابقة";
+                  } else {
+                    return null;
+                  }
+                },
+              ),
+            ],
+          ),
           SizedBox(height: height * 0.02),
           TextFormField(
             controller: fullNameController,
@@ -276,28 +328,29 @@ class registerFormState extends State<registerForm> {
             },
           ),
           SizedBox(height: height * 0.02),
-          TextFormField(
-            readOnly: true,
-            controller: DOBController,
-            onTap: () {
-              _selectDate(context);
-              showDate = false;
-              bDay = getDate();
-              // DOBController.text = globals.bDay;
-            },
-            decoration: const InputDecoration(
-              labelText: 'تاريخ الميلاد',
-              suffixIcon: Icon(
-                Icons.calendar_today,
-                color: Color.fromRGBO(53, 152, 219, 1),
-              ),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty || (value.trim()).isEmpty) {
-                return 'الرجاء اختيار تاريخ الميلاد.';
-              }
-            },
-          ),
+          //date of birth
+          // TextFormField(
+          //   readOnly: true,
+          //   controller: DOBController,
+          //   onTap: () {
+          //     _selectDate(context);
+          //     showDate = false;
+          //     bDay = getDate();
+          //     // DOBController.text = globals.bDay;
+          //   },
+          //   decoration: const InputDecoration(
+          //     labelText: 'تاريخ الميلاد',
+          //     suffixIcon: Icon(
+          //       Icons.calendar_today,
+          //       color: Color.fromRGBO(53, 152, 219, 1),
+          //     ),
+          //   ),
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty || (value.trim()).isEmpty) {
+          //       return 'الرجاء اختيار تاريخ الميلاد.';
+          //     }
+          //   },
+          // ),
           SizedBox(height: height * 0.02),
           TextFormField(
             keyboardType: TextInputType.number,
