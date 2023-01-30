@@ -489,91 +489,12 @@ class _dashboardState extends State<dashboard> {
                   ]),
                 ]),
               ),
-              bottomNavigationBar: buildBottomNavigation(height, houseID, true),
             );
           } else {
             return const Text('');
           }
         });
   }
-
-  Widget buildBottomNavigation(height, houseID, isOwner) {
-    var items = isOwner
-        ? <BottomNavyBarItem>[
-            BottomNavyBarItem(
-                icon: const Icon(Icons.bar_chart_rounded),
-                title: const Text(
-                  'لوحة المعلومات',
-                  textAlign: TextAlign.center,
-                ),
-                activeColor: Colors.lightBlue),
-            BottomNavyBarItem(
-              icon: const Icon(Icons.electrical_services_rounded),
-              title: const Text(
-                'الأجهزة',
-                textAlign: TextAlign.center,
-              ),
-              activeColor: Colors.lightBlue,
-            ),
-            BottomNavyBarItem(
-              icon: const Icon(Icons.people_alt_rounded),
-              title: const Text(
-                'اعضاء المنزل',
-                style: TextStyle(fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ]
-        : <BottomNavyBarItem>[
-            BottomNavyBarItem(
-                icon: const Icon(Icons.bar_chart_rounded),
-                title: const Text(
-                  'لوحة المعلومات',
-                  textAlign: TextAlign.center,
-                ),
-                activeColor: Colors.lightBlue),
-            BottomNavyBarItem(
-              icon: const Icon(Icons.electrical_services_rounded),
-              title: const Text(
-                'الأجهزة',
-                textAlign: TextAlign.center,
-              ),
-              activeColor: Colors.lightBlue,
-            ),
-          ];
-
-    return Visibility(
-        visible: !widget.isShared,
-        child: BottomNavyBar(
-            containerHeight: height * 0.07,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            selectedIndex: index,
-            iconSize: 28,
-            onItemSelected: (index) {
-              setState(
-                () => index = index,
-              );
-              if (index == 0) {
-              } else if (index == 1) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => listOfDevices(
-                            ID: houseID, //house ID
-                          )),
-                );
-              } else if (index == 2) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => HouseMembers(houseId: houseID)),
-                );
-              }
-            },
-            items: items));
-  }
-
-  int index = 0;
 
   Widget buildCard(List content, width, height) {
     return Container(
