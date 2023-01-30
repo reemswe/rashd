@@ -15,6 +15,7 @@ import '../Dashboard/dashboard.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 
 import '../HouseAccount/list_of_houseMembers.dart';
+import '../Notification/localNotification.dart';
 import '../Registration/welcomePage.dart';
 
 class listOfDevices extends StatefulWidget {
@@ -26,8 +27,12 @@ class listOfDevices extends StatefulWidget {
 }
 
 class listOfDevicesState extends State<listOfDevices> {
+  NotificationService notificationService = NotificationService();
+
   @override
   void initState() {
+    notificationService = NotificationService();
+    notificationService.initializePlatformNotifications();
     super.initState();
   }
 

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
+import 'package:workmanager/workmanager.dart';
+import '../Notification/localNotification.dart';
 import 'register.dart';
 
 class login extends StatefulWidget {
@@ -150,7 +152,8 @@ class loginFormState extends State<loginForm> {
 
     TextStyle defaultStyle =
         const TextStyle(color: Colors.grey, fontSize: 17.0);
-    TextStyle linkStyle = const TextStyle(color: Colors.blue, decoration: TextDecoration.underline);
+    TextStyle linkStyle = const TextStyle(
+        color: Colors.blue, decoration: TextDecoration.underline);
 
     return Form(
       key: _formKey,
@@ -282,6 +285,15 @@ class loginFormState extends State<loginForm> {
                                     })
                                   });
                           clearForm();
+                          await Workmanager()
+                              .initialize(callbackDispatcher,
+                                  isInDebugMode: false)
+                              .then((value) => print('workmanager'));
+                          print('workmanager2');
+                          var time = DateTime.now().second.toString();
+                          await Workmanager().registerPeriodicTask(
+                              time, 'firstTask',
+                              frequency: const Duration(minutes: 15));
 
                           Navigator.push(
                               context,
