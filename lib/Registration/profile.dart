@@ -1,6 +1,7 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -168,6 +169,8 @@ class profileState extends State<profile> {
                                       actions: <Widget>[
                                         TextButton(
                                           onPressed: () async {
+                                            await FirebaseMessaging.instance
+                                                .deleteToken();
                                             Future.delayed(
                                                 const Duration(seconds: 1),
                                                 () async => await FirebaseAuth

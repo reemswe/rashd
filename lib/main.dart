@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
@@ -10,6 +12,17 @@ import 'Registration/welcomePage.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  //! FCM
+  FirebaseMessaging.instance.onTokenRefresh.listen((String token) async {
+    print("New token: $token");
+    if (FirebaseAuth.instance.currentUser!.uid != null) {
+      await FirebaseFirestore.instance
+          .collection('userAccount')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .set({'token': token}, SetOptions(merge: true));
+    }
+  });
 
   FirebaseAuth.instance.authStateChanges().listen((User? user) {
     bool auth = false;
