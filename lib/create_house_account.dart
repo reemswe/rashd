@@ -602,6 +602,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
       'houseID': '',
       'houseName': houseName.text,
       'houseOwner': '',
+      'isNotificationSent': false
     });
     CollectionReference dashboard =
         FirebaseFirestore.instance.collection('dashboard');

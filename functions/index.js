@@ -37,7 +37,7 @@ exports.sendWarningNotification = functions.firestore
       totalConsumptionPercentage: totalConsumptionPercentage,
     });
 
-    if (totalConsumptionPercentage >= 75) {
+    if (totalConsumptionPercentage >= 75 && !house.data().isNotificationSent) {
       const payload = {
         data: {
           id: houseID,
@@ -79,6 +79,9 @@ exports.sendWarningNotification = functions.firestore
           .doc(doc.data().memberID)
           .get();
         fcm.sendToDevice(member.data().token, payload);
+      });
+      await admin.firestore().collection("houseAccount").doc(houseID).update({
+        isNotificationSent: true,
       });
     }
   });

@@ -571,6 +571,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
       'houseID': '',
       'houseName': houseName.text,
       'houseOwner': '',
+      'isNotificationSent': false //to send warning notification only once
     });
     CollectionReference dashboard =
         FirebaseFirestore.instance.collection('dashboard');
