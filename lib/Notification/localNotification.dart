@@ -66,18 +66,18 @@ void callbackDispatcher() {
           "fjDZaD83OIaqGQKOWobkLPWch8l1") {
         int notificationID = Random().nextInt(100);
 
-        notificationService.showLocalNotification(
-            id: notificationID,
-            title: 'تحذير! استهلاك مرتفع',
-            body: 'New Awn request: "title"',
-            payload: "docId");
+        // notificationService.showLocalNotification(
+        //     id: notificationID,
+        //     title: 'تحذير! استهلاك مرتفع',
+        //     body: 'New Awn request: "title"',
+        //     payload: "docId");
       }
       // await FirebaseFirestore.instance
       //     .collection("requests")
       //     .where('notificationStatus', isEqualTo: 'pending')
       //     .get()
       //     .then((event) async {
-      //   final requests = []; 
+      //   final requests = [];
 
       //   for (var doc in event.docs) {
       //     int notificationID = Random().nextInt(100);

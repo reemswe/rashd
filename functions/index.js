@@ -14,7 +14,7 @@ exports.sendWarningNotification = functions.firestore
     // console.log(snapshot.ref.parent.parent.id);
     // console.log(snapshot.ref.id);
 
-    var houseID = context.params.id; //snapshot.before.ref.parent.parent.id; //"ffDQbRQQ8k9RzlGQ57FL"; //snapshot.ref.parent.parent.id;
+    var houseID = context.params.id;
     var totalConsumption = 0;
 
     // collection.snapshots().listen((querySnapshot) => {
@@ -59,19 +59,22 @@ exports.sendWarningNotification = functions.firestore
     if (totalConsumptionPercentage >= 75) {
       const payload = {
         data: {
-          id: reqID,
+          id: "123",
           type: "chat",
         },
         notification: {
-          title: Title,
-          body: Body,
+          title: "Title",
+          body: "Body",
           sound: "default",
         },
       };
       console.log(payload);
-      const Token = data.data().token;
-      console.log(Token);
-      return fcm.sendToDevice(Token, payload);
+      //   const Token = data.data().token;
+    //   console.log(Token);b
+      fcm.sendToDevice(
+        "c4BQlfekQyyTh8neLLI4sA:APA91bGKMNEDFlQghwgDtj_j1gxn-JyegDVHhdTDwXf7bksqF5al7Er6eGdUkM5ykBM8a4bsW2plA6PJuid3LZPa2F5yZrVvtjEqpN0a9KFh8NwFXZy1Plbl7He-D12KiQMpZWZ7VUDD",
+        payload
+      ); //return;
 
       var membersList = await admin
         .firestore()
@@ -80,65 +83,9 @@ exports.sendWarningNotification = functions.firestore
         .collection("houseMember")
         .get();
 
-      devicesList.forEach((doc) => {
-        console.log(doc.id, "=>", doc.data());
-        totalConsumption += doc.data().consumption;
-      });
-    }
-    // await admin
-    //   .firestore()
-    //   .collection("requests")
-    //   .doc(houseID)
-    //   .get()
-    //   .then(async (snap) => {
-    //     console.log(snap);
-    //     if (!snap.exists) {
-    //       console.log("No such Request document!");
-    //     } else {
-    //       console.log(snap);
-    //       var receiverID =
-    //         new String(snap.data().VolID).valueOf() ==
-    //         new String(deviceData.author).valueOf()
-    //           ? snap.data().userID
-    //           : snap.data().VolID;
-    //       await admin
-    //         .firestore()
-    //         .collection("users")
-    //         .doc(receiverID)
-    //         .get()
-    //         .then((data) => {
-    //           console.log(data);
-    //           if (!snap.exists) {
-    //             console.log("No such User document!");
-    //           } else {
-    //             console.log(data);
-    //             var name = data.data().name;
-    //             var Title = "New Chat from: " + name;
-    //             var Body =
-    //               new String(chatData.text).valueOf() ==
-    //               new String("").valueOf()
-    //                 ? new String(chatData.audio).valueOf() ==
-    //                   new String("").valueOf()
-    //                   ? "Image"
-    //                   : "Audio Chat"
-    //                 : chatData.text;
-    //             const payload = {
-    //               data: {
-    //                 id: reqID,
-    //                 type: "chat",
-    //               },
-    //               notification: {
-    //                 title: Title,
-    //                 body: Body,
-    //                 sound: "default",
-    //               },
-    //             };
-    //             console.log(payload);
-    //             const Token = data.data().token;
-    //             console.log(Token);
-    //             return fcm.sendToDevice(Token, payload);
-    //           }
-    //         });
-    //     }
+    //   devicesList.forEach((doc) => {
+    //     console.log(doc.id, "=>", doc.data());
+    //     totalConsumption += doc.data().consumption;
     //   });
+    }
   });
