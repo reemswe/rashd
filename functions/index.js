@@ -8,25 +8,8 @@ exports.sendWarningNotification = functions.firestore
   .document("houseAccount/{id}/houseDevices/{deviceId}")
   .onWrite(async (snapshot, context) => {
     console.log(snapshot.before.data());
-    // const deviceData = snapshot.data().original;
-    // console.log(deviceData);
-    // console.log(deviceData.read);
-    // console.log(snapshot.ref.parent.parent.id);
-    // console.log(snapshot.ref.id);
-
     var houseID = context.params.id;
     var totalConsumption = 0;
-
-    // collection.snapshots().listen((querySnapshot) => {
-    //   print("i: $i and total: $total");
-    //   total = total - i;
-    //   print("t0tal after: $total");
-    //   percentageStr = ((total / int.parse(userGoal)) * 100).toStringAsFixed(1);
-    //   text[1][1] = "${total}kWh";
-    //   percentage = (total / int.parse(userGoal)) * 100;
-    //   i = total;
-    //   print("i after: $i");
-    // });
 
     var devicesList = await admin
       .firestore()
@@ -40,41 +23,46 @@ exports.sendWarningNotification = functions.firestore
       totalConsumption += doc.data().consumption;
     });
 
-    var userGoal = await admin
+    var house = await admin
       .firestore()
       .collection("houseAccount")
       .doc(houseID)
       .get();
 
     var totalConsumptionPercentage =
-      (totalConsumption / userGoal.data().goal) * 100;
+      (totalConsumption / house.data().goal) * 100;
 
     await admin.firestore().collection("houseAccount").doc(houseID).update({
       totalConsumption: totalConsumption,
       totalConsumptionPercentage: totalConsumptionPercentage,
     });
 
-    console.log(userGoal);
-
     if (totalConsumptionPercentage >= 75) {
       const payload = {
         data: {
-          id: "123",
-          type: "chat",
+          id: houseID,
+          type: "warning",
         },
         notification: {
-          title: "Title",
-          body: "Body",
+          title: "تحذير! استهلاك مرتفع",
+          body:
+            "إجمالي استهلاك الطاقة لـ " +
+            house.data().houseName +
+            " تجاوز 75% من الهدف.",
           sound: "default",
         },
       };
       console.log(payload);
-      //   const Token = data.data().token;
-    //   console.log(Token);b
-      fcm.sendToDevice(
-        "c4BQlfekQyyTh8neLLI4sA:APA91bGKMNEDFlQghwgDtj_j1gxn-JyegDVHhdTDwXf7bksqF5al7Er6eGdUkM5ykBM8a4bsW2plA6PJuid3LZPa2F5yZrVvtjEqpN0a9KFh8NwFXZy1Plbl7He-D12KiQMpZWZ7VUDD",
-        payload
-      ); //return;
+
+      var houseOwner = await admin
+        .firestore()
+        .collection("userAccount")
+        .doc(house.data().OwnerID)
+        .get();
+
+      console.log(houseOwner.data().token);
+
+      fcm.sendToDevice(houseOwner.data().token, payload);
 
       var membersList = await admin
         .firestore()
@@ -83,9 +71,14 @@ exports.sendWarningNotification = functions.firestore
         .collection("houseMember")
         .get();
 
-    //   devicesList.forEach((doc) => {
-    //     console.log(doc.id, "=>", doc.data());
-    //     totalConsumption += doc.data().consumption;
-    //   });
+      membersList.forEach(async (doc) => {
+        console.log(doc.id, "=>", doc.data());
+        var member = await admin
+          .firestore()
+          .collection("userAccount")
+          .doc(doc.data().memberID)
+          .get();
+        fcm.sendToDevice(member.data().token, payload);
+      });
     }
   });
