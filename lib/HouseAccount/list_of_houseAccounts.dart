@@ -7,8 +7,11 @@ import 'package:animated_segmented_tab_control/animated_segmented_tab_control.da
 // import 'package:rashd/dashboard.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
 
+import '../Notification/FCM.dart';
+import '../Notification/localNotification.dart';
 import '../Registration/profile.dart';
 import '../create_house_account.dart';
+import '../main.dart';
 
 class ListOfHouseAccounts extends StatefulWidget {
   const ListOfHouseAccounts({super.key});
@@ -44,8 +47,34 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
     });
   }
 
+  NotificationService notificationService = NotificationService();
+  late final PushNotification warningNotification = PushNotification();
+
+  //! tapping local notification
+  void listenToNotificationStream() =>
+      notificationService.behaviorSubject.listen((payload) {
+        if (payload != null && payload.isNotEmpty) {
+          Navigator.pushReplacement(
+            GlobalContextService.navigatorKey.currentState!.context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation1, animation2) => dashboard(
+                ID: payload,
+              ),
+              transitionDuration: const Duration(seconds: 1),
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        }
+      });
+
   @override
   void initState() {
+    warningNotification.initApp();
+
+    notificationService = NotificationService();
+    listenToNotificationStream();
+    notificationService.initializePlatformNotifications();
+
     getToken();
 
     setState(() {

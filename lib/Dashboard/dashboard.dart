@@ -16,6 +16,7 @@ import '../Registration/welcomePage.dart';
 class dashboard extends StatefulWidget {
   final ID; //dash id
   final isShared;
+
   const dashboard({super.key, required this.ID, this.isShared = false});
 
   @override

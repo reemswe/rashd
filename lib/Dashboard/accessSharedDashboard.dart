@@ -1,21 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/intl.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
-import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../Registration/register.dart';
 
 class accessSharedDashboard extends StatefulWidget {
   const accessSharedDashboard({Key? key}) : super(key: key);
 
   @override
-  satisfies createState() => satisfies();
+  Satisfies createState() => Satisfies();
 }
 
-class satisfies extends State<accessSharedDashboard> {
+class Satisfies extends State<accessSharedDashboard> {
   final _formKey = GlobalKey<FormState>();
   bool invalidCode = false;
   TextEditingController codeController = TextEditingController();
@@ -282,7 +278,7 @@ class satisfies extends State<accessSharedDashboard> {
     );
   }
 
-  //this function checks if dashboard exists and not expired (not used before)
+  //this function checks if dashboard exists and the code not expired (not used before)
   //Returns true if code satisfies the above.
   Future<bool> isCodeValid() async {
     QuerySnapshot codeExistQuery = await FirebaseFirestore.instance
