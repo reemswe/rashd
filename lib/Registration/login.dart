@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import 'register.dart';
@@ -150,7 +149,8 @@ class loginFormState extends State<loginForm> {
 
     TextStyle defaultStyle =
         const TextStyle(color: Colors.grey, fontSize: 17.0);
-    TextStyle linkStyle = const TextStyle(color: Colors.blue, decoration: TextDecoration.underline);
+    TextStyle linkStyle = const TextStyle(
+        color: Colors.blue, decoration: TextDecoration.underline);
 
     return Form(
       key: _formKey,

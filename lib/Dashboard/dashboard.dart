@@ -1,16 +1,14 @@
 import 'dart:core';
 import 'dart:math';
-
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:uuid/uuid.dart';
 import '../Devices/listOfDevices.dart';
-import '../HouseAccount/add_house_member.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../HouseAccount/list_of_houseMembers.dart';
 import '../Registration/welcomePage.dart';
@@ -18,6 +16,7 @@ import '../Registration/welcomePage.dart';
 class dashboard extends StatefulWidget {
   final ID; //dash id
   final isShared;
+
   const dashboard({super.key, required this.ID, this.isShared = false});
 
   @override
@@ -56,7 +55,7 @@ Future<void> share(dashboardID) async {
     title: 'مشاركة لوحة المعلومات',
     text:
         'لعرض لوحة المعلومات المشتركة ادخل الرمز ${codeNumber} في صفحة عرض لوحة المعلومات المشتركة',
-  ); //expired
+  );
 
   await FirebaseFirestore.instance
       .collection('dashboard')
@@ -66,6 +65,30 @@ Future<void> share(dashboardID) async {
 }
 
 class _dashboardState extends State<dashboard> {
+  //! FCM
+  var fcmToken;
+  void getToken() async {
+    await FirebaseMessaging.instance.getToken().then((token) async {
+      setState(() {
+        fcmToken = token;
+        print('fcmToken: $fcmToken');
+      });
+      await FirebaseFirestore.instance
+          .collection('userAccount')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .set({'token': token}, SetOptions(merge: true));
+    });
+
+    await FirebaseMessaging.instance.onTokenRefresh
+        .listen((String token) async {
+      print("New token: $token");
+      await FirebaseFirestore.instance
+          .collection('userAccount')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .set({'token': token}, SetOptions(merge: true));
+    });
+  }
+
   List months = [
     '',
     'يناير',
@@ -115,6 +138,7 @@ class _dashboardState extends State<dashboard> {
   double electricityBill = 0;
   double percentage = 0;
   double energyFromBill = 0;
+
   @override
   void initState() {
     setState(() {
@@ -143,7 +167,7 @@ class _dashboardState extends State<dashboard> {
         });
       });
     });
-
+    getToken();
     super.initState();
   }
 

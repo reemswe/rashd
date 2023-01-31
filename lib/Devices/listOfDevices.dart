@@ -1,21 +1,13 @@
 import 'dart:core';
-import 'dart:math';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:flutter_share/flutter_share.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
-import 'package:uuid/uuid.dart';
-import '../HouseAccount/add_house_member.dart';
 import '../Dashboard/dashboard.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
-
 import '../HouseAccount/list_of_houseMembers.dart';
-import '../Registration/welcomePage.dart';
 
 class listOfDevices extends StatefulWidget {
   final ID; //house ID

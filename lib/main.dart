@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
@@ -10,6 +12,17 @@ import 'Registration/welcomePage.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  //! FCM
+  FirebaseMessaging.instance.onTokenRefresh.listen((String token) async {
+    print("New token: $token");
+    if (FirebaseAuth.instance.currentUser!.uid != null) {
+      await FirebaseFirestore.instance
+          .collection('userAccount')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .set({'token': token}, SetOptions(merge: true));
+    }
+  });
 
   FirebaseAuth.instance.authStateChanges().listen((User? user) {
     bool auth = false;
@@ -92,94 +105,11 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int i = 7;
-  int con = 200;
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: ListView(
-          // Center is a layout widget. It takes a single child and positions it
-          // in the middle of the parent.
-          children: [
-            ElevatedButton(
-                onPressed: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => const CreateHouseAccount()));
-                },
-                child: const Text('create house account')),
-            ElevatedButton(
-                onPressed: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => const dashboard(
-                  //               dashId: 'fIgVgfieeVqGRB9oRne1',
-                  //             )));
-                },
-                child: const Text('dashboard')),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ListOfHouseAccounts()));
-                },
-                child: const Text('houseAccounts')),
-            ElevatedButton(
-                onPressed: () {
-                  // setData();
-                },
-                child: const Text('setdata')),
-          ]),
-    );
-  }
-
-  // Future<void> setData() async {
-  //   i++;
-  //   con += 100;
-  //   CollectionReference houses = FirebaseFirestore.instance
-  //       .collection('houseAccount')
-  //       .doc('12Tk9jBwrDGhYe2Yjzrl')
-  //       .collection('houseDevices');
-
-  //   DocumentReference docReference =
-  //       await houses.add({'name': 'dev$i', 'consumption': con});
-  // }
-}
-
 class global {
   static var index = 0;
 }
+
+class GlobalContextService {
+  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+}
+
