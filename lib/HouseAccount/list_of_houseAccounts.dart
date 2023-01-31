@@ -1,6 +1,7 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_segmented_tab_control/animated_segmented_tab_control.dart';
 // import 'package:rashd/dashboard.dart';
@@ -18,8 +19,35 @@ class ListOfHouseAccounts extends StatefulWidget {
 
 class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
   String name = '';
+
+  //! FCM
+  var fcmToken;
+  void getToken() async {
+    await FirebaseMessaging.instance.getToken().then((token) async {
+      setState(() {
+        fcmToken = token;
+        print('fcmToken: $fcmToken');
+      });
+      await FirebaseFirestore.instance
+          .collection('userAccount')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .set({'token': token}, SetOptions(merge: true));
+    });
+
+    await FirebaseMessaging.instance.onTokenRefresh
+        .listen((String token) async {
+      print("New token: $token");
+      await FirebaseFirestore.instance
+          .collection('userAccount')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .set({'token': token}, SetOptions(merge: true));
+    });
+  }
+
   @override
   void initState() {
+    getToken();
+
     setState(() {
       getData();
 
@@ -99,7 +127,9 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
         .collection('houseAccount')
         .doc(id)
         .collection('houseMember')
-        .where('memberID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .where('memberID',
+            isEqualTo: FirebaseAuth
+                .instance.currentUser!.uid) //there is a logical error here
         .get();
     if (query.docs.isNotEmpty) {
       exists = true;

@@ -19,7 +19,6 @@ TextEditingController emailController = TextEditingController();
 TextEditingController passwordController = TextEditingController();
 TextEditingController cofirmPasswordController = TextEditingController();
 TextEditingController fullNameController = TextEditingController();
-TextEditingController DOBController = TextEditingController();
 TextEditingController PhoneNumController = TextEditingController();
 
 String password = "";
@@ -34,8 +33,8 @@ void clearForm() {
   emailController.text = "";
   usernameController.text = '';
   passwordController.text = '';
+  cofirmPasswordController.text = '';
   fullNameController.text = '';
-  DOBController.text = '';
   PhoneNumController.text = '';
 
   invalidEmail = false;
@@ -51,7 +50,7 @@ class _registerState extends State<register> {
     final double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: ListView(children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Container(
@@ -116,13 +115,16 @@ class _registerState extends State<register> {
             ),
           ),
         ]),
-        registerForm(),
+        const registerForm(),
       ]),
     );
   }
 }
 
 class registerForm extends StatefulWidget {
+  const registerForm({super.key});
+
+  @override
   registerFormState createState() {
     return registerFormState();
   }
@@ -138,38 +140,13 @@ class registerFormState extends State<registerForm> {
   bool showDate = false;
   ScrollController _scrollController = ScrollController();
 
-  Future<DateTime> _selectDate(BuildContext context) async {
-    final selected = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      // firstDate: DateTime(2000),
-      firstDate: DateTime(1950),
-      lastDate: DateTime.now(),
-    );
-    if (selected != null && selected != selectedDate) {
-      setState(() {
-        selectedDate = selected;
-        DOBController.text =
-            DateFormat('yyyy-MM-dd').format(selected).toString();
-      });
-    }
-    return selectedDate;
-  }
-
-  String getDate() {
-    if (selectedDate == null) {
-      return 'select date';
-    } else {
-      bDay = DateFormat('yyyy-MM-dd').format(selectedDate);
-      return DateFormat('yyyy-MM-dd').format(selectedDate);
-    }
-  }
-
+  @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
 
-    final key = new GlobalKey();
+    final key = GlobalKey();
+    final key2 = GlobalKey();
 
     TextStyle defaultStyle =
         const TextStyle(color: Colors.grey, fontSize: 17.0);
@@ -269,9 +246,9 @@ class registerFormState extends State<registerForm> {
             children: [
               Positioned(
                 right: width * 0.450,
-                top: height * 0.035,
+                top: height * 0.55,
                 child: Tooltip(
-                  key: key,
+                  key: key2,
                   message:
                       'كلمة المرور يجب أن تكون من ٨ خانات على الاقل، وتحتوي على:\n- حرف صغير باللغة الانجليزية.\n- حرف كبير باللغة الانجليزية.\n- رقم.',
                   triggerMode: TooltipTriggerMode.manual,
@@ -333,29 +310,7 @@ class registerFormState extends State<registerForm> {
             },
           ),
           SizedBox(height: height * 0.02),
-          //date of birth
-          // TextFormField(
-          //   readOnly: true,
-          //   controller: DOBController,
-          //   onTap: () {
-          //     _selectDate(context);
-          //     showDate = false;
-          //     bDay = getDate();
-          //     // DOBController.text = globals.bDay;
-          //   },
-          //   decoration: const InputDecoration(
-          //     labelText: 'تاريخ الميلاد',
-          //     suffixIcon: Icon(
-          //       Icons.calendar_today,
-          //       color: Color.fromRGBO(53, 152, 219, 1),
-          //     ),
-          //   ),
-          //   validator: (value) {
-          //     if (value == null || value.isEmpty || (value.trim()).isEmpty) {
-          //       return 'الرجاء اختيار تاريخ الميلاد.';
-          //     }
-          //   },
-          // ),
+
           SizedBox(height: height * 0.02),
           TextFormField(
             keyboardType: TextInputType.number,
@@ -549,7 +504,6 @@ class registerFormState extends State<registerForm> {
   saveUser() async {
     String email = emailController.text;
     String fullname = fullNameController.text;
-    String dob = DOBController.text;
     String number = PhoneNumController.text;
 
     final user = FirebaseAuth.instance.currentUser!;
@@ -560,8 +514,8 @@ class registerFormState extends State<registerForm> {
         "email": email,
         "userId": userId,
         "full_name": fullname,
-        "DOB": dob,
-        "phone_number": number
+        "phone_number": number,
+        "token": ""
       });
     }
   }

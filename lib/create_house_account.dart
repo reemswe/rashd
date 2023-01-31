@@ -625,7 +625,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
         print('phone: ' + membersPhones[i].text);
         print('privilege: ' + roles[i]);
         houses.doc(houseId).collection('houseMember').add({
-          'memberID': membersPhones[i].text,
+          'memberPhoneNumber': membersPhones[i].text,
           'privilege': roles[i],
           'nickName': membersNames[i].text
         });
