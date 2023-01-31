@@ -11,32 +11,6 @@ import 'package:rxdart/subjects.dart';
 import '../Dashboard/dashboard.dart';
 import '../main.dart';
 
-const task = 'firstTask';
-
-@pragma('vm:entry-point')
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    await Firebase.initializeApp();
-
-    // void onNoticationListener(String? payload) async {
-    //   if (payload != null && payload.isNotEmpty) {
-    //     Navigator.pushReplacement(
-    //       GlobalContextService.navigatorKey.currentState!.context,
-    //       PageRouteBuilder(
-    //         pageBuilder: (context, animation1, animation2) => dashboard(
-    //           ID: payload.substring(payload.indexOf('-') + 1),
-    //         ),
-    //         transitionDuration: const Duration(seconds: 1),
-    //         reverseTransitionDuration: Duration.zero,
-    //       ),
-    //     );
-    //   }
-    // }
-
-    return Future.value(true);
-  });
-}
-
 class NotificationService {
   NotificationService();
   final BehaviorSubject<String> behaviorSubject = BehaviorSubject();

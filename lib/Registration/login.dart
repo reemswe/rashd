@@ -1,11 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
-import 'package:workmanager/workmanager.dart';
-import '../Notification/localNotification.dart';
 import 'register.dart';
 
 class login extends StatefulWidget {
@@ -285,15 +282,6 @@ class loginFormState extends State<loginForm> {
                                     })
                                   });
                           clearForm();
-                          await Workmanager()
-                              .initialize(callbackDispatcher,
-                                  isInDebugMode: false)
-                              .then((value) => print('workmanager'));
-                          print('workmanager2');
-                          var time = DateTime.now().second.toString();
-                          await Workmanager().registerPeriodicTask(
-                              time, 'firstTask',
-                              frequency: const Duration(minutes: 15));
 
                           Navigator.push(
                               context,
