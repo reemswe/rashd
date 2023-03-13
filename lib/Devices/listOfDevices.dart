@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:rashd/Devices/addDevice.dart';
 import '../Dashboard/dashboard.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../HouseAccount/list_of_houseMembers.dart';
@@ -143,7 +144,20 @@ class listOfDevicesState extends State<listOfDevices> {
                                   child: IconButton(
                                     iconSize: 33,
                                     icon: const Icon(Icons.add),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                          isScrollControlled: true,
+                                          isDismissible: false,
+                                          enableDrag: false,
+                                          backgroundColor: Colors.transparent,
+                                          context: context,
+                                          shape: const RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.vertical(
+                                            top: Radius.circular(105.0),
+                                          )),
+                                          builder: (context) => AddDevice(ID: widget.ID));
+                                    },
                                   )),
                             ]),
                         buildDevicesList(height),

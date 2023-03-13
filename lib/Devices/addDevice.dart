@@ -1,424 +1,251 @@
-// import 'package:bottom_navy_bar/bottom_navy_bar.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'dart:io';
+// ignore_for_file: deprecated_member_use
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:wifi_iot/wifi_iot.dart';
 
-// //import 'share_Dash.dart';
+const NetworkSecurity STA_DEFAULT_SECURITY = NetworkSecurity.WPA;
 
-// class add_device extends StatefulWidget {
-//   // final String userId;
-//   const add_device({super.key});
-//   @override
-//   add_deviceState createState() => add_deviceState();
-// }
+class AddDevice extends StatefulWidget {
+  final ID; //house ID
+  const AddDevice({super.key, required this.ID});
+  @override
+  AddDeviceState createState() => AddDeviceState();
+}
 
-// List<DropdownMenuItem<String>> get dropdownItems {
-//   List<DropdownMenuItem<String>> menuItems = [
-//     DropdownMenuItem(child: Text("LG TV"), value: "LG TV"),
-//     DropdownMenuItem(child: Text("Kenwood cooker"), value: "Kenwood cooker"),
-//     DropdownMenuItem(child: Text("SMEG toster"), value: "SMEG toster"),
-//     DropdownMenuItem(child: Text("HP printer"), value: "HP printer"),
-//   ];
-//   return menuItems;
-// }
+class AddDeviceState extends State<AddDevice> {
+  bool _isEnabled = false;
 
-// void initState() {
-//   deviceController.text = 'v1';
-// }
+  List<WifiNetwork?>?
+      _htResultNetwork; //display list of near available networks (will be modified to only display network result for Rashd devices)
 
-// TextEditingController deviceController = TextEditingController();
+  @override
+  initState() {
+    WiFiForIoTPlugin.isEnabled().then((val) {
+      _isEnabled = val;
+    });
+    super.initState();
+  }
 
-// class add_deviceState extends State<add_device> {
-//   @override
-//   Widget build(BuildContext context) {
-//     final _formKey = GlobalKey<FormState>();
-//     String selectedValue = "LG TV";
-//     String deviceChoice = '';
-//     return Scaffold(
-//       //backgroundColor: Color.fromARGB(255, 44, 97, 85),
-//       appBar: AppBar(
-//         title: const Text(
-//           'إضافة جهاز',
-//           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-//         ),
-//         centerTitle: true,
-//         backgroundColor: Colors.white,
-//         foregroundColor: Colors.black,
-//         leading: //Icon(Icons.more_vert)
-//             PopupMenuButton(
-//           onSelected: (value) {
-//             if (value == 'share') {
-//               showDialog(
-//                 context: context,
-//                 builder: (ctx) => AlertDialog(
-//                   title: const Text(
-//                     "مشاركة لوحة المعلومات",
-//                     textAlign: TextAlign.left,
-//                   ),
-//                   content: const Text(
-//                     'رجاء ادخل رقم جوال لمشاركة لوحة المعلومات',
-//                     textAlign: TextAlign.left,
-//                   ),
-//                   actions: <Widget>[
-//                     TextFormField(
-//                       textAlign: TextAlign.right,
-//                       keyboardType: TextInputType.number,
-//                       inputFormatters: <TextInputFormatter>[
-//                         LengthLimitingTextInputFormatter(10),
-//                         FilteringTextInputFormatter.digitsOnly
-//                       ],
-//                       decoration: InputDecoration(
-//                         contentPadding: const EdgeInsets.symmetric(
-//                             vertical: 13.0, horizontal: 15),
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(30.0),
-//                         ),
-//                         filled: true,
-//                         hintStyle: TextStyle(color: Colors.grey[800]),
-//                         hintText: " رقم الهاتف",
-//                       ),
-//                       // The validator receives the text that the user has entered.
-//                       validator: (value) {
-//                         if (value == null || value.isEmpty) {
-//                           return '  رجاء ادخل رقم هاتف';
-//                         }
-//                         if (value.length < 10) {
-//                           return '  رجاء ادخل رقم هاتف صحيح';
-//                         }
-//                         return null;
-//                       },
-//                     ),
-//                     TextButton(
-//                       onPressed: () {
-//                         Navigator.of(ctx).pop();
-//                       },
-//                       child: Container(
-//                         padding: const EdgeInsets.all(14),
-//                         child: const Text("الغاء"),
-//                       ),
-//                     ),
-//                     //log in ok button
-//                     TextButton(
-//                       onPressed: () {
-//                         // pop out
-//                         // Navigator.push(
-//                         //   context,
-//                         //   MaterialPageRoute(
-//                         //       builder: (context) =>
-//                         //           const ListOfHouseAccounts()),
-//                         // );
-//                       },
-//                       child: Container(
-//                         padding: const EdgeInsets.all(14),
-//                         child: const Text("مشاركة",
-//                             style: TextStyle(
-//                                 color: Color.fromARGB(255, 35, 129, 6))),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               );
-//               // Navigator.push(
-//               //   context,
-//               //   MaterialPageRoute(builder: (context) => const Share()),
-//               // );
-//             }
-//             if (value == 'delete') {
-//               showDialog(
-//                 context: context,
-//                 builder: (ctx) => AlertDialog(
-//                   title: const Text(
-//                     "حذف المنزل",
-//                     textAlign: TextAlign.left,
-//                   ),
-//                   content: const Text(
-//                     "هل أنت متأكد من حذف حساب المنزل ؟",
-//                     textAlign: TextAlign.left,
-//                   ),
-//                   actions: <Widget>[
-//                     TextButton(
-//                       onPressed: () {
-//                         Navigator.of(ctx).pop();
-//                       },
-//                       child: Container(
-//                         padding: const EdgeInsets.all(14),
-//                         child: const Text("الغاء"),
-//                       ),
-//                     ),
-//                     //log in ok button
-//                     TextButton(
-//                       onPressed: () {
-//                         // pop out
-//                       },
-//                       child: Container(
-//                         padding: const EdgeInsets.all(14),
-//                         child: const Text("حذف",
-//                             style: TextStyle(
-//                                 color: Color.fromARGB(255, 164, 10, 10))),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               );
-//             }
-//             // your logic
-//           },
-//           itemBuilder: (BuildContext bc) {
-//             return const [
-//               PopupMenuItem(
-//                 child: Text("مشاركة لوحة المعلومات "),
-//                 value: 'share',
-//               ),
-//               PopupMenuItem(
-//                 child: Text("حذف حساب المنرل",
-//                     style: TextStyle(color: Color.fromARGB(255, 167, 32, 32))),
-//                 value: 'delete',
-//               ),
-//             ];
-//           },
-//         ),
-//         actions: [
-//           IconButton(
-//             icon: const Icon(Icons.arrow_forward_ios),
-//             onPressed: () {
-//               Navigator.of(context).pop();
-//             },
-//           ),
-//         ],
-//       ),
-//       body: Form(
-//           key: _formKey,
-//           child: SingleChildScrollView(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.end,
-//               children: [
-//                 const SizedBox(
-//                   height: 35,
-//                 ),
-//                 const SizedBox(
-//                   height: 40,
-//                 ),
-//                 Padding(
-//                   padding: EdgeInsets.only(right: 35),
-//                   child: const Text(
-//                     'الأجهزة المكتشفة',
-//                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-//                   ),
-//                 ),
-//                 const SizedBox(
-//                   height: 20,
-//                 ),
-//                 Padding(
-//                   padding: EdgeInsets.only(left: 20, right: 20),
-//                   child: DropdownButtonFormField(
-//                       decoration: InputDecoration(
-//                         contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-//                         focusedBorder: OutlineInputBorder(
-//                             borderRadius: BorderRadius.circular(100.0),
-//                             borderSide: const BorderSide(color: Colors.grey)),
-//                         enabledBorder: OutlineInputBorder(
-//                             borderRadius: BorderRadius.circular(100.0),
-//                             borderSide:
-//                                 BorderSide(color: Colors.grey.shade400)),
-//                         errorBorder: OutlineInputBorder(
-//                             borderRadius: BorderRadius.circular(100.0),
-//                             borderSide: const BorderSide(
-//                                 color: Colors.red, width: 2.0)),
-//                         focusedErrorBorder: OutlineInputBorder(
-//                             borderRadius: BorderRadius.circular(100.0),
-//                             borderSide: const BorderSide(
-//                                 color: Colors.red, width: 2.0)),
-//                       ),
-//                       validator: (value) =>
-//                           value == null ? "Select a country" : null,
-//                       value: selectedValue,
-//                       onChanged: (String? newValue) {
-//                         print(newValue);
-//                         setState(() {
-//                           selectedValue = newValue!;
-//                         });
-//                         print(selectedValue);
-//                       },
-//                       items: dropdownItems),
-//                 ),
+  Widget getNetworks(height, width) {
+    //main widget, shows wifi info and disable, disconnect wifi
+    // WiFiForIoTPlugin.isEnabled().then((val) {
+    //   setState(() {
+    //     _isEnabled = val;
+    //   });
+    // });
+    if (_htResultNetwork != null && _htResultNetwork!.length > 0) {
+      return Column(children: [
+        const Text("الرجاء تحديد اسم الشبكة الذي يطابق معرف جهازك."),
+        FutureBuilder<dynamic>(
+          future: loadWifiList(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done &&
+                snapshot.hasData) {
+              _htResultNetwork = snapshot.data;
+              final List<InkWell> htNetworks = <InkWell>[];
+              _htResultNetwork!.forEach((oNetwork) {
+                final PopupCommand oCmdConnect =
+                    PopupCommand("Connect", oNetwork!.ssid!);
+                final List<PopupMenuItem<PopupCommand>> htPopupMenuItems = [];
+                print(170);
+                if ((oNetwork.ssid!).contains("Abo")) {
+                  //Rashd
+                  print(174);
+                  htNetworks.add(InkWell(
+                    child: Container(child: Text(oNetwork.ssid!)),
+                    onTap: () {
+                      WiFiForIoTPlugin.connect("${oNetwork.ssid}",
+                          password: '0500991990',
+                          joinOnce: true,
+                          security: STA_DEFAULT_SECURITY);
+                      print(181);
+                    },
+                  ));
+                }
+              });
+              return Column(
+                children: htNetworks, //Display list of networks
+              );
+            } else {
+              /// you handle others state like error while it will a widget no matter what, you can skip it
+              return CircularProgressIndicator();
+            }
+          },
+        ),
+      ]);
+    } else {
+      // main widget, shows wifi info and disable, disconnect wifi
+      WiFiForIoTPlugin.isEnabled().then((val) {
+        setState(() {
+          _isEnabled = val;
+        });
+      });
+      if (_isEnabled) {}
+      //in case the wifi is disabled
+      return Column(children: [
+        const SizedBox(height: 10),
+        const Text("Wifi Disabled"),
+        MaterialButton(
+          color: Colors.blue,
+          child: const Text(
+            "Enable",
+          ),
+          onPressed: () {
+            setState(() {
+              WiFiForIoTPlugin.setEnabled(true, shouldOpenSettings: true);
+            });
+          },
+        ),
+      ]);
+    }
+  }
 
-//                 //*
-//                 const SizedBox(
-//                   height: 40,
-//                 ),
-//                 const Padding(
-//                   padding: EdgeInsets.only(right: 35),
-//                   child: Text(
-//                     'اسم الجهاز',
-//                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-//                   ),
-//                 ),
+  Future<List<WifiNetwork>> loadWifiList() async {
+    List<WifiNetwork> htResultNetwork;
+    try {
+      htResultNetwork = await WiFiForIoTPlugin.loadWifiList();
+    } on PlatformException {
+      htResultNetwork = <WifiNetwork>[];
+    }
+    return htResultNetwork;
+  }
 
-//                 Padding(
-//                   padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
-//                   child: TextFormField(
-//                     textAlign: TextAlign.right,
-//                     decoration: InputDecoration(
-//                       hintText: 'اسم الجهاز',
-//                       contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-//                       focusedBorder: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(100.0),
-//                           borderSide: const BorderSide(color: Colors.grey)),
-//                       enabledBorder: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(100.0),
-//                           borderSide: BorderSide(color: Colors.grey.shade400)),
-//                       errorBorder: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(100.0),
-//                           borderSide:
-//                               const BorderSide(color: Colors.red, width: 2.0)),
-//                       focusedErrorBorder: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(100.0),
-//                           borderSide:
-//                               const BorderSide(color: Colors.red, width: 2.0)),
-//                     ),
-//                     // The validator receives the text that the user has entered.
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return '  رجاء ادخل اسم الجهاز ';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                 ),
-//                 const SizedBox(
-//                   height: 90,
-//                 ),
-//                 //submit button
-//                 Container(
-//                     padding: const EdgeInsets.only(left: 60.0, right: 90.0),
-//                     child: ElevatedButton(
-//                         onPressed: () {
-//                           if (_formKey.currentState!.validate()) {
-//                             // Navigator.push(
-//                             //   context,
-//                             //   MaterialPageRoute(
-//                             //       builder: (context) => const devicesList()),
-//                             // );
-//                             ScaffoldMessenger.of(context).showSnackBar(
-//                               const SnackBar(
-//                                 content: Text(
-//                                   'تم اضافة الجهاز ',
-//                                   textAlign: TextAlign.center,
-//                                 ),
-//                                 backgroundColor: Colors.green,
-//                               ),
-//                             );
-//                           }
-//                         },
-//                         style: ButtonStyle(
-//                             shape: MaterialStateProperty.all<
-//                                 RoundedRectangleBorder>(RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(50.0),
-//                         ))),
-//                         child: const Padding(
-//                             padding: EdgeInsets.fromLTRB(50, 15, 50, 15),
-//                             child: Text(
-//                               'أضف الجهاز',
-//                               textAlign: TextAlign.center,
-//                               style: TextStyle(
-//                                   fontWeight: FontWeight.bold, fontSize: 15),
-//                             )))),
-//               ],
-//             ),
-//           )),
-//       // bottomNavigationBar: buildBottomNavigation(),
-//     );
-//   }
+  @override
+  Widget build(BuildContext context) {
+    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery.of(context).size.width;
+    final _formKey = GlobalKey<FormState>();
 
-//   // Widget buildBottomNavigation() {
-//   //   return BottomNavyBar(
-//   //     selectedIndex: global.index,
-//   //     onItemSelected: (index) {
-//   //       setState(
-//   //         () => global.index = index,
-//   //       );
-//   //       if (global.index == 0) {
-//   //         Navigator.push(
-//   //           context,
-//   //           MaterialPageRoute(builder: (context) => const devicesList()),
-//   //         );
-//   //       } else if (global.index == 1) {
-//   //         Navigator.push(
-//   //           context,
-//   //           MaterialPageRoute(builder: (context) => const dashboard()),
-//   //         );
-//   //       } else if (global.index == 2) {
-//   //         Navigator.push(
-//   //           context,
-//   //           MaterialPageRoute(
-//   //               builder: (context) => const ListOfHouseAccounts()),
-//   //         );
-//   //       }
-//   //     },
-//   //     items: <BottomNavyBarItem>[
-//   //       BottomNavyBarItem(
-//   //         icon: const Icon(Icons.electrical_services_rounded),
-//   //         // icon: IconButton(
-//   //         //     icon: const Icon(Icons.person_outline_rounded),
-//   //         //     onPressed: () {
-//   //         //       setState(
-//   //         //         () => this.index = index,
-//   //         //       );
-//   //         //       Navigator.push(
-//   //         //         context,
-//   //         //         MaterialPageRoute(
-//   //         //             builder: (context) => const CreateHouseAccount()),
-//   //         //       );
-//   //         //     }),
-//   //         title: const Text(
-//   //           ' اجهزتي',
-//   //           textAlign: TextAlign.center,
-//   //         ),
-//   //         activeColor: Colors.lightBlue,
-//   //       ),
-//   //       BottomNavyBarItem(
-//   //           icon: const Icon(Icons.auto_graph_outlined),
-//   //           // icon: IconButton(
-//   //           //     icon: const Icon(Icons.holiday_village_rounded),
-//   //           //     onPressed: () {
+    return DraggableScrollableSheet(
+      maxChildSize: 0.9,
+      minChildSize: 0.9,
+      initialChildSize: 0.9,
+      builder: (_, controller) => Container(
+          decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+          child: Stack(children: [
+            Positioned(
+              bottom: height * -1.3,
+              top: height * 0,
+              left: width * 0.01,
+              child: Container(
+                width: width * 1.5,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(colors: [
+                      Colors.lightBlue.shade100,
+                      Colors.lightBlue.shade200
+                    ]),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.blue.shade100,
+                          offset: const Offset(4.0, 4.0),
+                          blurRadius: 10.0)
+                    ]),
+              ),
+            ),
+            Positioned(
+              bottom: height * -1.4,
+              top: height * 0,
+              left: width * 0.01,
+              child: Container(
+                width: width * 1.5,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                        colors: [Colors.lightBlue.shade200, Colors.blue]),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.blue.shade100,
+                          offset: const Offset(4.0, 4.0),
+                          blurRadius: 10.0)
+                    ]),
+              ),
+            ),
+            Positioned(
+                width: 50,
+                height: 50,
+                top: height * 0.01,
+                right: width * 0.05,
+                child: IconButton(
+                  iconSize: 30,
+                  icon: const Icon(Icons.keyboard_arrow_down, size: 60),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (context) => listOfDevices(
+                    //         ID: widget.ID,
+                    //       ),
+                    //     ));
+                  },
+                )),
+            Positioned(
+                width: width,
+                height: 50,
+                top: height * 0.03,
+                right: width * 0.15,
+                child: const Text(
+                  "إضافة جهاز",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 24,
+                  ),
+                )),
+            Positioned(
+                width: width,
+                height: height,
+                top: height * 0.1,
+                right: width * 0.01,
+                child: getNetworks(height, width)),
+            // FutureBuilder<dynamic>(
+            //   future: loadWifiList(),
+            //   builder: (context, snapshot) {
+            //     if (snapshot.connectionState == ConnectionState.done &&
+            //         snapshot.hasData) {
+            //       _htResultNetwork = snapshot.data;
+            //       final List<InkWell> htNetworks = <InkWell>[];
+            //       _htResultNetwork!.forEach((oNetwork) {
+            //         final PopupCommand oCmdConnect =
+            //             PopupCommand("Connect", oNetwork!.ssid!);
+            //         final List<PopupMenuItem<PopupCommand>> htPopupMenuItems =
+            //             [];
+            //         print(170);
+            //         if ((oNetwork.ssid!).contains("Abo")) {
+            //           //Rashd
+            //           print(174);
+            //           htNetworks.add(InkWell(
+            //             child: Container(child: Text(oNetwork.ssid!)),
+            //             onTap: () {
+            //               WiFiForIoTPlugin.connect("${oNetwork.ssid}",
+            //                   password: '0500991990',
+            //                   joinOnce: true,
+            //                   security: STA_DEFAULT_SECURITY);
+            //               print(181);
+            //             },
+            //           ));
+            //         }
+            //       });
+            //       return ListView(
+            //         padding: kMaterialListPadding,
+            //         children: htNetworks, //Display list of networks
+            //       );
+            //     } else {
+            //       /// you handle others state like error while it will a widget no matter what, you can skip it
+            //       return CircularProgressIndicator();
+            //     }
+            //   },
+            // ),
+          ])),
+    );
+  }
+}
 
-//   //           //       setState(
-//   //           //         () => this.index = index,
-//   //           //       );
-//   //           //       Navigator.push(
-//   //           //         context,
-//   //           //         MaterialPageRoute(
-//   //           //             builder: (context) => const ListOfHouseAccounts()),
-//   //           //       );
-//   //           //     }),
-//   //           title: const Text(
-//   //             'لوحة المعلومات',
-//   //             textAlign: TextAlign.center,
-//   //           ),
-//   //           activeColor: Colors.lightBlue),
-//   //       BottomNavyBarItem(
-//   //           icon: const Icon(Icons.holiday_village_rounded),
-//   //           // icon: IconButton(
-//   //           //     icon: const Icon(Icons.holiday_village_rounded),
-//   //           //     onPressed: () {
+class PopupCommand {
+  String command;
+  String argument;
 
-//   //           //       setState(
-//   //           //         () => this.index = index,
-//   //           //       );
-//   //           //       Navigator.push(
-//   //           //         context,
-//   //           //         MaterialPageRoute(
-//   //           //             builder: (context) => const ListOfHouseAccounts()),
-//   //           //       );
-//   //           //     }),
-//   //           title: const Text(
-//   //             'منازلي',
-//   //             textAlign: TextAlign.center,
-//   //           ),
-//   //           activeColor: Colors.lightBlue),
-//   //     ],
-//   //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-//   //   );
-//   // }
-
-// }
+  PopupCommand(this.command, this.argument);
+}
