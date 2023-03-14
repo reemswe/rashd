@@ -47,7 +47,7 @@ class AddDeviceState extends State<AddDevice> {
               if (_htResultNetwork != null && _htResultNetwork!.length > 0) {
                 final List<InkWell> htNetworks = <InkWell>[];
                 _htResultNetwork!.forEach((oNetwork) {
-                  if ((oNetwork!.ssid!).contains("KSU")) {
+                  if ((oNetwork!.ssid!).contains("L")) {
                     //Rashd
 
                     htNetworks.add(InkWell(
@@ -115,18 +115,24 @@ class AddDeviceState extends State<AddDevice> {
                                                     var pass =
                                                         passwordController.text;
                                                     print(pass);
-                                                    WiFiForIoTPlugin.connect(
-                                                        //need a way to do validate the password to give the user a message, maybe try-catch will work
-                                                        "${oNetwork.ssid}",
-                                                        password:
-                                                            pass, //  'Lamd@1422',
-                                                        joinOnce: true,
-                                                        security:
-                                                            STA_DEFAULT_SECURITY);
-                                                    Hive.box("devicesInfo").put(
-                                                        "SSID",
-                                                        oNetwork
-                                                            .ssid); //Hive.box("devicesInfo").get("SSID")
+                                                    try {
+                                                      WiFiForIoTPlugin.connect(
+                                                          //need a way to do validate the password to give the user a message, maybe try-catch will work
+                                                          "${oNetwork.ssid}",
+                                                          password:
+                                                              pass, //  'Lamd@1422',
+                                                          joinOnce: true,
+                                                          security:
+                                                              STA_DEFAULT_SECURITY);
+                                                      Hive.box("devicesInfo").put(
+                                                          "SSID",
+                                                          oNetwork
+                                                              .ssid); //Hive.box("devicesInfo").get("SSID")
+
+                                                    } catch (Exception) {
+                                                      print(
+                                                          'Exception: $Exception');
+                                                    }
 
                                                     // Navigator.of(context)
                                                     //     .pop();
