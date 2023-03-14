@@ -8,10 +8,18 @@ import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import 'Registration/login.dart';
 import 'Registration/register.dart';
 import 'Registration/welcomePage.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
+
+late Box box;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  var dir = await getApplicationDocumentsDirectory();
+  Hive.init(dir.path);
+  box = await Hive.openBox('devicesInfo');
 
   //! FCM
   FirebaseMessaging.instance.onTokenRefresh.listen((String token) async {
@@ -112,4 +120,3 @@ class global {
 class GlobalContextService {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }
-
