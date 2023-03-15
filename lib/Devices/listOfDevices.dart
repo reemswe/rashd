@@ -1,3 +1,5 @@
+import 'dart:collection';
+import "package:rashd/firebase_options.dart";
 import 'dart:core';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +11,7 @@ import 'package:rashd/Devices/addDevice.dart';
 import '../Dashboard/dashboard.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../HouseAccount/list_of_houseMembers.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class listOfDevices extends StatefulWidget {
   final ID; //house ID
@@ -35,6 +38,22 @@ class listOfDevicesState extends State<listOfDevices> {
 
   TextEditingController phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  Future<void> UpdateDB(value) async {
+    DatabaseReference database =
+        FirebaseDatabase.instance.ref('testAurduino/Sensor/');
+    database.onValue.listen((DatabaseEvent event) {
+      final data = event.snapshot.value;
+      print(data);
+    });
+
+    await database
+        .update({'Status': value})
+        .then(
+          (value) => print("va!lue"),
+        )
+        .onError((error, stackTrace) => print(error));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +175,8 @@ class listOfDevicesState extends State<listOfDevices> {
                                                   BorderRadius.vertical(
                                             top: Radius.circular(105.0),
                                           )),
-                                          builder: (context) => AddDevice(ID: widget.ID));
+                                          builder: (context) =>
+                                              AddDevice(ID: widget.ID));
                                     },
                                   )),
                             ]),
@@ -244,13 +264,14 @@ class listOfDevicesState extends State<listOfDevices> {
                             textOnColor: Colors.white,
                             textSize: 20.0,
                             width: 130,
-                            onChanged: (bool state) {
+                            onChanged: (bool state) async {
                               FirebaseFirestore.instance
                                   .collection("houseAccount")
                                   .doc(widget.ID)
                                   .collection('houseDevices')
                                   .doc(devices.docs[index].id)
                                   .update({'status': state});
+                              await UpdateDB(state ? "ON" : "OFF");
                             },
                             onTap: () {},
                             onSwipe: () {},

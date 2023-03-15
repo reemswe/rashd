@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "589573102527",
+    "firebase_url": "https://rashd-a9e0c-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "rashd-a9e0c",
     "storage_bucket": "rashd-a9e0c.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "589573102527-1lno23qkbgicdkteb20nsf6qs9rea9jk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rashd",
+            "certificate_hash": "76265f08d070a239e723be92d2a9fe8956d2fd01"
+          }
+        },
         {
           "client_id": "589573102527-5cobmdcuoaurfa5u7bbl2hk90canr521.apps.googleusercontent.com",
           "client_type": 3
