@@ -189,7 +189,7 @@ class loginFormState extends State<loginForm> {
                   if (value == null ||
                       value.isEmpty ||
                       (value.trim()).isEmpty) {
-                    return 'الرجاء ادخال اسم المستخدم';
+                    return 'الرجاء ادخال البريد الإلكتروني';
                   } else if (invalidData) {
                     return '';
                   }

@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,9 +17,11 @@ class AddDevice extends StatefulWidget {
 
 class AddDeviceState extends State<AddDevice> {
   TextEditingController passwordController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
   bool _isEnabled = false;
   bool connected = false;
   int _index = 0;
+  int selectedNetwork = -1;
 
   List<WifiNetwork?>?
       _htResultNetwork; //display list of near available networks (will be modified to only display network result for Rashd devices)
@@ -31,17 +34,24 @@ class AddDeviceState extends State<AddDevice> {
     super.initState();
   }
 
-  Widget getNetworks(height, width, _formKey, type) {
+  Widget getNetworks(height, width, formKey, type) {
     var green = Colors.white;
     if (_isEnabled) {
       return Column(children: [
+        Align(
+          alignment: Alignment.topRight,
+          child: Text(
+            type == 'wifi' ? "شبكة الإنترنت" : "شبكة الجهاز",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+        ),
         Align(
             alignment: Alignment.topRight,
             child: Text(
               type == 'wifi'
                   ? "الرجاء الاتصال بالشبكة"
                   : "الرجاء تحديد اسم الشبكة الذي يطابق معرف جهازك.",
-              style: TextStyle(fontSize: 17),
+              style: const TextStyle(fontSize: 17),
             )),
         FutureBuilder<dynamic>(
           future: loadWifiList(),
@@ -51,27 +61,14 @@ class AddDeviceState extends State<AddDevice> {
               _htResultNetwork = snapshot.data;
               if (_htResultNetwork != null && _htResultNetwork!.isNotEmpty) {
                 final List<InkWell> htNetworks = <InkWell>[];
-                for (var oNetwork in _htResultNetwork!) {
+                for (int i = 0; i < _htResultNetwork!.length; i++) {
+                  var oNetwork = _htResultNetwork![i];
                   var condition = type == 'wifi'
                       ? !(oNetwork!.ssid!).contains("Rashd")
                       : (oNetwork!.ssid!).contains("Abo");
                   if (condition) {
                     //Rashd
                     htNetworks.add(InkWell(
-                      child: Container(
-                          margin: EdgeInsets.fromLTRB(10, height * 0.01, 10, 1),
-                          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
-                          width: width * 0.9,
-                          decoration: BoxDecoration(
-                              color: green, //Colors.white,
-                              boxShadow: const [
-                                BoxShadow(
-                                    blurRadius: 20,
-                                    color: Colors.black45,
-                                    spreadRadius: -10)
-                              ],
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Text(oNetwork.ssid!)),
                       onTap: () {
                         showDialog<String>(
                             context: context,
@@ -101,7 +98,7 @@ class AddDeviceState extends State<AddDevice> {
                                         ),
                                         SizedBox(height: height * 0.01),
                                         Form(
-                                            key: _formKey,
+                                            key: formKey,
                                             child: TextFormField(
                                               controller: passwordController,
                                               obscureText: true,
@@ -127,7 +124,7 @@ class AddDeviceState extends State<AddDevice> {
                                                     backgroundColor:
                                                         Colors.lightGreen),
                                                 onPressed: () async {
-                                                  if (_formKey.currentState!
+                                                  if (formKey.currentState!
                                                       .validate()) {
                                                     var pass =
                                                         passwordController.text;
@@ -142,8 +139,8 @@ class AddDeviceState extends State<AddDevice> {
 
                                                     if (isVaild) {
                                                       setState(() {
-                                                        green = Colors.red;
                                                         connected = true;
+                                                        selectedNetwork = i;
                                                       });
                                                       Hive.box("devicesInfo").put(
                                                           "SSID",
@@ -213,6 +210,34 @@ class AddDeviceState extends State<AddDevice> {
                                   ),
                                 ));
                       },
+                      child: Container(
+                          margin: EdgeInsets.fromLTRB(0, height * 0.01, 0, 1),
+                          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                          width: width * 0.9,
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                color: selectedNetwork == i
+                                    ? Colors.green.shade200
+                                    : Colors.white,
+                                width: 3,
+                              ),
+                              color: Colors.white, //Colors.white,
+                              boxShadow: const [
+                                BoxShadow(
+                                    blurRadius: 20,
+                                    color: Colors.black45,
+                                    spreadRadius: -10)
+                              ],
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(oNetwork.ssid!),
+                                Visibility(
+                                    visible: selectedNetwork == i,
+                                    child: Icon(Icons.task_alt,
+                                        size: 28, color: Colors.green.shade300))
+                              ])), //                  icon: const Icon(Icons.keyboard_arrow_down, size: 60),
                     ));
                   }
                 }
@@ -264,11 +289,13 @@ class AddDeviceState extends State<AddDevice> {
     return htResultNetwork;
   }
 
+  final formKey1 = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
+    final formKey2 = GlobalKey<FormState>();
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
-    final _formKey = GlobalKey<FormState>();
 
     return DraggableScrollableSheet(
       maxChildSize: 0.9,
@@ -327,13 +354,6 @@ class AddDeviceState extends State<AddDevice> {
                   icon: const Icon(Icons.keyboard_arrow_down, size: 60),
                   onPressed: () {
                     Navigator.of(context).pop();
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder: (context) => listOfDevices(
-                    //         ID: widget.ID,
-                    //       ),
-                    //     ));
                   },
                 )),
             Positioned(
@@ -352,24 +372,174 @@ class AddDeviceState extends State<AddDevice> {
                 width: width,
                 height: height,
                 top: height * 0.1,
-                right: width * 0.01,
                 child: Theme(
                     data: ThemeData(canvasColor: Colors.white),
                     child: Stepper(
-                      margin: const EdgeInsets.fromLTRB(10, 1, 1, 10),
                       elevation: 1,
                       currentStep: _index,
                       type: StepperType.horizontal,
                       controlsBuilder:
                           (BuildContext context, ControlsDetails controls) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            _index == 0
-                                ? Column(children: [
+                        return _index != 2
+                            ? Column(children: [
+                                Container(
+                                    margin: const EdgeInsets.fromLTRB(
+                                        10, 30, 10, 0),
+                                    decoration: BoxDecoration(
+                                      boxShadow: const [
+                                        BoxShadow(
+                                            color: Colors.black26,
+                                            offset: Offset(0, 4),
+                                            blurRadius: 5.0)
+                                      ],
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        stops: [0.1, 1.0],
+                                        colors: [
+                                          Colors.blue.shade200,
+                                          Colors.blue.shade400,
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    child: Center(
+                                      child: ElevatedButton(
+                                          style: ButtonStyle(
+                                            shape: MaterialStateProperty.all<
+                                                RoundedRectangleBorder>(
+                                              RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(30.0),
+                                              ),
+                                            ),
+                                            minimumSize:
+                                                MaterialStateProperty.all(
+                                                    const Size(350, 50)),
+                                            backgroundColor:
+                                                MaterialStateProperty.all(
+                                                    Colors.transparent),
+                                            shadowColor:
+                                                MaterialStateProperty.all(
+                                                    Colors.transparent),
+                                          ),
+                                          child: const Padding(
+                                            padding: EdgeInsets.fromLTRB(
+                                                50, 10, 50, 10),
+                                            child: Text(
+                                              'التالي',
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            controls.onStepContinue!();
+                                          }),
+                                    )),
+                              ])
+                            : const Text('');
+                      },
+                      onStepContinue: () {
+                        if (connected) {
+                          setState(() {
+                            _index += 1;
+                          });
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: "الرجاء الاتصال بالشبكة للمتابعة.",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: Colors.red.shade400,
+                              textColor: Colors.white);
+                        }
+                      },
+                      onStepTapped: (int index) {
+                        if (connected) {
+                          setState(() {
+                            _index = index;
+                          });
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: "الرجاء الاتصال بالجهاز للمتابعة.",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: Colors.red.shade400,
+                              textColor: Colors.white);
+                        }
+                      },
+                      steps: <Step>[
+                        Step(
+                            state: _index != 0
+                                ? StepState.complete
+                                : StepState.indexed,
+                            isActive: true,
+                            title: Text('الاتصال بالجهاز',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: _index == 0
+                                        ? FontWeight.w700
+                                        : FontWeight.w500)),
+                            content: getNetworks(
+                                height, width, formKey2, 'devices')),
+                        Step(
+                          state: _index > 1
+                              ? StepState.complete
+                              : StepState.indexed,
+                          isActive: _index != 0 ? true : false,
+                          title: Text('الاتصال بالشبكة',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: _index == 1
+                                      ? FontWeight.w700
+                                      : FontWeight.w500)),
+                          content: getNetworks(height, width, formKey2, 'wifi'),
+                        ),
+                        Step(
+                          state: _index > 2
+                              ? StepState.complete
+                              : StepState.indexed,
+                          isActive: _index == 2 ? true : false,
+                          title: Text('معلومات الجهاز',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: _index == 2
+                                      ? FontWeight.w700
+                                      : FontWeight.w500)),
+                          content: Form(
+                            key: formKey1,
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  const Align(
+                                    alignment: Alignment.topRight,
+                                    child: Text(
+                                      "معلومات الجهاز",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                  Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: TextFormField(
+                                        controller: nameController,
+                                        decoration: const InputDecoration(
+                                          labelText: 'اسم الجهاز',
+                                        ),
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.isEmpty ||
+                                              (value.trim()).isEmpty) {
+                                            return 'الرجاء ادخال اسم للجهاز';
+                                          }
+                                          return null;
+                                        },
+                                      )),
+                                  Column(children: [
                                     Container(
                                         margin: const EdgeInsets.fromLTRB(
-                                            0, 30, 0, 0),
+                                            10, 30, 10, 0),
                                         decoration: BoxDecoration(
                                           boxShadow: const [
                                             BoxShadow(
@@ -415,186 +585,36 @@ class AddDeviceState extends State<AddDevice> {
                                                 padding: EdgeInsets.fromLTRB(
                                                     50, 10, 50, 10),
                                                 child: Text(
-                                                  'التالي',
+                                                  'إضافة الجهاز',
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       color: Colors.white),
                                                 ),
                                               ),
-                                              onPressed: () {
-                                                controls.onStepContinue!();
+                                              onPressed: () async {
+                                                if (formKey1.currentState!
+                                                    .validate()) {
+                                                  print(widget.ID);
+
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection(
+                                                          'houseAccount')
+                                                      // .doc(widget.ID)
+                                                      // .collection(
+                                                      //     'houseDevices')
+                                                      .add({
+                                                    'ID':
+                                                        '${Hive.box("devicesInfo").get("SSID")}',
+                                                    'name': nameController.text
+                                                  });
+                                                }
                                               }),
                                         )),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
                                   ])
-                                : Column(children: [
-                                    Row(children: [
-                                      Center(
-                                          child: Container(
-                                        decoration: BoxDecoration(
-                                          boxShadow: const [
-                                            BoxShadow(
-                                                color: Colors.black26,
-                                                offset: Offset(0, 4),
-                                                blurRadius: 5.0)
-                                          ],
-                                          color: Colors.white,
-                                          border:
-                                              Border.all(color: Colors.blue),
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                        ),
-                                        child: ElevatedButton(
-                                            style: ButtonStyle(
-                                              shape: MaterialStateProperty.all<
-                                                  RoundedRectangleBorder>(
-                                                RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          30.0),
-                                                ),
-                                              ),
-                                              minimumSize:
-                                                  MaterialStateProperty.all(
-                                                      Size(
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.2,
-                                                          50)),
-                                              backgroundColor:
-                                                  MaterialStateProperty.all(
-                                                      Colors.transparent),
-                                              shadowColor:
-                                                  MaterialStateProperty.all(
-                                                      Colors.transparent),
-                                            ),
-                                            child: Text(
-                                              'Back',
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Colors.blue.shade800),
-                                            ),
-                                            onPressed: controls.onStepCancel),
-                                      )),
-                                      const SizedBox(width: 20),
-                                      Center(
-                                          child: Container(
-                                        decoration: BoxDecoration(
-                                          boxShadow: const [
-                                            BoxShadow(
-                                                color: Colors.black26,
-                                                offset: Offset(0, 4),
-                                                blurRadius: 5.0)
-                                          ],
-                                          gradient: const LinearGradient(
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                            stops: [0.0, 1.0],
-                                            colors: [
-                                              Colors.blue,
-                                              Colors.cyanAccent,
-                                            ],
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                        ),
-                                        child: ElevatedButton(
-                                            style: ButtonStyle(
-                                              shape: MaterialStateProperty.all<
-                                                  RoundedRectangleBorder>(
-                                                RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          30.0),
-                                                ),
-                                              ),
-                                              minimumSize:
-                                                  MaterialStateProperty.all(
-                                                      Size(
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.5,
-                                                          50)),
-                                              backgroundColor:
-                                                  MaterialStateProperty.all(
-                                                      Colors.transparent),
-                                              shadowColor:
-                                                  MaterialStateProperty.all(
-                                                      Colors.transparent),
-                                            ),
-                                            child: const Text(
-                                              'Register',
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Colors.white),
-                                            ),
-                                            onPressed: () async {}),
-                                      )),
-                                    ]),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                  ])
-                          ],
-                        );
-                      },
-                      onStepContinue: () {
-                        if (connected) {
-                          setState(() {
-                            _index += 1;
-                          });
-                        } else {
-                          Fluttertoast.showToast(
-                              msg: "الرجاء الاتصال بالشبكة للمتابعة.",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              backgroundColor: Colors.red.shade400,
-                              textColor: Colors.white);
-                        }
-                      },
-                      onStepTapped: (int index) {
-                        if (connected) {
-                          setState(() {
-                            _index += 1;
-                          });
-                        } else {
-                          Fluttertoast.showToast(
-                              msg: "الرجاء الاتصال بالجهاز للمتابعة.",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              backgroundColor: Colors.red.shade400,
-                              textColor: Colors.white);
-                        }
-                      },
-                      steps: <Step>[
-                        Step(
-                            state: _index != 0
-                                ? StepState.complete
-                                : StepState.indexed,
-                            isActive: true,
-                            title: const Text('الاتصال بالجهاز'),
-                            content: getNetworks(
-                                height, width, _formKey, 'devices')),
-                        Step(
-                          state: _index > 1
-                              ? StepState.complete
-                              : StepState.indexed,
-                          isActive: _index != 0 ? true : false,
-                          title: const Text('الاتصال بالشبكة'),
-                          content: getNetworks(height, width, _formKey, 'wifi'),
+                                ]),
+                          ),
                         ),
-                        Step(
-                            state: _index > 1
-                                ? StepState.complete
-                                : StepState.indexed,
-                            isActive: _index != 0 ? true : false,
-                            title: const Text('معلومات الجهاز'),
-                            content: const Text('معلومات الجهاز') //deviceInfo,
-                            ),
                       ],
                     )))
           ])),
