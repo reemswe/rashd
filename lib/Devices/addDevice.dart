@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 import 'package:hive/hive.dart';
 
@@ -16,6 +17,8 @@ class AddDevice extends StatefulWidget {
 class AddDeviceState extends State<AddDevice> {
   TextEditingController passwordController = TextEditingController();
   bool _isEnabled = false;
+  bool connected = false;
+  int _index = 0;
 
   List<WifiNetwork?>?
       _htResultNetwork; //display list of near available networks (will be modified to only display network result for Rashd devices)
@@ -28,30 +31,47 @@ class AddDeviceState extends State<AddDevice> {
     super.initState();
   }
 
-  Widget getNetworks(height, width, _formKey) {
-    // main widget, shows wifi info and disable, disconnect wifi
-    // WiFiForIoTPlugin.isEnabled().then((val) {
-    //   setState(() {
-    //     _isEnabled = val;
-    //   });
-    // });
+  Widget getNetworks(height, width, _formKey, type) {
+    var green = Colors.white;
     if (_isEnabled) {
       return Column(children: [
-        const Text("الرجاء تحديد اسم الشبكة الذي يطابق معرف جهازك."),
+        Align(
+            alignment: Alignment.topRight,
+            child: Text(
+              type == 'wifi'
+                  ? "الرجاء الاتصال بالشبكة"
+                  : "الرجاء تحديد اسم الشبكة الذي يطابق معرف جهازك.",
+              style: TextStyle(fontSize: 17),
+            )),
         FutureBuilder<dynamic>(
           future: loadWifiList(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done &&
                 snapshot.hasData) {
               _htResultNetwork = snapshot.data;
-              if (_htResultNetwork != null && _htResultNetwork!.length > 0) {
+              if (_htResultNetwork != null && _htResultNetwork!.isNotEmpty) {
                 final List<InkWell> htNetworks = <InkWell>[];
-                _htResultNetwork!.forEach((oNetwork) {
-                  if ((oNetwork!.ssid!).contains("AC ")) {
+                for (var oNetwork in _htResultNetwork!) {
+                  var condition = type == 'wifi'
+                      ? !(oNetwork!.ssid!).contains("Rashd")
+                      : (oNetwork!.ssid!).contains("Abo");
+                  if (condition) {
                     //Rashd
-
                     htNetworks.add(InkWell(
-                      child: Container(child: Text(oNetwork.ssid!)),
+                      child: Container(
+                          margin: EdgeInsets.fromLTRB(10, height * 0.01, 10, 1),
+                          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                          width: width * 0.9,
+                          decoration: BoxDecoration(
+                              color: green, //Colors.white,
+                              boxShadow: const [
+                                BoxShadow(
+                                    blurRadius: 20,
+                                    color: Colors.black45,
+                                    spreadRadius: -10)
+                              ],
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Text(oNetwork.ssid!)),
                       onTap: () {
                         showDialog<String>(
                             context: context,
@@ -91,9 +111,7 @@ class AddDeviceState extends State<AddDevice> {
                                                   hintText: 'كلمة السر'),
                                               validator: (value) {
                                                 if (value!.isEmpty) {
-                                                  return '';
-                                                } else {
-                                                  return null;
+                                                  return "الرجاء إدخال كلمة سر صالحة.";
                                                 }
                                               },
                                             )),
@@ -111,52 +129,62 @@ class AddDeviceState extends State<AddDevice> {
                                                 onPressed: () async {
                                                   if (_formKey.currentState!
                                                       .validate()) {
-                                                    print(passwordController);
                                                     var pass =
                                                         passwordController.text;
-                                                    print(pass);
                                                     bool isVaild = await WiFiForIoTPlugin
                                                         .connect(
                                                             //need a way to do validate the password to give the user a message, maybe try-catch will work
                                                             "${oNetwork.ssid}",
-                                                            password:
-                                                                pass, //  'Lamd@1422',
+                                                            password: pass,
                                                             joinOnce: true,
                                                             security:
                                                                 STA_DEFAULT_SECURITY);
 
-                                                    print(isVaild);
                                                     if (isVaild) {
-                                                      // Hive.box("devicesInfo").put(
-                                                      //     "SSID",
-                                                      //     oNetwork
-                                                      //         .ssid); //Hive.box("devicesInfo").get("SSID")
+                                                      setState(() {
+                                                        green = Colors.red;
+                                                        connected = true;
+                                                      });
+                                                      Hive.box("devicesInfo").put(
+                                                          "SSID",
+                                                          oNetwork
+                                                              .ssid); //Hive.box("devicesInfo").get("SSID")
 
-                                                      // Navigator.of(context)
-                                                      //     .pop();
-                                                      const snackBar = SnackBar(
-                                                          content: Text(
-                                                              'تم الاتصال بنجاح'));
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                              snackBar);
+                                                      Navigator.of(context)
+                                                          .pop();
+
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              "تم الاتصال بالشبكة بنجاح",
+                                                          toastLength: Toast
+                                                              .LENGTH_SHORT,
+                                                          gravity: ToastGravity
+                                                              .BOTTOM, // Also possible "TOP" and "CENTER"
+                                                          backgroundColor:
+                                                              Colors.green
+                                                                  .shade400,
+                                                          textColor:
+                                                              Colors.white);
                                                     } else {
                                                       Navigator.of(context)
                                                           .pop();
-                                                      const snackBar = SnackBar(
-                                                          content: Text(
-                                                              'فشل الاتصال '));
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                              snackBar);
-                                                      print('in else');
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              "كلمة مرور غير صالحة ، الرجاء المحاولة مرة أخرى.",
+                                                          toastLength: Toast
+                                                              .LENGTH_SHORT,
+                                                          gravity: ToastGravity
+                                                              .BOTTOM,
+                                                          backgroundColor:
+                                                              Colors
+                                                                  .red.shade400,
+                                                          textColor:
+                                                              Colors.white);
                                                     }
                                                   }
                                                 },
                                                 child: const Text(
-                                                  'تحديد',
+                                                  'اتصال',
                                                   style:
                                                       TextStyle(fontSize: 18),
                                                 )),
@@ -184,158 +212,10 @@ class AddDeviceState extends State<AddDevice> {
                                     ),
                                   ),
                                 ));
-                        // showDialog(
-                        //     context: context,
-                        //     builder: (BuildContext context) {
-                        //       return Dialog(
-                        //           shape: RoundedRectangleBorder(
-                        //             borderRadius: BorderRadius.circular(20),
-                        //           ),
-                        //           elevation: 0,
-                        //           backgroundColor: Colors.transparent,
-                        //           child: Column(
-                        //             children: <Widget>[
-                        //               Container(
-                        //                 padding: EdgeInsets.only(
-                        //                     left: width * 0.02,
-                        //                     top: height * 0.08,
-                        //                     right: width * 0.02,
-                        //                     bottom: height * 0.05),
-                        //                 margin: const EdgeInsets.only(top: 45),
-                        //                 decoration: BoxDecoration(
-                        //                     shape: BoxShape.rectangle,
-                        //                     color: Colors.white,
-                        //                     borderRadius:
-                        //                         BorderRadius.circular(20),
-                        //                     boxShadow: const [
-                        //                       BoxShadow(
-                        //                           color: Color.fromARGB(
-                        //                               255, 41, 41, 41),
-                        //                           offset: Offset(0, 10),
-                        //                           blurRadius: 10),
-                        //                     ]),
-                        //                 child: Column(
-                        //                   mainAxisSize: MainAxisSize.min,
-                        //                   children: <Widget>[
-                        //                     const Text(
-                        //                       'حدد هدف استهلاك الطاقة لشهر ',
-                        //                       style: TextStyle(
-                        //                           fontSize: 22,
-                        //                           fontWeight: FontWeight.w600),
-                        //                     ),
-                        //                     SizedBox(height: height * 0.01),
-                        //                     Padding(
-                        //                         padding: EdgeInsets.fromLTRB(
-                        //                             width * 0.02,
-                        //                             0,
-                        //                             width * 0.02,
-                        //                             0),
-                        //                         child: Form(
-                        //                             key: _formKey,
-                        //                             child: TextFormField(
-                        //                               controller:
-                        //                                   passwordController,
-                        //                               maxLines: 1,
-                        //                               textAlign:
-                        //                                   TextAlign.center,
-                        //                               decoration:
-                        //                                   const InputDecoration(
-                        //                                       hintText:
-                        //                                           '300kWh',
-                        //                                       prefixText: 'kWh',
-                        //                                       prefixStyle: TextStyle(
-                        //                                           color: Colors
-                        //                                               .black)),
-                        //                               validator: (value) {
-                        //                                 if (value!.isEmpty) {
-                        //                                   return 'الرجاء تحديد الهدف';
-                        //                                 } else {
-                        //                                   return null;
-                        //                                 }
-                        //                               },
-                        //                             ))),
-                        //                     SizedBox(height: height * 0.02),
-                        //                     Row(
-                        //                       mainAxisAlignment:
-                        //                           MainAxisAlignment.center,
-                        //                       children: [
-                        //                         ElevatedButton(
-                        //                             style: ElevatedButton
-                        //                                 .styleFrom(
-                        //                                     fixedSize: Size(
-                        //                                         width * 0.2,
-                        //                                         height * 0.05),
-                        //                                     backgroundColor:
-                        //                                         Colors
-                        //                                             .lightGreen),
-                        //                             onPressed: () {
-                        //                               if (_formKey.currentState!
-                        //                                   .validate()) {
-                        //                                 // setState(() {
-                        //                                 //   // goal();
-                        //                                 // });
-                        //                                 print(
-                        //                                     passwordController);
-                        //                                 var pass =
-                        //                                     passwordController
-                        //                                         .text;
-                        //                                 print(pass);
-                        //                                 WiFiForIoTPlugin.connect(
-                        //                                     "${oNetwork.ssid}",
-                        //                                     password:
-                        //                                         pass, //  'Lamd@1422',
-                        //                                     joinOnce: true,
-                        //                                     security:
-                        //                                         STA_DEFAULT_SECURITY);
-                        //                                 // UpdateDB();
-                        //                                 // Navigator.of(context)
-                        //                                 //     .pop();
-                        //                               }
-                        //                             },
-                        //                             child: const Text(
-                        //                               'تحديد',
-                        //                               style: TextStyle(
-                        //                                   fontSize: 18),
-                        //                             )),
-                        //                         const SizedBox(
-                        //                           height: 10,
-                        //                           width: 30,
-                        //                         ),
-                        //                         ElevatedButton(
-                        //                             style: ElevatedButton
-                        //                                 .styleFrom(
-                        //                                     fixedSize: Size(
-                        //                                         width * 0.2,
-                        //                                         height * 0.05),
-                        //                                     backgroundColor:
-                        //                                         Colors
-                        //                                             .redAccent),
-                        //                             onPressed: () {
-                        //                               Navigator.of(context)
-                        //                                   .pop();
-                        //                             },
-                        //                             child: const Text(
-                        //                               'إلغاء',
-                        //                               style: TextStyle(
-                        //                                   fontSize: 18),
-                        //                             )),
-                        //                       ],
-                        //                     ),
-                        //                   ],
-                        //                 ),
-                        //               ),
-                        //             ],
-                        //           ));
-                        //     });
-
-                        // WiFiForIoTPlugin.connect("${oNetwork.ssid}",
-                        //     password: '0500991990',
-                        //     joinOnce: true,
-                        //     security: STA_DEFAULT_SECURITY);
                       },
                     ));
                   }
-                });
+                }
                 return Column(
                   children: htNetworks, //Display list of networks
                 );
@@ -343,7 +223,6 @@ class AddDeviceState extends State<AddDevice> {
                 return const Text("no matching result");
               }
             } else {
-              /// you handle others state like error while it will a widget no matter what, you can skip it
               return const CircularProgressIndicator();
             }
           },
@@ -474,49 +353,251 @@ class AddDeviceState extends State<AddDevice> {
                 height: height,
                 top: height * 0.1,
                 right: width * 0.01,
-                child: getNetworks(height, width, _formKey)),
-            // FutureBuilder<dynamic>(
-            //   future: loadWifiList(),
-            //   builder: (context, snapshot) {
-            //     if (snapshot.connectionState == ConnectionState.done &&
-            //         snapshot.hasData) {
-            //       _htResultNetwork = snapshot.data;
-            //       final List<InkWell> htNetworks = <InkWell>[];
-            //       for (var oNetwork in _htResultNetwork!) {
-            //         print(170);
-            //         if ((oNetwork!.ssid!).contains("KSU")) {
-            //           //Rashd
-            //           print(174);
-            //           htNetworks.add(InkWell(
-            //             child: Container(child: Text(oNetwork.ssid!)),
-            //             onTap: () {
-            //               WiFiForIoTPlugin.connect("${oNetwork.ssid}",
-            //                   password: '0500991990',
-            //                   joinOnce: true,
-            //                   security: STA_DEFAULT_SECURITY);
-            //               print(181);
-            //             },
-            //           ));
-            //         }
-            //       }
-            //       return ListView(
-            //         padding: kMaterialListPadding,
-            //         children: htNetworks, //Display list of networks
-            //       );
-            //     } else {
-            //       /// you handle others state like error while it will a widget no matter what, you can skip it
-            //       return CircularProgressIndicator();
-            //     }
-            //   },
-            // ),
+                child: Theme(
+                    data: ThemeData(canvasColor: Colors.white),
+                    child: Stepper(
+                      margin: const EdgeInsets.fromLTRB(10, 1, 1, 10),
+                      elevation: 1,
+                      currentStep: _index,
+                      type: StepperType.horizontal,
+                      controlsBuilder:
+                          (BuildContext context, ControlsDetails controls) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            _index == 0
+                                ? Column(children: [
+                                    Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                            0, 30, 0, 0),
+                                        decoration: BoxDecoration(
+                                          boxShadow: const [
+                                            BoxShadow(
+                                                color: Colors.black26,
+                                                offset: Offset(0, 4),
+                                                blurRadius: 5.0)
+                                          ],
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            stops: [0.1, 1.0],
+                                            colors: [
+                                              Colors.blue.shade200,
+                                              Colors.blue.shade400,
+                                            ],
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                        ),
+                                        child: Center(
+                                          child: ElevatedButton(
+                                              style: ButtonStyle(
+                                                shape:
+                                                    MaterialStateProperty.all<
+                                                        RoundedRectangleBorder>(
+                                                  RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30.0),
+                                                  ),
+                                                ),
+                                                minimumSize:
+                                                    MaterialStateProperty.all(
+                                                        const Size(350, 50)),
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.transparent),
+                                                shadowColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.transparent),
+                                              ),
+                                              child: const Padding(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    50, 10, 50, 10),
+                                                child: Text(
+                                                  'التالي',
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      color: Colors.white),
+                                                ),
+                                              ),
+                                              onPressed: () {
+                                                controls.onStepContinue!();
+                                              }),
+                                        )),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                  ])
+                                : Column(children: [
+                                    Row(children: [
+                                      Center(
+                                          child: Container(
+                                        decoration: BoxDecoration(
+                                          boxShadow: const [
+                                            BoxShadow(
+                                                color: Colors.black26,
+                                                offset: Offset(0, 4),
+                                                blurRadius: 5.0)
+                                          ],
+                                          color: Colors.white,
+                                          border:
+                                              Border.all(color: Colors.blue),
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                        ),
+                                        child: ElevatedButton(
+                                            style: ButtonStyle(
+                                              shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                                RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          30.0),
+                                                ),
+                                              ),
+                                              minimumSize:
+                                                  MaterialStateProperty.all(
+                                                      Size(
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.2,
+                                                          50)),
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                      Colors.transparent),
+                                              shadowColor:
+                                                  MaterialStateProperty.all(
+                                                      Colors.transparent),
+                                            ),
+                                            child: Text(
+                                              'Back',
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.blue.shade800),
+                                            ),
+                                            onPressed: controls.onStepCancel),
+                                      )),
+                                      const SizedBox(width: 20),
+                                      Center(
+                                          child: Container(
+                                        decoration: BoxDecoration(
+                                          boxShadow: const [
+                                            BoxShadow(
+                                                color: Colors.black26,
+                                                offset: Offset(0, 4),
+                                                blurRadius: 5.0)
+                                          ],
+                                          gradient: const LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            stops: [0.0, 1.0],
+                                            colors: [
+                                              Colors.blue,
+                                              Colors.cyanAccent,
+                                            ],
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                        ),
+                                        child: ElevatedButton(
+                                            style: ButtonStyle(
+                                              shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                                RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          30.0),
+                                                ),
+                                              ),
+                                              minimumSize:
+                                                  MaterialStateProperty.all(
+                                                      Size(
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.5,
+                                                          50)),
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                      Colors.transparent),
+                                              shadowColor:
+                                                  MaterialStateProperty.all(
+                                                      Colors.transparent),
+                                            ),
+                                            child: const Text(
+                                              'Register',
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.white),
+                                            ),
+                                            onPressed: () async {}),
+                                      )),
+                                    ]),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                  ])
+                          ],
+                        );
+                      },
+                      onStepContinue: () {
+                        if (connected) {
+                          setState(() {
+                            _index += 1;
+                          });
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: "الرجاء الاتصال بالشبكة للمتابعة.",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: Colors.red.shade400,
+                              textColor: Colors.white);
+                        }
+                      },
+                      onStepTapped: (int index) {
+                        if (connected) {
+                          setState(() {
+                            _index += 1;
+                          });
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: "الرجاء الاتصال بالجهاز للمتابعة.",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: Colors.red.shade400,
+                              textColor: Colors.white);
+                        }
+                      },
+                      steps: <Step>[
+                        Step(
+                            state: _index != 0
+                                ? StepState.complete
+                                : StepState.indexed,
+                            isActive: true,
+                            title: const Text('الاتصال بالجهاز'),
+                            content: getNetworks(
+                                height, width, _formKey, 'devices')),
+                        Step(
+                          state: _index > 1
+                              ? StepState.complete
+                              : StepState.indexed,
+                          isActive: _index != 0 ? true : false,
+                          title: const Text('الاتصال بالشبكة'),
+                          content: getNetworks(height, width, _formKey, 'wifi'),
+                        ),
+                        Step(
+                            state: _index > 1
+                                ? StepState.complete
+                                : StepState.indexed,
+                            isActive: _index != 0 ? true : false,
+                            title: const Text('معلومات الجهاز'),
+                            content: const Text('معلومات الجهاز') //deviceInfo,
+                            ),
+                      ],
+                    )))
           ])),
     );
   }
-}
-
-class PopupCommand {
-  String command;
-  String argument;
-
-  PopupCommand(this.command, this.argument);
 }
