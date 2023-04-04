@@ -133,7 +133,6 @@ class loginForm extends StatefulWidget {
   }
 }
 
-bool _passwordVisible = false;
 
 class loginFormState extends State<loginForm> {
   final _formKey = GlobalKey<FormState>();

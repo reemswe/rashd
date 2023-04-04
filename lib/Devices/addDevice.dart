@@ -35,7 +35,6 @@ class AddDeviceState extends State<AddDevice> {
   }
 
   Widget getNetworks(height, width, formKey, type) {
-    var green = Colors.white;
     if (_isEnabled) {
       return Column(children: [
         Align(
@@ -64,12 +63,12 @@ class AddDeviceState extends State<AddDevice> {
                 for (int i = 0; i < _htResultNetwork!.length; i++) {
                   var oNetwork = _htResultNetwork![i];
                   var condition = type == 'wifi'
-                      ? !(oNetwork!.ssid!).contains("Rashd")
+                      ? !(oNetwork!.ssid!).contains("R")
                       : (oNetwork!.ssid!).contains("Abo");
                   if (condition) {
-                    //Rashd
                     htNetworks.add(InkWell(
                       onTap: () {
+                        passwordController.clear();
                         showDialog<String>(
                             context: context,
                             builder: (BuildContext context) => Dialog(
@@ -102,12 +101,12 @@ class AddDeviceState extends State<AddDevice> {
                                             child: TextFormField(
                                               controller: passwordController,
                                               obscureText: true,
-                                              maxLines: 1,
                                               textAlign: TextAlign.center,
                                               decoration: const InputDecoration(
                                                   hintText: 'كلمة السر'),
                                               validator: (value) {
-                                                if (value!.isEmpty) {
+                                                if (value!.isEmpty ||
+                                                    value.length < 8) {
                                                   return "الرجاء إدخال كلمة سر صالحة.";
                                                 }
                                               },
@@ -118,11 +117,26 @@ class AddDeviceState extends State<AddDevice> {
                                               MainAxisAlignment.center,
                                           children: [
                                             ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                    fixedSize: Size(width * 0.2,
-                                                        height * 0.05),
+                                                style: ButtonStyle(
+                                                    shape: MaterialStateProperty
+                                                        .all<
+                                                            RoundedRectangleBorder>(
+                                                      RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20.0),
+                                                      ),
+                                                    ),
+                                                    minimumSize:
+                                                        MaterialStateProperty
+                                                            .all(
+                                                      Size(width * 0.2,
+                                                          height * 0.05),
+                                                    ),
                                                     backgroundColor:
-                                                        Colors.lightGreen),
+                                                        MaterialStateProperty
+                                                            .all(Colors.green
+                                                                .shade300)),
                                                 onPressed: () async {
                                                   if (formKey.currentState!
                                                       .validate()) {
@@ -141,6 +155,8 @@ class AddDeviceState extends State<AddDevice> {
                                                       setState(() {
                                                         connected = true;
                                                         selectedNetwork = i;
+                                                        passwordController
+                                                            .clear();
                                                       });
                                                       Hive.box("devicesInfo").put(
                                                           "SSID",
@@ -185,16 +201,31 @@ class AddDeviceState extends State<AddDevice> {
                                                   style:
                                                       TextStyle(fontSize: 18),
                                                 )),
-                                            const SizedBox(
+                                            SizedBox(
                                               height: 10,
-                                              width: 30,
+                                              width: width * 0.1,
                                             ),
                                             ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                    fixedSize: Size(width * 0.2,
-                                                        height * 0.05),
+                                                style: ButtonStyle(
+                                                    shape: MaterialStateProperty
+                                                        .all<
+                                                            RoundedRectangleBorder>(
+                                                      RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20.0),
+                                                      ),
+                                                    ),
+                                                    minimumSize:
+                                                        MaterialStateProperty
+                                                            .all(
+                                                      Size(width * 0.2,
+                                                          height * 0.05),
+                                                    ),
                                                     backgroundColor:
-                                                        Colors.redAccent),
+                                                        MaterialStateProperty
+                                                            .all(Colors
+                                                                .red.shade400)),
                                                 onPressed: () {
                                                   Navigator.of(context).pop();
                                                 },
@@ -242,13 +273,41 @@ class AddDeviceState extends State<AddDevice> {
                   }
                 }
                 return Column(
-                  children: htNetworks, //Display list of networks
+                  children: htNetworks.isNotEmpty
+                      ? htNetworks
+                      : [
+                          Padding(
+                              padding: EdgeInsets.fromLTRB(width * 0.01,
+                                  height * 0.03, width * 0.01, height * 0.03),
+                              child: Container(
+                                  margin: EdgeInsets.fromLTRB(
+                                      0, height * 0.01, 0, 1),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                                  width: width * 0.9,
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 3,
+                                      ),
+                                      color: Colors.white, //Colors.white,
+                                      boxShadow: const [
+                                        BoxShadow(
+                                            blurRadius: 20,
+                                            color: Colors.black45,
+                                            spreadRadius: -10)
+                                      ],
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Text(type != 'wifi'
+                                      ? "لم يتم العثور على الأجهزة ، يرجى التأكد من أن جهازك متصل بالطاقة وقريب من الهاتف."
+                                      : "لم يتم العثور على الشبكات ، يرجى التأكد من وجود شبكة قريبة قيد التشغيل.")))
+                        ], //Display list of networks
                 );
               } else {
-                return const Text("no matching result");
+                return const Text("");
               }
             } else {
-              return const CircularProgressIndicator();
+              return const Text("");
             }
           },
         ),
@@ -262,19 +321,65 @@ class AddDeviceState extends State<AddDevice> {
       });
       //in case the wifi is disabled
       return Column(children: [
-        const SizedBox(height: 10),
-        const Text("Wifi Disabled"),
-        MaterialButton(
-          color: Colors.blue,
-          child: const Text(
-            "Enable",
+        Align(
+          alignment: Alignment.topRight,
+          child: Text(
+            type == 'wifi' ? "شبكة الإنترنت" : "شبكة الجهاز",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
-          onPressed: () {
-            setState(() {
-              WiFiForIoTPlugin.setEnabled(true, shouldOpenSettings: true);
-            });
-          },
         ),
+        SizedBox(height: height * 0.03),
+        const Text(
+            "تم تعطيل شبكة الإنترنت اللاسلكية، يرجى تفعيلها لأضافة الجهاز.",
+            style: TextStyle(fontSize: 17, color: Colors.red)),
+        SizedBox(height: height * 0.03),
+        Container(
+            margin: EdgeInsets.fromLTRB(width * 0.2, 0, width * 0.2, 0),
+            decoration: BoxDecoration(
+              boxShadow: const [
+                BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(0, 4),
+                    blurRadius: 5.0)
+              ],
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                stops: [0.1, 1.0],
+                colors: [
+                  Colors.blue.shade200,
+                  Colors.blue.shade400,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Center(
+              child: ElevatedButton(
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
+                    minimumSize: MaterialStateProperty.all(const Size(100, 50)),
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.transparent),
+                    shadowColor: MaterialStateProperty.all(Colors.transparent),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    child: Text(
+                      "تفعيل",
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      WiFiForIoTPlugin.setEnabled(true,
+                          shouldOpenSettings: true);
+                    });
+                  }),
+            ))
       ]);
     }
   }
@@ -380,64 +485,60 @@ class AddDeviceState extends State<AddDevice> {
                       type: StepperType.horizontal,
                       controlsBuilder:
                           (BuildContext context, ControlsDetails controls) {
-                        return _index != 2
-                            ? Column(children: [
-                                Container(
-                                    margin: const EdgeInsets.fromLTRB(
-                                        10, 30, 10, 0),
-                                    decoration: BoxDecoration(
-                                      boxShadow: const [
-                                        BoxShadow(
-                                            color: Colors.black26,
-                                            offset: Offset(0, 4),
-                                            blurRadius: 5.0)
-                                      ],
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        stops: [0.1, 1.0],
-                                        colors: [
-                                          Colors.blue.shade200,
-                                          Colors.blue.shade400,
-                                        ],
+                        return _index != 2 && _isEnabled
+                            ? Container(
+                                margin:
+                                    const EdgeInsets.fromLTRB(10, 30, 10, 0),
+                                decoration: BoxDecoration(
+                                  boxShadow: const [
+                                    BoxShadow(
+                                        color: Colors.black26,
+                                        offset: Offset(0, 4),
+                                        blurRadius: 5.0)
+                                  ],
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    stops: [0.1, 1.0],
+                                    colors: [
+                                      Colors.blue.shade200,
+                                      Colors.blue.shade400,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: Center(
+                                  child: ElevatedButton(
+                                      style: ButtonStyle(
+                                        shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                          ),
+                                        ),
+                                        minimumSize: MaterialStateProperty.all(
+                                            const Size(350, 50)),
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                Colors.transparent),
+                                        shadowColor: MaterialStateProperty.all(
+                                            Colors.transparent),
                                       ),
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    child: Center(
-                                      child: ElevatedButton(
-                                          style: ButtonStyle(
-                                            shape: MaterialStateProperty.all<
-                                                RoundedRectangleBorder>(
-                                              RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(30.0),
-                                              ),
-                                            ),
-                                            minimumSize:
-                                                MaterialStateProperty.all(
-                                                    const Size(350, 50)),
-                                            backgroundColor:
-                                                MaterialStateProperty.all(
-                                                    Colors.transparent),
-                                            shadowColor:
-                                                MaterialStateProperty.all(
-                                                    Colors.transparent),
-                                          ),
-                                          child: const Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                50, 10, 50, 10),
-                                            child: Text(
-                                              'التالي',
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                          onPressed: () {
-                                            controls.onStepContinue!();
-                                          }),
-                                    )),
-                              ])
+                                      child: const Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(50, 10, 50, 10),
+                                        child: Text(
+                                          'التالي',
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        controls.onStepContinue!();
+                                      }),
+                                ))
                             : const Text('');
                       },
                       onStepContinue: () {
@@ -596,18 +697,22 @@ class AddDeviceState extends State<AddDevice> {
                                                     .validate()) {
                                                   print(widget.ID);
 
-                                                  await FirebaseFirestore
-                                                      .instance
-                                                      .collection(
-                                                          'houseAccount')
-                                                      // .doc(widget.ID)
-                                                      // .collection(
-                                                      //     'houseDevices')
-                                                      .add({
-                                                    'ID':
-                                                        '${Hive.box("devicesInfo").get("SSID")}',
-                                                    'name': nameController.text
-                                                  });
+                                                  // await FirebaseFirestore
+                                                  //     .instance
+                                                  //     .collection(
+                                                  //         'houseAccount')
+                                                  //     .doc(widget.ID)
+                                                  //     .collection(
+                                                  //         'houseDevices')
+                                                  //     .add({
+                                                  //   'ID':
+                                                  //       '${Hive.box("devicesInfo").get("SSID")}',
+                                                  //   'name': nameController.text
+                                                  // });
+                                                  //  DatabaseReference database =
+                                                  //     FirebaseDatabase.instance.ref(
+                                                  //         'testAurduino/Sensor/');
+
                                                 }
                                               }),
                                         )),

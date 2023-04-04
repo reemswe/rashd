@@ -138,7 +138,7 @@ class listOfDevicesState extends State<listOfDevices> {
                                               fontSize: 16,
                                               height: 1,
                                             ),
-                                          )
+                                          ),
                                         ])
                                   ]),
                                 ])),
@@ -207,7 +207,20 @@ class listOfDevicesState extends State<listOfDevices> {
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
-        } else {
+        } else if (snapshot.hasData) {
+          DatabaseReference database = FirebaseDatabase.instance.ref();
+          var data;
+          database.onValue.listen((DatabaseEvent event) {
+            data = event.snapshot.value;
+            print(data.consumption);
+          });
+          database
+              .child('testAurduino/Sensor/')
+              .once()
+              .then((DatabaseEvent snapshot) {
+            data = snapshot.snapshot.value;
+            print(data);
+          });
           var devices = snapshot.data;
           return GridView.builder(
             shrinkWrap: true,
@@ -250,38 +263,50 @@ class listOfDevicesState extends State<listOfDevices> {
                               ),
                             )),
                         SizedBox(height: height * 0.02),
-                        // Padding(
-                        //   padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        //   child: LiteRollingSwitch(
-                        //     value: devices.docs[index]['status'],
-                        //     textOn: 'On',
-                        //     textOff: 'Off',
-                        //     colorOn: Colors.green.shade400,
-                        //     colorOff: Colors.red.shade400,
-                        //     iconOn: Icons.done,
-                        //     iconOff: Icons.remove_circle_outline,
-                        //     textOnColor: Colors.white,
-                        //     textSize: 20.0,
-                        //     width: 130,
-                        //     onChanged: (bool state) async {
-                        //       FirebaseFirestore.instance
-                        //           .collection("houseAccount")
-                        //           .doc(widget.ID)
-                        //           .collection('houseDevices')
-                        //           .doc(devices.docs[index].id)
-                        //           .update({'status': state});
-                        //       await UpdateDB(state ? "ON" : "OFF");
-                        //     },
-                        //     onTap: () {},
-                        //     onSwipe: () {},
-                        //     onDoubleTap: () {},
-                        //   ),
-                        // ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: LiteRollingSwitch(
+                            value: devices.docs[index]['status'],
+                            textOn: 'On',
+                            textOff: 'Off',
+                            colorOn: Colors.green.shade400,
+                            colorOff: Colors.red.shade400,
+                            iconOn: Icons.done,
+                            iconOff: Icons.remove_circle_outline,
+                            textOnColor: Colors.white,
+                            textSize: 20.0,
+                            width: 130,
+                            onChanged: (bool state) async {
+                              FirebaseFirestore.instance
+                                  .collection("houseAccount")
+                                  .doc(widget.ID)
+                                  .collection('houseDevices')
+                                  .doc(devices.docs[index].id)
+                                  .update({'status': state});
+                              database
+                                  .child('testAurduino/Sensor/')
+                                  .once()
+                                  .then((DatabaseEvent snapshot) {
+                                data = snapshot.snapshot.value;
+                                print("data $data");
+                                // Handle the data snapshot here
+                                // snapshot.value contains the data you just read
+                              });
+                              await UpdateDB(state ? "ON" : "OFF");
+                            },
+                            onTap: () {},
+                            onSwipe: () {},
+                            onDoubleTap: () {},
+                          ),
+                        ),
+                        // Text(data.consumption),
                       ],
                     )),
               ));
             },
           );
+        } else {
+          return Text("No data");
         }
       },
     );
