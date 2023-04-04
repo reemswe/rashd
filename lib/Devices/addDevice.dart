@@ -1,5 +1,8 @@
 // ignore_for_file: deprecated_member_use
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fast_color_picker/fast_color_picker.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -395,6 +398,7 @@ class AddDeviceState extends State<AddDevice> {
   }
 
   final formKey1 = GlobalKey<FormState>();
+  var color = Colors.white;
 
   @override
   Widget build(BuildContext context) {
@@ -621,102 +625,156 @@ class AddDeviceState extends State<AddDevice> {
                                           fontWeight: FontWeight.w600),
                                     ),
                                   ),
+                                  SizedBox(height: height * 0.01),
                                   Padding(
-                                      padding: const EdgeInsets.all(15),
-                                      child: TextFormField(
-                                        controller: nameController,
-                                        decoration: const InputDecoration(
-                                          labelText: 'اسم الجهاز',
-                                        ),
-                                        validator: (value) {
-                                          if (value == null ||
-                                              value.isEmpty ||
-                                              (value.trim()).isEmpty) {
-                                            return 'الرجاء ادخال اسم للجهاز';
-                                          }
-                                          return null;
-                                        },
-                                      )),
-                                  Column(children: [
-                                    Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                            10, 30, 10, 0),
-                                        decoration: BoxDecoration(
-                                          boxShadow: const [
-                                            BoxShadow(
-                                                color: Colors.black26,
-                                                offset: Offset(0, 4),
-                                                blurRadius: 5.0)
-                                          ],
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                            stops: [0.1, 1.0],
-                                            colors: [
-                                              Colors.blue.shade200,
-                                              Colors.blue.shade400,
-                                            ],
+                                      padding: EdgeInsets.fromLTRB(
+                                          width * 0.02,
+                                          height * 0.01,
+                                          width * 0.02,
+                                          height * 0.01),
+                                      child: Column(children: [
+                                        const Align(
+                                          alignment: Alignment.topRight,
+                                          child: Text(
+                                            "الاسم",
+                                            style: TextStyle(
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.w600),
                                           ),
-                                          borderRadius:
-                                              BorderRadius.circular(30),
                                         ),
-                                        child: Center(
-                                          child: ElevatedButton(
-                                              style: ButtonStyle(
-                                                shape:
-                                                    MaterialStateProperty.all<
-                                                        RoundedRectangleBorder>(
-                                                  RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30.0),
+                                        TextFormField(
+                                          controller: nameController,
+                                          decoration: const InputDecoration(
+                                            labelText: 'اسم الجهاز',
+                                          ),
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty ||
+                                                (value.trim()).isEmpty) {
+                                              return 'الرجاء ادخال اسم للجهاز';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                        SizedBox(height: height * 0.025),
+                                        const Align(
+                                          alignment: Alignment.topRight,
+                                          child: Text(
+                                            "لون الجهاز",
+                                            style: TextStyle(
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                        ),
+                                        const Align(
+                                          alignment: Alignment.topRight,
+                                          child: Text(
+                                            'الرجاء تحديد لون لتمييز الجهاز',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                        ),
+                                        SizedBox(height: height * 0.015),
+                                        ColorPicker(
+                                          color: color,
+                                          pickersEnabled: {
+                                            ColorPickerType.accent: false
+                                          },
+                                          onColorChanged: (Color temp) =>
+                                              setState(() {
+                                            color = temp;
+                                            print(color);
+                                          }),
+                                          width: 32,
+                                          height: 32,
+                                          enableShadesSelection: false,
+                                          selectedColorIcon: Icons
+                                              .check, //sharp,//check, circle_
+                                          borderRadius: 30,
+                                          padding: const EdgeInsets.all(0),
+                                        ),
+                                        Container(
+                                            margin: const EdgeInsets.fromLTRB(
+                                                10, 30, 10, 0),
+                                            decoration: BoxDecoration(
+                                              boxShadow: const [
+                                                BoxShadow(
+                                                    color: Colors.black26,
+                                                    offset: Offset(0, 4),
+                                                    blurRadius: 5.0)
+                                              ],
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                                stops: [0.1, 1.0],
+                                                colors: [
+                                                  Colors.blue.shade200,
+                                                  Colors.blue.shade400,
+                                                ],
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                            child: Center(
+                                              child: ElevatedButton(
+                                                  style: ButtonStyle(
+                                                    shape: MaterialStateProperty
+                                                        .all<
+                                                            RoundedRectangleBorder>(
+                                                      RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(30.0),
+                                                      ),
+                                                    ),
+                                                    minimumSize:
+                                                        MaterialStateProperty
+                                                            .all(const Size(
+                                                                350, 50)),
+                                                    backgroundColor:
+                                                        MaterialStateProperty
+                                                            .all(Colors
+                                                                .transparent),
+                                                    shadowColor:
+                                                        MaterialStateProperty
+                                                            .all(Colors
+                                                                .transparent),
                                                   ),
-                                                ),
-                                                minimumSize:
-                                                    MaterialStateProperty.all(
-                                                        const Size(350, 50)),
-                                                backgroundColor:
-                                                    MaterialStateProperty.all(
-                                                        Colors.transparent),
-                                                shadowColor:
-                                                    MaterialStateProperty.all(
-                                                        Colors.transparent),
-                                              ),
-                                              child: const Padding(
-                                                padding: EdgeInsets.fromLTRB(
-                                                    50, 10, 50, 10),
-                                                child: Text(
-                                                  'إضافة الجهاز',
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                              onPressed: () async {
-                                                if (formKey1.currentState!
-                                                    .validate()) {
-                                                  print(widget.ID);
-
-                                                  // await FirebaseFirestore
-                                                  //     .instance
-                                                  //     .collection(
-                                                  //         'houseAccount')
-                                                  //     .doc(widget.ID)
-                                                  //     .collection(
-                                                  //         'houseDevices')
-                                                  //     .add({
-                                                  //   'ID':
-                                                  //       '${Hive.box("devicesInfo").get("SSID")}',
-                                                  //   'name': nameController.text
-                                                  // });
-                                                  //  DatabaseReference database =
-                                                  //     FirebaseDatabase.instance.ref(
-                                                  //         'testAurduino/Sensor/');
-
-                                                }
-                                              }),
-                                        )),
-                                  ])
+                                                  child: const Padding(
+                                                    padding:
+                                                        EdgeInsets.fromLTRB(
+                                                            50, 10, 50, 10),
+                                                    child: Text(
+                                                      'إضافة الجهاز',
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                  onPressed: () async {
+                                                    if (formKey1.currentState!
+                                                        .validate()) {
+                                                      await FirebaseFirestore
+                                                          .instance
+                                                          .collection(
+                                                              'houseAccount')
+                                                          .doc(widget.ID)
+                                                          .collection(
+                                                              'houseDevices')
+                                                          .add({
+                                                        'ID':
+                                                            '${Hive.box("devicesInfo").get("SSID")}',
+                                                        'name':
+                                                            nameController.text,
+                                                        'color': '$color',
+                                                        'status': false,
+                                                      });
+                                                      await UpdateRealtimeDB();
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    }
+                                                  }),
+                                            )),
+                                      ]))
                                 ]),
                           ),
                         ),
@@ -724,5 +782,21 @@ class AddDeviceState extends State<AddDevice> {
                     )))
           ])),
     );
+  }
+
+  Future<void> UpdateRealtimeDB() async {
+    DatabaseReference database = FirebaseDatabase.instance
+        .ref('devicesList/${Hive.box("devicesInfo").get("SSID")}/');
+    database.onValue.listen((DatabaseEvent event) {
+      final data = event.snapshot.value;
+      print(data);
+    });
+
+    await database
+        .update({'HouseID': widget.ID})
+        .then(
+          (value) => print("value: "),
+        )
+        .onError((error, stackTrace) => print(error));
   }
 }

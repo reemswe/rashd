@@ -172,8 +172,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                     privilege2 = 'editor';
                     roles[num] = 'editor';
                   });
-                  print('switched to: editor');
-                  print(privilege2);
                 } else {
                   privilege_index2 = 1;
                   privilege_edit2 = 'viewer';
@@ -181,8 +179,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                     privilege2 = 'viewer';
                     roles[num] = 'viewer';
                   });
-                  print('switched to: viewer');
-                  print(privilege2);
                 }
               },
             ),

@@ -123,7 +123,6 @@ class _dashboardState extends State<dashboard> {
           .doc(widget.ID)
           .get()
           .then((value) {
-        print("Dashboard ID : " + widget.ID);
         houseID = value.data()!["houseID"];
         userGoal = value.data()!["userGoal"];
         energy = totalEnergy();
@@ -133,7 +132,6 @@ class _dashboardState extends State<dashboard> {
             .get()
             .then((value) {
           houseName = value.data()!["houseName"];
-          print('houseName: $houseName');
           double electricityBill = 0;
           double energyFromBill = 0;
         });
@@ -670,7 +668,6 @@ class _dashboardState extends State<dashboard> {
         .get()
         .then((value) {
       userGoal = value.data()!["userGoal"];
-      print('user goal: $userGoal');
     });
   }
 
@@ -696,9 +693,7 @@ class _dashboardState extends State<dashboard> {
           total += int.parse(fooValue);
         });
       }
-      print('i: $i and total: $total');
       total = total - i;
-      print('t0tal after: $total');
       setState(() {
         percentageStr =
             ((total / int.parse(userGoal)) * 100).toStringAsFixed(1);
@@ -706,7 +701,6 @@ class _dashboardState extends State<dashboard> {
         percentage = (total / int.parse(userGoal)) * 100;
         i = total;
       });
-      print('i after: $i');
     });
   }
 
@@ -730,15 +724,12 @@ class _dashboardState extends State<dashboard> {
           double consum = double.parse(data['consumption'].toString());
           chartData.add(ChartData(name, consum));
 
-          print("name: $name consum: $consum");
         });
       }
       chartData.sort((a, b) => b.y.compareTo(a.y));
       chartData = chartData.take(10).toList();
       chartData.shuffle();
-      print(chartData.take(20));
     });
-    // print(membersList);
     return devices;
   }
 
@@ -756,7 +747,6 @@ class _dashboardState extends State<dashboard> {
     setState(() {
       electricityBill = (slat_1 + slat_2) * 1.15;
       electricityBill.toInt();
-      print(electricityBill);
     });
   }
 //calculate energy from electricity bill

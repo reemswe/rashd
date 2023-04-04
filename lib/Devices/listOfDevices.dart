@@ -37,13 +37,13 @@ class listOfDevicesState extends State<listOfDevices> {
 
   TextEditingController phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  ScrollController scrollController = ScrollController();
 
   Future<void> UpdateDB(value) async {
     DatabaseReference database =
         FirebaseDatabase.instance.ref('testAurduino/Sensor/');
     database.onValue.listen((DatabaseEvent event) {
       final data = event.snapshot.value;
-      print(data);
     });
 
     await database
@@ -208,21 +208,11 @@ class listOfDevicesState extends State<listOfDevices> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasData) {
-          DatabaseReference database = FirebaseDatabase.instance.ref();
-          var data;
-          database.onValue.listen((DatabaseEvent event) {
-            data = event.snapshot.value;
-            print(data.consumption);
-          });
-          database
-              .child('testAurduino/Sensor/')
-              .once()
-              .then((DatabaseEvent snapshot) {
-            data = snapshot.snapshot.value;
-            print(data);
-          });
           var devices = snapshot.data;
-          return GridView.builder(
+          return Expanded(
+              child: GridView.builder(
+            physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics()),
             shrinkWrap: true,
             itemCount: devices!.size,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -283,15 +273,7 @@ class listOfDevicesState extends State<listOfDevices> {
                                   .collection('houseDevices')
                                   .doc(devices.docs[index].id)
                                   .update({'status': state});
-                              database
-                                  .child('testAurduino/Sensor/')
-                                  .once()
-                                  .then((DatabaseEvent snapshot) {
-                                data = snapshot.snapshot.value;
-                                print("data $data");
-                                // Handle the data snapshot here
-                                // snapshot.value contains the data you just read
-                              });
+
                               await UpdateDB(state ? "ON" : "OFF");
                             },
                             onTap: () {},
@@ -304,7 +286,7 @@ class listOfDevicesState extends State<listOfDevices> {
                     )),
               ));
             },
-          );
+          ));
         } else {
           return Text("No data");
         }
