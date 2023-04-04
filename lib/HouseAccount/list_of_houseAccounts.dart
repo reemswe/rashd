@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_segmented_tab_control/animated_segmented_tab_control.dart';
+import 'package:flutter_svg/svg.dart';
 // import 'package:rashd/dashboard.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
 
@@ -20,9 +21,8 @@ class ListOfHouseAccounts extends StatefulWidget {
   State<ListOfHouseAccounts> createState() => _ListOfHouseAccountsState();
 }
 
-class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
-  String name = '';
-
+class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
+    with TickerProviderStateMixin {
   //! FCM
   var fcmToken;
   void getToken() async {
@@ -67,6 +67,9 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
         }
       });
 
+  String userName = '';
+  late TabController tabController;
+
   @override
   void initState() {
     warningNotification.initApp();
@@ -74,20 +77,20 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
     notificationService = NotificationService();
     listenToNotificationStream();
     notificationService.initializePlatformNotifications();
+    tabController = TabController(
+      length: 2,
+      vsync: this,
+    );
 
     getToken();
 
     setState(() {
       getData();
-
-      owner = getOwner();
-      member = getMember();
+      getOwner();
+      getMember();
     });
     super.initState();
   }
-
-  Future? owner;
-  Future? member;
 
   List? houseOwner = [];
   List? houseMember = [];
@@ -97,7 +100,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get()
         .then((value) {
-      name = value.data()!["full_name"];
+      userName = value.data()!["full_name"];
     });
   }
 
@@ -114,11 +117,10 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
 
         setState(() {
           houseOwner!.add([
-            {'houseName': data['houseName'], 'dashboardID': data['dashboardID']}
+            {'houseName': data['houseName'], 'houseID': data['houseID']}
           ]);
         });
       }
-      print('houseOwn: $houseOwner');
     });
 
     return houseOwner;
@@ -136,16 +138,11 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
         if (await exixts(houseID)) {
           setState(() {
             houseMember!.add([
-              {
-                'houseName': data['houseName'],
-                'dashboardID': data['dashboardID']
-              }
+              {'houseName': data['houseName'], 'dashboardID': data['houseID']}
             ]);
           });
         }
       }
-      print('helooooooo');
-      print('housemem: $houseMember');
     });
     return houseMember;
   }
@@ -169,182 +166,146 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts> {
     return exists;
   }
 
+  var assetName = 'assets/images/house.svg';
+
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
 
-    return DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            title: FutureBuilder(
-                future: getData(),
-                builder: (context, snapshot) {
-                  print('name:$name');
-                  return Text(
-                    '!مرحبًا $name',
-                  );
-                }),
-            leading: const Text(''),
-            centerTitle: true,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.horizontal(
-                left: Radius.circular(40),
-                right: Radius.zero,
-              ),
-            ),
-            backgroundColor: const Color.fromARGB(255, 119, 201, 239),
+    return Scaffold(
+      body: Stack(children: [
+        Positioned(
+          bottom: height * 0,
+          top: height * -1.25,
+          left: width * 0.1,
+          child: Container(
+            width: width * 1.5,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                    colors: [Colors.lightBlue.shade200, Colors.blue]),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.blue.shade100,
+                      offset: const Offset(4.0, 4.0),
+                      blurRadius: 10.0)
+                ]),
           ),
-          body: SafeArea(
-              child: Stack(children: [
+        ),
+        Column(children: [
+          SizedBox(height: height * 0.02),
+          Padding(
+              padding: EdgeInsets.only(right: width * 0.05),
+              child: Text('مرحبًا، $userName!',
+                  style: const TextStyle(
+                      fontSize: 28,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600))),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SegmentedTabControl(
-                // Customization of widget
-
-                backgroundColor: Colors.grey[100],
-                indicatorColor: Colors.grey[400],
-                tabTextColor: Colors.black45,
-                selectedTabTextColor: Colors.white,
-                squeezeIntensity: 2,
-                height: 45,
-
-                tabPadding: const EdgeInsets.symmetric(horizontal: 8),
-                textStyle: Theme.of(context).textTheme.bodyText1,
-                // Options for selection
-                // All specified values will override the [SegmentedTabControl] setting
-                tabs: const [
-                  SegmentTab(
-                    label: 'منازلي',
-                  ),
-                  SegmentTab(
-                    label: 'اشتراكاتي',
-                  ),
-                ],
+                padding: EdgeInsets.only(right: width * 0.05),
+                child: const Text('قائمة المنازل',
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600))),
+            Padding(
+                padding: EdgeInsets.only(left: width * 0.02),
+                child: IconButton(
+                  color: Color(0xFF64B5F6),
+                  iconSize: 40,
+                  icon: const Icon(Icons.add_circle),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const CreateHouseAccount()),
+                    );
+                  },
+                )),
+          ]),
+          SizedBox(height: height * 0.03),
+          TabBar(
+            controller: tabController,
+            labelPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
+            indicator: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                stops: [0.0, 1.0],
+                colors: [Colors.lightBlue.shade200, Colors.blue],
+              ),
+              borderRadius: const BorderRadius.all(
+                Radius.circular(5),
               ),
             ),
-            Padding(
-                padding: const EdgeInsets.only(top: 70),
-                child: TabBarView(
-                    physics: const BouncingScrollPhysics(),
-                    children: [
-                      Stack(
-                        children: [
-                          Container(
-                              margin: EdgeInsets.fromLTRB(0, 0, 15, 0),
-                              child: TextFormField(
-                                // maxLength: 20,
-                                readOnly: true,
-                                decoration: InputDecoration(
-                                    contentPadding: const EdgeInsets.fromLTRB(
-                                        20, 10, 20, 10),
-                                    border: InputBorder.none,
-                                    suffixIcon: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(
-                                              // Based on passwordVisible state choose the icon
-                                              Icons.add),
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const CreateHouseAccount()),
-                                            );
-                                          },
-                                        ),
-                                        Text('إضافة منزل جديد',
-                                            style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontWeight: FontWeight.bold)),
-                                      ],
-                                    )),
-                              )),
-                          Container(
-                              margin: EdgeInsets.fromLTRB(0, 30, 0, 0),
-                              child: FutureBuilder(
-                                future: owner,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasError) {
-                                    return const Text(
-                                      "Something went wrong",
-                                    );
-                                  }
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.done) {
-                                    houseOwner = snapshot.data as List;
-                                    print(houseOwner);
-                                    return buildItems(houseOwner);
-                                  }
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                },
-                              )),
-                        ],
-                      ),
-                      FutureBuilder(
-                        future: member,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasError) {
-                            return const Text(
-                              "Something went wrong",
-                            );
-                          }
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
-                            houseMember = snapshot.data as List;
-                            print(houseMember);
-
-                            return buildItems(houseMember);
-                          }
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        },
-                      ),
-                    ]))
-          ])),
-          bottomNavigationBar: buildBottomNavigation(height),
-        ));
+            indicatorWeight: 5,
+            indicatorPadding: const EdgeInsets.only(top: 47),
+            tabs: const <Tab>[
+              Tab(text: 'منازلي'),
+              Tab(text: 'اشتراكاتي'),
+            ],
+            labelColor: Colors.blue,
+            unselectedLabelColor: Colors.grey,
+            labelStyle: const TextStyle(fontSize: 19),
+          ),
+          Container(
+              width: double.maxFinite,
+              height: height * 0.8,
+              child: TabBarView(controller: tabController, children: [
+                buildItems(houseOwner, height, width),
+                buildItems(houseMember, height, width)
+              ])),
+        ]),
+      ]),
+      bottomNavigationBar: buildBottomNavigation(height),
+    );
   }
 
-  Widget buildItems(dataList) => ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: dataList.length,
-      // separatorBuilder: (BuildContext context, int index) => const Divider(),
-      itemBuilder: (BuildContext context, int index) {
-        return Container(
-            margin: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-            decoration: BoxDecoration(
-              // border: Border.all(color: Color(0xff940D5A)),
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(13.0),
-              boxShadow: const <BoxShadow>[
-                BoxShadow(
-                  color: Colors.grey,
-                  offset: Offset(0, 6.0),
-                  blurRadius: 7.0,
-                ),
-              ],
-            ),
-            child: ListTile(
-                trailing: Text(
-                  dataList[index][0]["houseName"],
-                ),
-                leading: const Icon(Icons.arrow_back_ios),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => dashboard(
-                              ID: dataList[index][0]["dashboardID"],
-                            )),
-                  );
-                }));
-      });
+  Widget buildItems(dataList, height, width) {
+    if (dataList.length > 0) {
+      return ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: dataList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Container(
+                margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                // height: height * 0.05,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: const [
+                      BoxShadow(
+                          blurRadius: 30,
+                          color: Colors.black45,
+                          spreadRadius: -10)
+                    ],
+                    borderRadius: BorderRadius.circular(20)),
+                child: ListTile(
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    leading: Text(
+                      dataList[index][0]["houseName"],
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    onTap: () {
+                      print('houseID');
+                      print(dataList[index][0]["houseID"]);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => dashboard(
+                                ID: '0mHcZmbfEDK8CebdkVYR' // dataList[index][0]["houseID"],
+                                )),
+                      );
+                    }));
+          });
+    }
+    return Padding(
+        padding: const EdgeInsets.all(38),
+        child: SvgPicture.asset(assetName,
+            width: width * 0.5, height: height * 0.5, semanticsLabel: 'House'));
+  }
 
   int index = 0;
   Widget buildBottomNavigation(height) {

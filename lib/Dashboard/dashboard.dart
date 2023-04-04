@@ -14,7 +14,7 @@ import '../HouseAccount/list_of_houseMembers.dart';
 import '../Registration/welcomePage.dart';
 
 class dashboard extends StatefulWidget {
-  final ID; //dash id
+  final ID; //house id
   final isShared;
 
   const dashboard({super.key, required this.ID, this.isShared = false});
@@ -31,21 +31,21 @@ Future<Map<String, dynamic>> readHouseData(var id) =>
     );
 
 var sharedHouseName = '';
-Future<Map<String, dynamic>> readSharedData(var dashID) =>
-    FirebaseFirestore.instance.collection('dashboard').doc(dashID).get().then(
-      (DocumentSnapshot doc) {
-        FirebaseFirestore.instance
-            .collection("houseAccount")
-            .doc(doc["houseID"])
-            .get()
-            .then((value) {
-          sharedHouseName = value.data()!["houseName"];
-        });
-        return doc.data() as Map<String, dynamic>;
-      },
-    );
+// Future<Map<String, dynamic>> readSharedData(var dashID) =>
+//     FirebaseFirestore.instance.collection('dashboard').doc(dashID).get().then(
+//       (DocumentSnapshot doc) {
+//         FirebaseFirestore.instance
+//             .collection("houseAccount")
+//             .doc(doc["houseID"])
+//             .get()
+//             .then((value) {
+//           sharedHouseName = value.data()!["houseName"];
+//         });
+//         return doc.data() as Map<String, dynamic>;
+//       },
+//     );
 
-Future<void> share(dashboardID) async {
+Future<void> share(houseID) async {
   var uuid = const Uuid();
   uuid.v1();
   var value = new Random();
@@ -58,10 +58,10 @@ Future<void> share(dashboardID) async {
   );
 
   await FirebaseFirestore.instance
-      .collection('dashboard')
-      .doc(dashboardID)
+      .collection('houseAccount')
+      .doc(houseID)
       .collection('sharedCode')
-      .add({'dashID': dashboardID, 'code': codeNumber, 'isExpired': false});
+      .add({'houseID': houseID, 'code': codeNumber, 'isExpired': false});
 }
 
 class _dashboardState extends State<dashboard> {
@@ -141,7 +141,6 @@ class _dashboardState extends State<dashboard> {
   void initState() {
     setState(() {
       data = getData();
-      // global.index = 2;
       int index = date.month;
       formatted = months[index];
       FirebaseFirestore.instance
@@ -197,9 +196,11 @@ class _dashboardState extends State<dashboard> {
     var LRPadding = width * 0.025;
 
     return FutureBuilder<Map<String, dynamic>>(
-        future: widget.isShared
-            ? readSharedData(widget.ID)
-            : readHouseData(houseID),
+        future:
+            // widget.isShared
+            //     ? readSharedData(widget.ID)
+            //     :
+            readHouseData(houseID),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
@@ -379,7 +380,7 @@ class _dashboardState extends State<dashboard> {
                                 child: IconButton(
                                   icon: const Icon(Icons.ios_share),
                                   onPressed: () {
-                                    share(houseData['dashboardID']);
+                                    share(widget.ID);
                                   },
                                 )),
                           ]),
@@ -828,7 +829,6 @@ class _dashboardState extends State<dashboard> {
           String name = data['name'];
           double consum = double.parse(data['consumption'].toString());
           chartData.add(ChartData(name, consum));
-
         });
       }
       chartData.sort((a, b) => b.y.compareTo(a.y));
