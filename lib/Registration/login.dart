@@ -133,12 +133,11 @@ class loginForm extends StatefulWidget {
   }
 }
 
-
 class loginFormState extends State<loginForm> {
-  final _formKey = GlobalKey<FormState>();
-  bool _passwordVisible = false;
   bool invalidData = false;
 
+  final _formKey = GlobalKey<FormState>();
+  bool _passwordVisible = false;
   ScrollController _scrollController = ScrollController();
 
   @override
@@ -296,7 +295,6 @@ class loginFormState extends State<loginForm> {
                                   ),
                                   backgroundColor: Colors.green));
                         } on FirebaseAuthException catch (e) {
-                          print(e);
                           if (emailController.text.isNotEmpty &&
                               passwordController.text.isNotEmpty) {
                             setState(() {

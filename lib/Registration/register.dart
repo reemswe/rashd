@@ -11,6 +11,7 @@ class register extends StatefulWidget {
   const register({
     Key? key,
   }) : super(key: key);
+
   @override
   _registerState createState() => _registerState();
 }
@@ -133,12 +134,128 @@ class registerForm extends StatefulWidget {
 String bDay = "";
 
 class registerFormState extends State<registerForm> {
-  final _formKey = GlobalKey<FormState>();
-  bool _passwordVisible = false;
+  //save to db
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
   DateTime selectedDate = DateTime.now();
   bool showDate = false;
+
+  final _formKey = GlobalKey<FormState>();
+  bool _passwordVisible = false;
   ScrollController _scrollController = ScrollController();
+
+//this function checks if phone number already exists
+//Returns true if phone number is not in use.
+  Future<bool> isDuplicatePhoneNum() async {
+    QuerySnapshot query = await FirebaseFirestore.instance
+        .collection('userAccount')
+        .where('phone_number', isEqualTo: PhoneNumController.text)
+        .get();
+    if (query.docs.isNotEmpty) {
+      invalidPhone = true;
+      phoneErrorMessage =
+          'رقم الهاتف تم التسجيل به سابقًا، الرجاء إدخال رقم آخر.';
+    } else
+      invalidPhone = false;
+
+    return query.docs.isEmpty;
+  }
+
+// Returns false if email address is in use.
+  Future<bool> checkEmail() async {
+    try {
+      print("try");
+
+      final list = await FirebaseAuth.instance
+          .fetchSignInMethodsForEmail(emailController.text.trim());
+
+      if (list.isNotEmpty) {
+        setState(() {
+          invalidEmail = true;
+          emailErrorMessage =
+              ' البريد الإلكتروني مستخدم ، يرجى محاولة تسجيل الدخول.';
+        });
+        print("empty");
+        return false;
+      } else {
+        setState(() {
+          invalidEmail = false;
+        });
+        print("else");
+
+        // Return true because email adress is not in use
+        return true;
+      }
+    } catch (error) {
+      setState(() {
+        invalidEmail = true;
+        emailErrorMessage = 'الرجاء إدخال بريد إلكتروني صالح.';
+      });
+      // Handle error
+      print('Handle error');
+
+      print(error);
+      // ...
+      return false;
+    }
+  }
+
+//check phone num
+//create user
+  Future signUp() async {
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+      await saveUser();
+
+      clearForm();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('مرحبًا بك لرشد')),
+      );
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ListOfHouseAccounts(),
+          ));
+    } on FirebaseAuthException catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('error'),
+          backgroundColor: Colors.red.shade400,
+          margin: const EdgeInsets.fromLTRB(6, 0, 3, 0),
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'Dismiss',
+            disabledTextColor: Colors.white,
+            textColor: Colors.white,
+            onPressed: () {},
+          ),
+        ),
+      );
+    }
+  }
+
+  saveUser() async {
+    String email = emailController.text;
+    String fullname = fullNameController.text;
+    String number = PhoneNumController.text;
+
+    final user = FirebaseAuth.instance.currentUser!;
+    String userId = user.uid;
+    final userRef = db.collection("userAccount").doc(user.uid);
+    if (!((await userRef.get()).exists)) {
+      await userRef.set({
+        "email": email,
+        "userId": userId,
+        "full_name": fullname,
+        "phone_number": number,
+        "token": ""
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -372,12 +489,12 @@ class registerFormState extends State<registerForm> {
                     }
                   }
                 },
-                child: const Text('تسجيل'),
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
+                child: const Text('تسجيل'),
               )),
           SizedBox(height: height * 0.02),
           Center(
@@ -403,120 +520,5 @@ class registerFormState extends State<registerForm> {
         ]),
       ),
     );
-  }
-
-//this function checks if phone number already exists
-//Returns true if phone number is not in use.
-  Future<bool> isDuplicatePhoneNum() async {
-    QuerySnapshot query = await FirebaseFirestore.instance
-        .collection('userAccount')
-        .where('phone_number', isEqualTo: PhoneNumController.text)
-        .get();
-    if (query.docs.isNotEmpty) {
-      invalidPhone = true;
-      phoneErrorMessage =
-          'رقم الهاتف تم التسجيل به سابقًا، الرجاء إدخال رقم آخر.';
-    } else
-      invalidPhone = false;
-
-    return query.docs.isEmpty;
-  }
-
-// Returns false if email address is in use.
-  Future<bool> checkEmail() async {
-    try {
-      print("try");
-
-      final list = await FirebaseAuth.instance
-          .fetchSignInMethodsForEmail(emailController.text.trim());
-
-      if (list.isNotEmpty) {
-        setState(() {
-          invalidEmail = true;
-          emailErrorMessage =
-              ' البريد الإلكتروني مستخدم ، يرجى محاولة تسجيل الدخول.';
-        });
-        print("empty");
-        return false;
-      } else {
-        setState(() {
-          invalidEmail = false;
-        });
-        print("else");
-
-        // Return true because email adress is not in use
-        return true;
-      }
-    } catch (error) {
-      setState(() {
-        invalidEmail = true;
-        emailErrorMessage = 'الرجاء إدخال بريد إلكتروني صالح.';
-      });
-      // Handle error
-      print('Handle error');
-
-      print(error);
-      // ...
-      return false;
-    }
-  }
-
-//check phone num
-//create user
-  Future signUp() async {
-    try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      await saveUser();
-
-      clearForm();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('مرحبًا بك لرشد')),
-      );
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ListOfHouseAccounts(),
-          ));
-    } on FirebaseAuthException catch (e) {
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('error'),
-          backgroundColor: Colors.red.shade400,
-          margin: const EdgeInsets.fromLTRB(6, 0, 3, 0),
-          behavior: SnackBarBehavior.floating,
-          action: SnackBarAction(
-            label: 'Dismiss',
-            disabledTextColor: Colors.white,
-            textColor: Colors.white,
-            onPressed: () {},
-          ),
-        ),
-      );
-    }
-  }
-
-  //save to db
-  FirebaseFirestore db = FirebaseFirestore.instance;
-  saveUser() async {
-    String email = emailController.text;
-    String fullname = fullNameController.text;
-    String number = PhoneNumController.text;
-
-    final user = FirebaseAuth.instance.currentUser!;
-    String userId = user.uid;
-    final userRef = db.collection("userAccount").doc(user.uid);
-    if (!((await userRef.get()).exists)) {
-      await userRef.set({
-        "email": email,
-        "userId": userId,
-        "full_name": fullname,
-        "phone_number": number,
-        "token": ""
-      });
-    }
   }
 }
