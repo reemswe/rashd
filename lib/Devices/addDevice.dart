@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fast_color_picker/fast_color_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 import 'package:hive/hive.dart';
+
+import 'listOfDevices.dart';
 
 const NetworkSecurity STA_DEFAULT_SECURITY = NetworkSecurity.WPA;
 
@@ -255,7 +256,7 @@ class AddDeviceState extends State<AddDevice> {
                                     : Colors.white,
                                 width: 3,
                               ),
-                              color: Colors.white, //Colors.white,
+                              color: Colors.white,
                               boxShadow: const [
                                 BoxShadow(
                                     blurRadius: 20,
@@ -271,7 +272,7 @@ class AddDeviceState extends State<AddDevice> {
                                     visible: selectedNetwork == i,
                                     child: Icon(Icons.task_alt,
                                         size: 28, color: Colors.green.shade300))
-                              ])), //                  icon: const Icon(Icons.keyboard_arrow_down, size: 60),
+                              ])),
                     ));
                   }
                 }
@@ -675,21 +676,74 @@ class AddDeviceState extends State<AddDevice> {
                                         ),
                                         SizedBox(height: height * 0.015),
                                         ColorPicker(
+                                          hasBorder: true,
+                                          borderColor: Colors.grey.shade200,
                                           color: color,
                                           pickersEnabled: {
-                                            ColorPickerType.accent: false
+                                            ColorPickerType.accent: false,
+                                            ColorPickerType.custom: true,
+                                            ColorPickerType.primary: false
                                           },
                                           onColorChanged: (Color temp) =>
                                               setState(() {
                                             color = temp;
                                             print(color);
                                           }),
-                                          width: 32,
-                                          height: 32,
+                                          width: 35,
+                                          height: 35,
                                           enableShadesSelection: false,
-                                          selectedColorIcon: Icons
-                                              .check, //sharp,//check, circle_
+                                          selectedColorIcon: Icons.check,
                                           borderRadius: 30,
+                                          customColorSwatchesAndNames: {
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffFFADAD)):
+                                                "0xffFFADAD",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffffd6a5)):
+                                                "0xffffd6a5",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xfffcf6bd)):
+                                                "0xfffcf6bd",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffcaffbf)):
+                                                "0xffcaffbf",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffd0f4de)):
+                                                "0xffd0f4de",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffbde0fe)):
+                                                "0xffbde0fe",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffa9def9)):
+                                                "0xffa9def9",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffa0c4ff)):
+                                                "0xffa0c4ff",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffd7c8f3)):
+                                                "0xffd7c8f3",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffcdc1ff)):
+                                                "0xffcdc1ff",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffffc6ff)):
+                                                "0xffffc6ff",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffffe5ec)):
+                                                "0xffffe5ec",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xfffffffc)):
+                                                "0xfffffffc",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffedede9)):
+                                                "0xffedede9",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffe2e2e2)):
+                                                "0xffe2e2e2",
+                                            ColorTools.createPrimarySwatch(
+                                                    const Color(0xffe3d5ca)):
+                                                "0xffe3d5ca",
+                                          },
                                           padding: const EdgeInsets.all(0),
                                         ),
                                         Container(
@@ -769,8 +823,14 @@ class AddDeviceState extends State<AddDevice> {
                                                         'status': false,
                                                       });
                                                       await UpdateRealtimeDB();
-                                                      Navigator.of(context)
-                                                          .pop();
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                listOfDevices(
+                                                                  ID: widget.ID,
+                                                                )),
+                                                      );
                                                     }
                                                   }),
                                             )),
@@ -785,8 +845,10 @@ class AddDeviceState extends State<AddDevice> {
   }
 
   Future<void> UpdateRealtimeDB() async {
-    DatabaseReference database = FirebaseDatabase.instance
-        .ref('devicesList/${Hive.box("devicesInfo").get("SSID")}/');
+    var SSID = Hive.box("devicesInfo").get("SSID");
+    SSID = "Rashd-123";
+    DatabaseReference database =
+        FirebaseDatabase.instance.ref('devicesList/${SSID}/');
     database.onValue.listen((DatabaseEvent event) {
       final data = event.snapshot.value;
       print(data);

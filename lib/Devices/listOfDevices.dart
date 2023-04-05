@@ -1,4 +1,3 @@
-import "package:rashd/firebase_options.dart";
 import 'dart:core';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +10,8 @@ import '../Dashboard/dashboard.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../HouseAccount/list_of_houseMembers.dart';
 import 'package:firebase_database/firebase_database.dart';
+
+import '../functions.dart';
 
 class listOfDevices extends StatefulWidget {
   final ID; //house ID
@@ -27,13 +28,6 @@ class listOfDevicesState extends State<listOfDevices> {
   }
 
   var dashID;
-
-  Future<Map<String, dynamic>> readHouseData(var id) =>
-      FirebaseFirestore.instance.collection('houseAccount').doc(id).get().then(
-        (DocumentSnapshot doc) {
-          return doc.data() as Map<String, dynamic>;
-        },
-      );
 
   TextEditingController phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -221,6 +215,9 @@ class listOfDevicesState extends State<listOfDevices> {
                 crossAxisSpacing: 15,
                 mainAxisSpacing: 15),
             itemBuilder: (BuildContext context, int index) {
+              var color =
+                  devices.docs[index]['color'].split('(0x')[1].split(')')[0];
+              int value = int.parse(color, radix: 16);
               return GridTile(
                   child: InkWell(
                 onTap: () {},
@@ -230,7 +227,7 @@ class listOfDevicesState extends State<listOfDevices> {
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                     // height: height * 0.05,
                     decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Color(value),
                         boxShadow: const [
                           BoxShadow(
                               blurRadius: 30,
@@ -353,7 +350,7 @@ class listOfDevicesState extends State<listOfDevices> {
               context,
               MaterialPageRoute(
                   builder: (context) => dashboard(
-                        ID: dashID,
+                        ID: widget.ID,
                       )),
             );
           } else if (index == 1) {

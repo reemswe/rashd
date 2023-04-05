@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
@@ -12,6 +13,7 @@ import '../Devices/listOfDevices.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../HouseAccount/list_of_houseMembers.dart';
 import '../Registration/welcomePage.dart';
+import '../functions.dart';
 
 class dashboard extends StatefulWidget {
   final ID; //house id
@@ -23,48 +25,28 @@ class dashboard extends StatefulWidget {
   State<dashboard> createState() => _dashboardState();
 }
 
-Future<Map<String, dynamic>> readHouseData(var id) =>
-    FirebaseFirestore.instance.collection('houseAccount').doc(id).get().then(
-      (DocumentSnapshot doc) {
-        return doc.data() as Map<String, dynamic>;
-      },
-    );
-
 var sharedHouseName = '';
-// Future<Map<String, dynamic>> readSharedData(var dashID) =>
-//     FirebaseFirestore.instance.collection('dashboard').doc(dashID).get().then(
-//       (DocumentSnapshot doc) {
-//         FirebaseFirestore.instance
-//             .collection("houseAccount")
-//             .doc(doc["houseID"])
-//             .get()
-//             .then((value) {
-//           sharedHouseName = value.data()!["houseName"];
-//         });
-//         return doc.data() as Map<String, dynamic>;
-//       },
-//     );
-
-Future<void> share(houseID) async {
-  var uuid = const Uuid();
-  uuid.v1();
-  var value = new Random();
-  var codeNumber = value.nextInt(900000) + 100000;
-
-  await FlutterShare.share(
-    title: 'مشاركة لوحة المعلومات',
-    text:
-        'لعرض لوحة المعلومات المشتركة ادخل الرمز ${codeNumber} في صفحة عرض لوحة المعلومات المشتركة',
-  );
-
-  await FirebaseFirestore.instance
-      .collection('houseAccount')
-      .doc(houseID)
-      .collection('sharedCode')
-      .add({'houseID': houseID, 'code': codeNumber, 'isExpired': false});
-}
 
 class _dashboardState extends State<dashboard> {
+  Future<void> share() async {
+    var uuid = const Uuid();
+    uuid.v1();
+    var value = new Random();
+    var codeNumber = value.nextInt(900000) + 100000;
+
+    await FlutterShare.share(
+      title: 'مشاركة لوحة المعلومات',
+      text:
+          'لعرض لوحة المعلومات المشتركة ادخل الرمز ${codeNumber} في صفحة عرض لوحة المعلومات المشتركة',
+    );
+
+    await FirebaseFirestore.instance
+        .collection('houseAccount')
+        .doc(widget.ID)
+        .collection('sharedCode')
+        .add({'houseID': widget.ID, 'code': codeNumber, 'isExpired': false});
+  }
+
   //! FCM
   var fcmToken;
   void getToken() async {
@@ -103,10 +85,10 @@ class _dashboardState extends State<dashboard> {
     'ديسمبر'
   ];
 
-  Future<void>? energy;
-  Future? data;
+  // Future<void>? energy;
+  // Future? data;
   final _formKey = GlobalKey<FormState>();
-  List? devices = [];
+  // List? devices = [];
   List text = [
     [
       'فاتورة الكهرباء',
@@ -114,7 +96,7 @@ class _dashboardState extends State<dashboard> {
       '\t',
       Colors.lightBlue.shade500,
       Colors.white,
-      Color(0xff81D4FA),
+      const Color(0xff81D4FA),
     ],
     [
       'إجمالي استهلاك الطاقة',
@@ -126,67 +108,61 @@ class _dashboardState extends State<dashboard> {
     ]
   ];
   List<ChartData> chartData = [];
-
+  // var houseID, houseName;
   int i = 0;
-  var date = DateTime.now();
-  var formatted = '';
+
+  var month = '';
   TextEditingController goalController = TextEditingController();
-  String houseName = '';
-  String houseID = '';
   double electricityBill = 0;
   double percentage = 0;
   double energyFromBill = 0;
 
   @override
   void initState() {
+    month = months[DateTime.now().month];
+    getData();
     setState(() {
-      data = getData();
-      int index = date.month;
-      formatted = months[index];
-      FirebaseFirestore.instance
-          .collection("dashboard")
-          .doc(widget.ID)
-          .get()
-          .then((value) {
-        houseID = value.data()!["houseID"];
-        userGoal = value.data()!["userGoal"];
-        energy = totalEnergy();
-        FirebaseFirestore.instance
-            .collection("houseAccount")
-            .doc(houseID)
-            .get()
-            .then((value) {
-          houseName = value.data()!["houseName"];
-          double electricityBill = 0;
-          double energyFromBill = 0;
-        });
-      });
+      // FirebaseFirestore.instance
+      //     .collection("dashboard")
+      //     .doc(widget.ID)
+      //     .get()
+      //     .then((value) {
+      // energy = totalEnergy();
+      // FirebaseFirestore.instance
+      //     .collection("houseAccount")
+      //     .doc(houseID)
+      //     .get()
+      //     .then((value) {
+      //   houseName = value.data()!["houseName"];
+      // double electricityBill = 0;
+      // double energyFromBill = 0;
+      // });
     });
     getToken();
     super.initState();
   }
 
-  String userGoal = '';
   int total = 0;
 
   @override
   Widget build(BuildContext context) {
-    calculateBill(6000);
-    calculateEnergy(1080);
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
-    List text2 = [
+    calculateBill(10000);
+    calculateEnergy(1080);
+
+    List energyData = [
       [
         'فاتورة الكهرباء',
         '${electricityBill}SR',
         '*الفاتورة تشمل ضريبة القيمة المضافة',
         Colors.lightBlue.shade500,
         Colors.white,
-        Color(0xff81D4FA),
+        const Color(0xff81D4FA),
       ],
       [
         'إجمالي استهلاك الطاقة',
-        '${energyFromBill}kWh',
+        '${total}kWh',
         'تم بلوغ ${percentage}% من هدف الشهر',
         Colors.lightBlue.shade200,
         Colors.white,
@@ -195,17 +171,13 @@ class _dashboardState extends State<dashboard> {
     ];
     var LRPadding = width * 0.025;
 
-    return FutureBuilder<Map<String, dynamic>>(
-        future:
-            // widget.isShared
-            //     ? readSharedData(widget.ID)
-            //     :
-            readHouseData(houseID),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            var houseData = snapshot.data as Map<String, dynamic>;
-            return Scaffold(
-              body: Container(
+    return Scaffold(
+      body: FutureBuilder<Map<String, dynamic>>(
+          future: readHouseData(widget.ID),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasData) {
+              var houseData = snapshot.data as Map<String, dynamic>;
+              return Container(
                 transformAlignment: Alignment.topRight,
                 child: Stack(children: [
                   Positioned(
@@ -329,22 +301,23 @@ class _dashboardState extends State<dashboard> {
                                         ),
                                       ),
                                       Visibility(
-                                          visible: !widget.isShared,
-                                          child: Text(
-                                            widget.isShared
-                                                ? ''
-                                                : (houseData['OwnerID'] ==
-                                                        FirebaseAuth.instance
-                                                            .currentUser!.uid
-                                                    ? 'مالك المنزل'
-                                                    : "عضو في المنزل"),
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 16,
-                                              height: 1,
-                                            ),
-                                          ))
+                                        visible: !widget.isShared,
+                                        child: Text(
+                                          widget.isShared
+                                              ? ''
+                                              : (houseData['OwnerID'] ==
+                                                      FirebaseAuth.instance
+                                                          .currentUser!.uid
+                                                  ? 'مالك المنزل'
+                                                  : "عضو في المنزل"),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 16,
+                                            height: 1,
+                                          ),
+                                        ),
+                                      )
                                     ])
                               ]),
                             ])),
@@ -361,13 +334,13 @@ class _dashboardState extends State<dashboard> {
                             SizedBox(width: width * 0.02),
                             Container(
                               width: width * 0.2,
-                              padding: EdgeInsets.all(3),
+                              padding: const EdgeInsets.all(3),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(30),
                                 color: Colors.lightBlue.shade100,
                               ),
                               alignment: Alignment.center,
-                              child: Text(formatted,
+                              child: Text(month,
                                   style: const TextStyle(
                                       fontSize: 16,
                                       color: Colors.blue,
@@ -380,55 +353,58 @@ class _dashboardState extends State<dashboard> {
                                 child: IconButton(
                                   icon: const Icon(Icons.ios_share),
                                   onPressed: () {
-                                    share(widget.ID);
+                                    final databaseRef = FirebaseDatabase
+                                        .instance
+                                        .ref('devicesList/Rashd-123/');
+
+                                    databaseRef
+                                        .once()
+                                        .then((DatabaseEvent event) {
+                                      print('Data : ${event.snapshot.value}');
+                                    });
+
+                                    // share();
                                   },
                                 )),
                           ]),
                         ])),
                     Stack(children: [
-                      FutureBuilder(
-                          future: goal(),
-                          builder: (context, snapshot) {
-                            return Container(
-                                decoration: const BoxDecoration(
-                                    border: Border(top: BorderSide.none)),
+                      Container(
+                          decoration: const BoxDecoration(
+                              border: Border(top: BorderSide.none)),
+                          padding: EdgeInsets.fromLTRB(
+                              LRPadding, height * 0.02, LRPadding, 0),
+                          child: Material(
+                              elevation: 20,
+                              borderRadius: BorderRadius.circular(30),
+                              child: Padding(
                                 padding: EdgeInsets.fromLTRB(
-                                    LRPadding, height * 0.01, LRPadding, 0),
-                                child: Material(
-                                    elevation: 20,
-                                    borderRadius: BorderRadius.circular(30),
-                                    child: Padding(
-                                        padding: EdgeInsets.fromLTRB(
-                                            width * 0.01,
-                                            height * 0.035,
-                                            width * 0.01,
-                                            height * 0.035),
-                                        child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: [
-                                              Text(
-                                                'الهدف الإجمالي لإستهلاك الطاقة',
-                                                textAlign: TextAlign.right,
-                                                style: TextStyle(fontSize: 20),
-                                              ),
-                                              Text(
-                                                '$userGoal kWh',
-                                                textDirection:
-                                                    TextDirection.ltr,
-                                                style: TextStyle(
-                                                    fontSize: 20,
-                                                    // decoration: TextDecoration
-                                                    //     .underline,
-                                                    color: Colors.green),
-                                              ),
-                                            ]))));
-                          }),
+                                    width * 0.01,
+                                    height * 0.035,
+                                    width * 0.01,
+                                    height * 0.035),
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      const Text(
+                                        'الهدف الإجمالي لإستهلاك الطاقة',
+                                        textAlign: TextAlign.right,
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                      Text(
+                                        '${houseData['goal']} kWh',
+                                        textDirection: TextDirection.ltr,
+                                        style: const TextStyle(
+                                            fontSize: 20, color: Colors.green),
+                                      ),
+                                    ]),
+                              ))),
                       Visibility(
                           visible: !widget.isShared,
                           child: Container(
                               margin: EdgeInsets.fromLTRB(
-                                  0, height * 0.08, width * 0.02, 0),
+                                  0, height * 0.09, width * 0.02, 0),
                               child: FloatingActionButton(
                                   backgroundColor: Colors.lightGreen,
                                   child: const Icon(Icons.edit),
@@ -436,8 +412,8 @@ class _dashboardState extends State<dashboard> {
                                     showDialog(
                                         context: context,
                                         builder: (BuildContext context) {
-                                          return dialog(
-                                              formatted, height, width);
+                                          return goalDialog(
+                                              month, height, width);
                                         });
                                   })))
                     ]),
@@ -445,77 +421,71 @@ class _dashboardState extends State<dashboard> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           SizedBox(width: width * 0.025),
-                          buildCard(text2[0], width, height),
+                          buildCard(energyData[0], width, height),
                           SizedBox(width: width * 0.025),
-                          buildCard(text2[1], width, height),
+                          buildCard(energyData[1], width, height),
                           SizedBox(width: width * 0.025),
                         ]),
-                    FutureBuilder(
-                        future: data,
-                        builder: (context, snapshot) {
-                          return Container(
-                              margin: EdgeInsets.fromLTRB(
-                                  LRPadding, 0, LRPadding, 12),
-                              // padding: EdgeInsets.fromLTRB(width * 0.01,
-                              //     height * 0.02, width * 0.05, height * 0.02),
-                              child: Material(
-                                elevation: 20,
-                                borderRadius: BorderRadius.circular(30),
-                                child: Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.fromLTRB(
-                                        width * 0.01,
-                                        height * 0.02,
-                                        width * 0.01,
-                                        height * 0.02),
-                                    child: Stack(children: <Widget>[
-                                      Text(
-                                        'الأجهزة الأعلى استهلاكًا للطاقة',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            color: Color.fromARGB(
-                                                255, 62, 62, 62)),
-                                      ),
-                                      SizedBox(height: height * 0.0),
-                                      SfCartesianChart(
-                                          primaryXAxis: CategoryAxis(
-                                              title:
-                                                  AxisTitle(text: 'الأجهزة')),
-                                          primaryYAxis: NumericAxis(
-                                              title: AxisTitle(text: 'kWh')),
-                                          series: <
-                                              ChartSeries<ChartData, String>>[
-                                            ColumnSeries<ChartData, String>(
-                                                color: const Color.fromARGB(
-                                                    255, 98, 227, 165),
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                        Radius.circular(4)),
-                                                dataSource: chartData,
-                                                dataLabelSettings:
-                                                    const DataLabelSettings(
-                                                        isVisible: true),
-                                                xValueMapper:
-                                                    (ChartData data, _) =>
-                                                        data.x,
-                                                yValueMapper:
-                                                    (ChartData data, _) =>
-                                                        data.y),
-                                          ])
-                                    ]),
-                                  ),
+                    // FutureBuilder(
+                    //     future: data,
+                    //     builder: (context, snapshot) {
+                    //       return
+                    Container(
+                        margin:
+                            EdgeInsets.fromLTRB(LRPadding, 0, LRPadding, 12),
+                        // padding: EdgeInsets.fromLTRB(width * 0.01,
+                        //     height * 0.02, width * 0.05, height * 0.02),
+                        child: Material(
+                          elevation: 20,
+                          borderRadius: BorderRadius.circular(30),
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(width * 0.01,
+                                  height * 0.02, width * 0.01, height * 0.02),
+                              child: Stack(children: <Widget>[
+                                const Text(
+                                  'الأجهزة الأعلى استهلاكًا للطاقة',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Color.fromARGB(255, 62, 62, 62)),
                                 ),
-                              ));
-                        }),
+                                SizedBox(height: height * 0.0),
+                                SfCartesianChart(
+                                    primaryXAxis: CategoryAxis(
+                                        title: AxisTitle(text: 'الأجهزة')),
+                                    primaryYAxis: NumericAxis(
+                                        title: AxisTitle(text: 'kWh')),
+                                    series: <ChartSeries<ChartData, String>>[
+                                      ColumnSeries<ChartData, String>(
+                                          // color: const Color.fromARGB(
+                                          //     255, 98, 227, 165),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(4)),
+                                          dataSource: chartData,
+                                          dataLabelSettings:
+                                              const DataLabelSettings(
+                                                  isVisible: true),
+                                          xValueMapper: (ChartData data, _) =>
+                                              data.x,
+                                          pointColorMapper:
+                                              (ChartData data, _) => data.color,
+                                          yValueMapper: (ChartData data, _) =>
+                                              data.y),
+                                    ])
+                              ]),
+                            ),
+                          ),
+                        ))
+                    //     }),
                   ]),
                 ]),
-              ),
-              bottomNavigationBar: buildBottomNavigation(height, houseID, true),
-            );
-          } else {
-            return const Text('');
-          }
-        });
+              );
+            } else {
+              return const Text("No data");
+            }
+          }),
+      bottomNavigationBar: buildBottomNavigation(height, widget.ID, true),
+    );
   }
 
   Widget buildBottomNavigation(height, houseID, isOwner) {
@@ -595,7 +565,6 @@ class _dashboardState extends State<dashboard> {
   }
 
   int index = 0;
-
   Widget buildCard(List content, width, height) {
     return Container(
         decoration: BoxDecoration(
@@ -605,7 +574,7 @@ class _dashboardState extends State<dashboard> {
                 stops: [0.1, 1.0],
                 colors: [content[3], content[5]]),
             boxShadow: [
-              BoxShadow(
+              const BoxShadow(
                   color: Colors.black26, offset: Offset(0, 4), blurRadius: 8.0)
             ],
             borderRadius: BorderRadius.circular(20)),
@@ -646,7 +615,7 @@ class _dashboardState extends State<dashboard> {
             ])));
   }
 
-  contentBox(context, formatted, height, width) {
+  Widget dialogContentBox(context, formatted, height, width) {
     return Stack(
       children: <Widget>[
         Container(
@@ -671,7 +640,8 @@ class _dashboardState extends State<dashboard> {
             children: <Widget>[
               Text(
                 'حدد هدف استهلاك الطاقة لشهر ' + formatted,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                style:
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
               ),
               SizedBox(height: height * 0.01),
               Padding(
@@ -704,12 +674,9 @@ class _dashboardState extends State<dashboard> {
                       style: ElevatedButton.styleFrom(
                           fixedSize: Size(width * 0.2, height * 0.05),
                           backgroundColor: Colors.lightGreen),
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          setState(() {
-                            goal();
-                          });
-                          UpdateDB();
+                          await UpdateGoal();
                           Navigator.of(context).pop();
                         }
                       },
@@ -756,33 +723,25 @@ class _dashboardState extends State<dashboard> {
     );
   }
 
-  Widget dialog(formatted, height, width) {
+  Widget goalDialog(formatted, height, width) {
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
       elevation: 0,
       backgroundColor: Colors.transparent,
-      child: contentBox(context, formatted, height, width),
+      child: dialogContentBox(context, formatted, height, width),
     );
   }
 
-  Future<void> goal() async {
+  Future<void> UpdateGoal() async {
     await FirebaseFirestore.instance
-        .collection("dashboard")
+        .collection('houseAccount')
         .doc(widget.ID)
-        .get()
-        .then((value) {
-      userGoal = value.data()!["userGoal"];
+        .update({
+      'goal': goalController.text,
     });
-  }
-
-  Future<void> UpdateDB() async {
-    var Edit_info =
-        FirebaseFirestore.instance.collection('dashboard').doc(widget.ID);
-    Edit_info.update({
-      'userGoal': goalController.text,
-    });
+    goalController.clear();
   }
 
   Future<void> totalEnergy() async {
@@ -801,10 +760,33 @@ class _dashboardState extends State<dashboard> {
       }
       total = total - i;
       setState(() {
-        percentageStr =
-            ((total / int.parse(userGoal)) * 100).toStringAsFixed(1);
+        percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
         text[1][1] = '${total}kWh';
-        percentage = (total / int.parse(userGoal)) * 100;
+        percentage = (total / int.parse('100')) * 100;
+        i = total;
+      });
+    });
+  }
+
+  Future<void> totalConsumption() async {
+    String percentageStr = '';
+    var collection = await FirebaseFirestore.instance
+        .collection('houseAccount')
+        .doc(widget.ID)
+        .collection('houseDevices');
+    collection.snapshots().listen((querySnapshot) {
+      for (var doc in querySnapshot.docs) {
+        Map<String, dynamic> data = doc.data();
+        var deviceID = data['ID']; // <-- Retrieving the value.
+        setState(() {
+          total += int.parse('100');
+        });
+      }
+      total = total - i;
+      setState(() {
+        percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
+        text[1][1] = '${total}kWh';
+        percentage = (total / int.parse('100')) * 100;
         i = total;
       });
     });
@@ -813,33 +795,39 @@ class _dashboardState extends State<dashboard> {
   Future getData() async {
     var collection = await FirebaseFirestore.instance
         .collection('houseAccount')
-        // .doc(houseID)
-        .doc('12Tk9jBwrDGhYe2Yjzrl')
+        .doc('ffDQbRQQ8k9RzlGQ57FL')
         .collection('houseDevices');
-
     // to get data from all documents sequentially
     collection.snapshots().listen((querySnapshot) {
       chartData.clear();
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> data = doc.data(); // <-- Retrieving the value.
         setState(() {
-          devices!.add([
-            {'name': data['name'], 'consumption': data['consumption']}
-          ]);
+          // devices!.add([
+          //   {
+          //     'name': data['name'],
+          //     'consumption': data['consumption'],
+          //     'color': data['color']
+          //   }
+          // ]);
+          print(data);
+          print(data['consumption']);
+          var color = data['color'].split('(0x')[1].split(')')[0];
+          int value = int.parse(color, radix: 16);
           String name = data['name'];
           double consum = double.parse(data['consumption'].toString());
-          chartData.add(ChartData(name, consum));
+          chartData.add(ChartData(name, consum, Color(value)));
         });
       }
       chartData.sort((a, b) => b.y.compareTo(a.y));
       chartData = chartData.take(10).toList();
       chartData.shuffle();
     });
-    return devices;
+    // return devices;
   }
 
   //calculate electricity bill for 30 days
-//بدون رسوم خدمة العداد
+  //بدون رسوم خدمة العداد
   void calculateBill(double energy) {
     double slat_1 = 0;
     double slat_2 = 0;
@@ -854,8 +842,8 @@ class _dashboardState extends State<dashboard> {
       electricityBill.toInt();
     });
   }
-//calculate energy from electricity bill
 
+//calculate energy from electricity bill
   void calculateEnergy(double bill) {
     double slat_1 = 0;
     double slat_2 = 0;
@@ -873,7 +861,8 @@ class _dashboardState extends State<dashboard> {
 }
 
 class ChartData {
-  ChartData(this.x, this.y);
+  ChartData(this.x, this.y, this.color);
   final String x;
   final double y;
+  final Color color;
 }

@@ -2,10 +2,8 @@ import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../Dashboard/dashboard.dart';
+import '../Dashboard/sharedDashboard.dart';
 import '../Devices/listOfDevices.dart';
-import '../create_house_account.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import 'add_house_member.dart';

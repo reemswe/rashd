@@ -131,7 +131,6 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> data = doc.data(); // house account info
         String houseID = data['houseID'];
-        print('house id= $houseID');
         if (await exixts(houseID)) {
           setState(() {
             houseMember!.add([
@@ -292,8 +291,9 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const dashboard(
-                                ID: '0mHcZmbfEDK8CebdkVYR' // dataList[index][0]["houseID"],
+                            builder: (context) => dashboard(
+                                  ID: dataList[index][0]
+                                      ["houseID"], //'0mHcZmbfEDK8CebdkVYR' //
                                 )),
                       );
                     }));

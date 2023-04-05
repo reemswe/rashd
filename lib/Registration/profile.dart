@@ -451,7 +451,7 @@ class profileState extends State<profile> {
                                       context: context,
                                       builder: (ctx) => AlertDialog(
                                         title: const Text(
-                                          "هل أنت متأكد ؟",
+                                          "حذف الحساب؟",
                                           textAlign: TextAlign.center,
                                         ),
                                         content: const Text(
@@ -459,20 +459,6 @@ class profileState extends State<profile> {
                                           // textAlign: TextAlign.end,
                                         ),
                                         actions: <Widget>[
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(ctx).pop();
-                                            },
-                                            child: Container(
-                                              padding: const EdgeInsets.all(14),
-                                              child: const Text(
-                                                "إلغاء",
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
                                           TextButton(
                                             onPressed: () {
                                               // FirebaseFirestore.instance
@@ -493,6 +479,20 @@ class profileState extends State<profile> {
                                                       fontSize: 18,
                                                       color: Color.fromARGB(
                                                           255, 124, 18, 18))),
+                                            ),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(ctx).pop();
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(14),
+                                              child: const Text(
+                                                "إلغاء",
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ],
