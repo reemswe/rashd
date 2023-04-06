@@ -27,7 +27,6 @@ class listOfDevicesState extends State<listOfDevices> {
     super.initState();
   }
 
-
   TextEditingController phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   ScrollController scrollController = ScrollController();
@@ -171,7 +170,7 @@ class listOfDevicesState extends State<listOfDevices> {
                                     },
                                   )),
                             ]),
-                        buildDevicesList(height),
+                        buildDevicesList(height, width),
                       ]),
                 ]),
               ),
@@ -186,7 +185,7 @@ class listOfDevicesState extends State<listOfDevices> {
         });
   }
 
-  Widget buildDevicesList(height) {
+  Widget buildDevicesList(height, width) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection("houseAccount")
@@ -225,7 +224,7 @@ class listOfDevicesState extends State<listOfDevices> {
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                     // height: height * 0.05,
                     decoration: BoxDecoration(
-                        color: Color(value),
+                        color: Colors.white,
                         boxShadow: const [
                           BoxShadow(
                               blurRadius: 30,
@@ -236,17 +235,36 @@ class listOfDevicesState extends State<listOfDevices> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-                            child: Text(
-                              devices.docs[index]['name'],
-                              textDirection: TextDirection.rtl,
-                              textAlign: TextAlign.right,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 24,
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                                  child: Text(
+                                    devices.docs[index]['name'],
+                                    textDirection: TextDirection.rtl,
+                                    textAlign: TextAlign.right,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 24,
+                                    ),
+                                  )),
+                              Container(
+                                // margin: EdgeInsets.only(left: width * 0.56),
+                                width: width * 0.12,
+                                // height: height * 0.05,
+
+                                padding: EdgeInsets.only(
+                                    top: height * 0.008,
+                                    bottom: height * 0.008),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(50),
+                                    color: Color(value)),
+                                alignment: Alignment.center,
+                                child: Text(''),
                               ),
-                            )),
+                            ]),
                         SizedBox(height: height * 0.02),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),

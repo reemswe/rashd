@@ -8,7 +8,7 @@ import 'package:rashd/Dashboard/dashboard.dart';
 import '../Notification/FCM.dart';
 import '../Notification/localNotification.dart';
 import '../Registration/profile.dart';
-import '../create_house_account.dart';
+import 'create_house_account.dart';
 import '../main.dart';
 
 class ListOfHouseAccounts extends StatefulWidget {
