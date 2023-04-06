@@ -49,7 +49,6 @@ class _houseMembersState extends State<HouseMembers> {
     return membersList;
   }
 
-  var dashID;
   List dataList = [];
   @override
   Widget build(BuildContext context) {
@@ -61,7 +60,6 @@ class _houseMembersState extends State<HouseMembers> {
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
-            dashID = houseData['dashboardID'];
             return Scaffold(
               body: Container(
                 transformAlignment: Alignment.topRight,
@@ -317,7 +315,7 @@ class _houseMembersState extends State<HouseMembers> {
               context,
               MaterialPageRoute(
                   builder: (context) => dashboard(
-                        ID: dashID,
+                        ID: widget.houseId,
                       )),
             );
           } else if (index == 1) {

@@ -8,7 +8,7 @@ import 'package:rashd/Dashboard/dashboard.dart';
 import '../Notification/FCM.dart';
 import '../Notification/localNotification.dart';
 import '../Registration/profile.dart';
-import '../HouseAccount/create_house_account.dart';
+import '../create_house_account.dart';
 import '../main.dart';
 
 class ListOfHouseAccounts extends StatefulWidget {
@@ -134,7 +134,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
         if (await exixts(houseID)) {
           setState(() {
             houseMember!.add([
-              {'houseName': data['houseName'], 'dashboardID': data['houseID']}
+              {'houseName': data['houseName'], 'houseID': data['houseID']}
             ]);
           });
         }
@@ -215,11 +215,22 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                   iconSize: 40,
                   icon: const Icon(Icons.add_circle),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const CreateHouseAccount()),
-                    );
+                    showModalBottomSheet(
+                        isScrollControlled: true,
+                        isDismissible: false,
+                        enableDrag: false,
+                        backgroundColor: Colors.transparent,
+                        context: context,
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(105.0),
+                        )),
+                        builder: (context) => const CreateHouseAccount());
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //       builder: (context) => const CreateHouseAccount()),
+                    // );
                   },
                 )),
           ]),

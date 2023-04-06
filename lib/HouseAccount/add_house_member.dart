@@ -1,7 +1,5 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
-import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import '../Devices/listOfDevices.dart';
 import 'package:flutter/material.dart';

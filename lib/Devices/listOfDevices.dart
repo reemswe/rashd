@@ -27,7 +27,6 @@ class listOfDevicesState extends State<listOfDevices> {
     super.initState();
   }
 
-  var dashID;
 
   TextEditingController phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -58,7 +57,6 @@ class listOfDevicesState extends State<listOfDevices> {
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
-            dashID = houseData['dashboardID'];
             return Scaffold(
               body: Container(
                 transformAlignment: Alignment.topRight,
