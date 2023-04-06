@@ -93,10 +93,10 @@ class _dashboardState extends State<dashboard> {
     [
       'فاتورة الكهرباء',
       '500.25SR',
-      '\t',
+      '*الفاتورة تشمل ضريبة القيمة المضافة',
       Colors.lightBlue.shade500,
       Colors.white,
-      const Color(0xff81D4FA),
+      Color(0xff81D4FA),
     ],
     [
       'إجمالي استهلاك الطاقة',
@@ -110,7 +110,7 @@ class _dashboardState extends State<dashboard> {
   List<ChartData> chartData = [];
   // var houseID, houseName;
   int i = 0;
-
+  var testreal;
   var month = '';
   TextEditingController goalController = TextEditingController();
   double electricityBill = 0;
@@ -421,9 +421,9 @@ class _dashboardState extends State<dashboard> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           SizedBox(width: width * 0.025),
-                          buildCard(energyData[0], width, height),
+                          buildCard(text[0], width, height),
                           SizedBox(width: width * 0.025),
-                          buildCard(energyData[1], width, height),
+                          buildCard(text[1], width, height),
                           SizedBox(width: width * 0.025),
                         ]),
                     // FutureBuilder(
@@ -764,6 +764,10 @@ class _dashboardState extends State<dashboard> {
         text[1][1] = '${total}kWh';
         percentage = (total / int.parse('100')) * 100;
         i = total;
+
+        calculateBill(total.toDouble());
+        String e = electricityBill.toStringAsFixed(2);
+        text[0][1] = '${e}SR';
       });
     });
   }
@@ -788,11 +792,45 @@ class _dashboardState extends State<dashboard> {
         text[1][1] = '${total}kWh';
         percentage = (total / int.parse('100')) * 100;
         i = total;
+
+        calculateBill(total.toDouble());
+        String e = electricityBill.toStringAsFixed(2);
+        text[0][1] = '${e}SR';
       });
     });
   }
 
   Future getData() async {
+    //new
+    // DatabaseReference ref =
+    //     FirebaseDatabase.instance.ref('testrealtime/h1/deviceList');
+    // DatabaseReference newPostRef = ref.push();
+
+    // DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
+    // var snapshot = await _dbRef.child('testrealtime').get();
+    // snapshot.children.forEach((childSnapshot) {
+    //   var props = childSnapshot as Map;
+    //   print(props["cons"]);
+    // });
+    // print('================lee==============================');
+    // // print(newPostRef);
+    // print('================lee==============================');
+
+    DatabaseReference database =
+        FirebaseDatabase.instance.ref('testAurduino/Sensor/');
+    database.onValue.listen((DatabaseEvent event) {
+      final data = event.snapshot.value;
+      print('================lee1==============================');
+      print(data);
+      print('================lee==============================');
+      setState(() {
+        testreal = event.snapshot.value.toString();
+      });
+    });
+    print('================lee2==============================');
+    print(testreal);
+    print('================lee==============================');
+    //old
     var collection = await FirebaseFirestore.instance
         .collection('houseAccount')
         .doc('ffDQbRQQ8k9RzlGQ57FL')
