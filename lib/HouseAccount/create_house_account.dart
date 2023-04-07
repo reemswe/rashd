@@ -258,20 +258,20 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
   }
 
   Future<bool> exists(String number) async {
-    bool invalidPhone = false;
+    bool validPhone = false;
     QuerySnapshot query = await FirebaseFirestore.instance
         .collection('userAccount')
         .where('phone_number', isEqualTo: number)
         .get();
 
-    if (query.docs.isNotEmpty ||
-        query.docs[0]['userId'] == FirebaseAuth.instance.currentUser!.uid) {
-      invalidPhone = true;
+    if (query.docs.isNotEmpty &&
+        query.docs[0]['userId'] != FirebaseAuth.instance.currentUser!.uid) {
+      validPhone = true;
     } else {
-      invalidPhone = false;
+      validPhone = false;
     }
 
-    return invalidPhone;
+    return validPhone;
   }
 
   @override

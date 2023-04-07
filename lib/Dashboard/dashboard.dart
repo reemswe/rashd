@@ -95,7 +95,7 @@ class _dashboardState extends State<dashboard> {
       '500.25SR',
       '\t',
       Colors.lightBlue.shade500,
-      Colors.white,
+      Color.fromARGB(255, 232, 175, 175),
       const Color(0xff81D4FA),
     ],
     [

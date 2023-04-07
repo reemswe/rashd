@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rashd/Devices/addDevice.dart';
+import 'package:rashd/Devices/device.dart';
 import '../Dashboard/dashboard.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../HouseAccount/list_of_houseMembers.dart';
@@ -21,6 +22,17 @@ class listOfDevices extends StatefulWidget {
   State<listOfDevices> createState() => listOfDevicesState();
 }
 
+Future<void> updateDeviceStatus(value, deviceID) async {
+  final database = FirebaseDatabase.instance.ref('devicesList/${deviceID}/');
+
+  await database
+      .update({'status': value})
+      .then(
+        (value) => print("va!lue"),
+      )
+      .onError((error, stackTrace) => print(error));
+}
+
 class listOfDevicesState extends State<listOfDevices> {
   @override
   void initState() {
@@ -30,21 +42,6 @@ class listOfDevicesState extends State<listOfDevices> {
   TextEditingController phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   ScrollController scrollController = ScrollController();
-
-  Future<void> UpdateDB(value) async {
-    DatabaseReference database =
-        FirebaseDatabase.instance.ref('testAurduino/Sensor/');
-    database.onValue.listen((DatabaseEvent event) {
-      final data = event.snapshot.value;
-    });
-
-    await database
-        .update({'Status': value})
-        .then(
-          (value) => print("va!lue"),
-        )
-        .onError((error, stackTrace) => print(error));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +214,21 @@ class listOfDevicesState extends State<listOfDevices> {
               int value = int.parse(color, radix: 16);
               return GridTile(
                   child: InkWell(
-                onTap: () {},
+                onTap: () {
+                  showModalBottomSheet(
+                      isScrollControlled: true,
+                      isDismissible: false,
+                      enableDrag: false,
+                      backgroundColor: Colors.transparent,
+                      context: context,
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(105.0),
+                      )),
+                      builder: (context) => Device(
+                          deviceID: devices.docs[index].id,
+                          houseID: widget.ID));
+                },
                 splashColor: Colors.transparent,
                 child: Container(
                     margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -277,8 +288,8 @@ class listOfDevicesState extends State<listOfDevices> {
                             iconOn: Icons.done,
                             iconOff: Icons.remove_circle_outline,
                             textOnColor: Colors.white,
-                            textSize: 20.0,
-                            width: 130,
+                            textSize: 16.0,
+                            width: 100,
                             onChanged: (bool state) async {
                               FirebaseFirestore.instance
                                   .collection("houseAccount")
@@ -287,7 +298,8 @@ class listOfDevicesState extends State<listOfDevices> {
                                   .doc(devices.docs[index].id)
                                   .update({'status': state});
 
-                              await UpdateDB(state ? "ON" : "OFF");
+                              await updateDeviceStatus(
+                                  state ? "ON" : "OFF", devices.docs[index].id);
                             },
                             onTap: () {},
                             onSwipe: () {},
