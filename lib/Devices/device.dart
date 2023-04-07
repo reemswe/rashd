@@ -169,7 +169,8 @@ class DeviceState extends State<Device> {
                         top: height * 0.1,
                         child: ListView(children: [
                           Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: width * 0.3),
                             child: LiteRollingSwitch(
                               value: deviceStatus == 'ON' ? true : false,
                               textOn: 'On',

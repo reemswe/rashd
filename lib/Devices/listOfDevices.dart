@@ -23,8 +23,7 @@ class listOfDevices extends StatefulWidget {
 }
 
 Future<void> updateDeviceStatus(value, deviceID) async {
-  final database = FirebaseDatabase.instance.ref('devicesList/${deviceID}/');
-
+  final database = FirebaseDatabase.instance.ref('devicesList/${deviceID}');
   await database
       .update({'status': value})
       .then(
