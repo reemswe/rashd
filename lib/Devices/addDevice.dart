@@ -679,7 +679,7 @@ class AddDeviceState extends State<AddDevice> {
                                           hasBorder: true,
                                           borderColor: Colors.grey.shade200,
                                           color: color,
-                                          pickersEnabled: {
+                                          pickersEnabled: const {
                                             ColorPickerType.accent: false,
                                             ColorPickerType.custom: true,
                                             ColorPickerType.primary: false
@@ -822,6 +822,7 @@ class AddDeviceState extends State<AddDevice> {
                                                         'color': '$color',
                                                         'status': false,
                                                       });
+
                                                       await UpdateRealtimeDB();
                                                       Navigator.push(
                                                         context,
@@ -860,5 +861,6 @@ class AddDeviceState extends State<AddDevice> {
           (value) => print("value: "),
         )
         .onError((error, stackTrace) => print(error));
+    Navigator.of(context).pop();
   }
 }
