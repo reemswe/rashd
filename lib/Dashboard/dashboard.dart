@@ -15,6 +15,9 @@ import '../HouseAccount/list_of_houseMembers.dart';
 import '../Registration/welcomePage.dart';
 import '../functions.dart';
 
+// import 'package:flutter_localizations/flutter_localizations.dart';
+// import 'package:month_picker_dialog/month_picker_dialog.dart';
+
 class dashboard extends StatefulWidget {
   final ID; //house id
   final isShared;
@@ -28,6 +31,8 @@ class dashboard extends StatefulWidget {
 var sharedHouseName = '';
 
 class _dashboardState extends State<dashboard> {
+  DateTime? selectedDate;
+  DateTime initialDate = DateTime.now();
   Future<void> share() async {
     var uuid = const Uuid();
     uuid.v1();
@@ -119,6 +124,7 @@ class _dashboardState extends State<dashboard> {
 
   @override
   void initState() {
+    selectedDate = initialDate;
     month = months[DateTime.now().month];
     getData();
     setState(() {
@@ -340,12 +346,17 @@ class _dashboardState extends State<dashboard> {
                                 color: Colors.lightBlue.shade100,
                               ),
                               alignment: Alignment.center,
-                              child: Text(month,
-                                  style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.blue,
-                                      height: 1,
-                                      fontWeight: FontWeight.w300)),
+                              child: InkWell(
+                                onTap: (() {
+                                  ubdateChart('march');
+                                }),
+                                child: Text(month,
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.blue,
+                                        height: 1,
+                                        fontWeight: FontWeight.w300)),
+                              ),
                             ),
                             SizedBox(width: width * 0.26),
                             Visibility(
@@ -430,6 +441,39 @@ class _dashboardState extends State<dashboard> {
                     //     future: data,
                     //     builder: (context, snapshot) {
                     //       return
+
+                    //month picker
+                    // Center(
+                    //   child: Text(
+                    //     'Year: ${selectedDate?.year}\nMonth: ${selectedDate?.month}',
+                    //     style: Theme.of(context).textTheme.headlineMedium,
+                    //     textAlign: TextAlign.center,
+                    //   ),
+                    // ),
+                    // FloatingActionButton(
+                    //   backgroundColor: Colors.amberAccent,
+                    //   onPressed: () {
+                    //     showMonthPicker(
+                    //       context: context,
+                    //       firstDate: DateTime(DateTime.now().year - 5, 5),
+                    //       lastDate: DateTime(DateTime.now().year + 8, 9),
+                    //       initialDate: selectedDate ?? initialDate,
+                    //       locale: const Locale('en'),
+                    //     ).then((DateTime? date) {
+                    //       if (date != null) {
+                    //         setState(() {
+                    //           selectedDate = date;
+                    //         });
+                    //       }
+                    //     });
+                    //   },
+                    // child: Icon(
+                    //   Icons.calendar_month_outlined,
+                    //   size: 35,
+                    //   color: Colors.black,
+                    // ),
+                    // ),
+
                     Container(
                         margin:
                             EdgeInsets.fromLTRB(LRPadding, 0, LRPadding, 12),
@@ -792,6 +836,29 @@ class _dashboardState extends State<dashboard> {
     });
   }
 
+  Future ubdateChart(String month) async {
+    var collection = await FirebaseFirestore.instance
+        .collection('houseAccount')
+        .doc('ffDQbRQQ8k9RzlGQ57FL')
+        .collection('houseDevices')
+        .doc('BNNvNt9g1UAiT1z3MLrH')
+        .collection('monthlyConsumption');
+    collection.snapshots().listen(((querySnapshot) {
+      for (var doc in querySnapshot.docs) {
+        print(doc.toString());
+        //   print('  querySnapshot.docs $querySnapshot.docs');
+      }
+    }));
+
+    setState(() {
+      chartData.clear();
+      int value = 4278228616;
+      String name = 'dev';
+      double consum = 300;
+      chartData.add(ChartData(name, consum, Color(value)));
+    });
+  }
+
   Future getData() async {
     var collection = await FirebaseFirestore.instance
         .collection('houseAccount')
@@ -813,9 +880,11 @@ class _dashboardState extends State<dashboard> {
           print(data);
           print(data['consumption']);
           var color = data['color'].split('(0x')[1].split(')')[0];
+          print('color $color');
           int value = int.parse(color, radix: 16);
+          print('value $value');
           String name = data['name'];
-          double consum = double.parse(data['consumption'].toString());
+          double consum = double.parse(data['currentConsumption'].toString());
           chartData.add(ChartData(name, consum, Color(value)));
         });
       }
