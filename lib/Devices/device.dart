@@ -319,42 +319,65 @@ class DeviceState extends State<Device> {
                         width: width,
                         height: height,
                         top: height * 0.1,
-                        child: ListView(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.02,
-                            ),
-                            children: [
-                              SizedBox(height: height * 0.01),
-                              Visibility(
-                                  visible: isEditing,
-                                  child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.08,
+                        child: isEditing
+                            ? ListView(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.06),
+                                children: [
+                                    SizedBox(height: height * 0.01),
+                                    const Align(
+                                      alignment: Alignment.topRight,
+                                      child: Text(
+                                        "الاسم",
+                                        style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w600),
                                       ),
-                                      child: Form(
-                                        key: formKey,
-                                        child: TextFormField(
-                                          controller: nameController,
-                                          decoration: InputDecoration(
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                              vertical: width * 0.04,
-                                            ),
-                                            labelText: 'اسم الجهاز',
-                                          ),
-                                          validator: (value) {
-                                            if (value == null ||
-                                                value.isEmpty ||
-                                                (value.trim()).isEmpty) {
-                                              return 'الرجاء ادخال اسم للجهاز';
-                                            }
-                                            return null;
-                                          },
+                                    ),
+                                    Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.02,
                                         ),
-                                      ))),
-                              Visibility(
-                                  visible: isEditing,
-                                  child: Padding(
+                                        child: Form(
+                                          key: formKey,
+                                          child: TextFormField(
+                                            controller: nameController,
+                                            decoration: InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                vertical: height * 0.02,
+                                              ),
+                                              labelText: 'اسم الجهاز',
+                                            ),
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty ||
+                                                  (value.trim()).isEmpty) {
+                                                return 'الرجاء ادخال اسم للجهاز';
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        )),
+                                    SizedBox(height: height * 0.04),
+                                    const Align(
+                                      alignment: Alignment.topRight,
+                                      child: Text(
+                                        "لون الجهاز",
+                                        style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                    const Align(
+                                      alignment: Alignment.topRight,
+                                      child: Text(
+                                        'الرجاء تحديد لون لتمييز الجهاز',
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                    SizedBox(height: height * 0.02),
+                                    Padding(
                                       padding: EdgeInsets.fromLTRB(
                                           width * 0.06,
                                           height * 0.01,
@@ -429,88 +452,388 @@ class DeviceState extends State<Device> {
                                               "0xffe3d5ca",
                                         },
                                         padding: const EdgeInsets.all(0),
-                                      ))),
-                              Visibility(
-                                  visible: !isEditing,
-                                  child: Align(
-                                    alignment: Alignment.topRight,
-                                    child: LiteRollingSwitch(
-                                      value: deviceStatus != 'disconnected'
-                                          ? (deviceStatus == 'ON'
-                                              ? true
-                                              : false)
-                                          : false,
-                                      textOn: 'On',
-                                      textOff: deviceStatus != 'disconnected'
-                                          ? 'Off'
-                                          : "غير متصل",
-                                      colorOn: Colors.green.shade400,
-                                      colorOff: deviceStatus != 'disconnected'
-                                          ? Colors.red.shade400
-                                          : Colors.grey.shade600,
-                                      iconOn: Icons.done,
-                                      iconOff: Icons.remove_circle_outline,
-                                      textOnColor: Colors.white,
-                                      textSize: 16.0,
-                                      width: 100,
-                                      onChanged: (bool state) async {
-                                        if (deviceStatus != 'disconnected') {
-                                          await updateDeviceStatus(
-                                              state ? "ON" : "OFF",
-                                              deviceRealtimeID);
-                                        }
-                                      },
-                                      onTap: () {},
-                                      onSwipe: () {},
-                                      onDoubleTap: () {},
+                                      ),
                                     ),
-                                  )),
-                              SizedBox(height: height * 0.01),
-                              Visibility(
-                                  visible: !isEditing,
-                                  child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        Column(children: [
-                                          Text('$currCons',
-                                              style: TextStyle(
-                                                  fontSize: 40,
-                                                  fontWeight: FontWeight.w500)),
-                                          Text('الاستهلاك الحالي'),
-                                        ]),
-                                        Column(children: [
-                                          Text('$temperature',
-                                              style: TextStyle(
-                                                  fontSize: 40,
-                                                  fontWeight: FontWeight.w500)),
-                                          Text('درجة حرارة الجهاز')
-                                        ])
-                                      ])),
-                              SizedBox(height: height * 0.01),
-                              Visibility(
-                                  visible: !isEditing,
-                                  child: SfCartesianChart(
-                                      primaryXAxis: CategoryAxis(
-                                          title: AxisTitle(text: 'الأشهر')),
-                                      primaryYAxis: NumericAxis(
-                                          title: AxisTitle(text: 'kWh')),
-                                      series: <ChartSeries<ChartData, String>>[
-                                        LineSeries<ChartData, String>(
-                                            width: 3,
-                                            dataSource: chartData,
-                                            dataLabelSettings:
-                                                const DataLabelSettings(
-                                                    isVisible: true),
-                                            xValueMapper: (ChartData data, _) =>
-                                                data.x,
-                                            pointColorMapper:
-                                                (ChartData data, _) =>
-                                                    data.color,
-                                            yValueMapper: (ChartData data, _) =>
-                                                data.y),
-                                      ]))
-                            ])),
+                                    SizedBox(height: height * 0.01),
+                                    Container(
+                                      width: 150,
+                                      decoration: BoxDecoration(
+                                        boxShadow: const [
+                                          BoxShadow(
+                                              color: Colors.black26,
+                                              offset: Offset(0, 4),
+                                              blurRadius: 5.0)
+                                        ],
+                                        gradient: const LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          stops: [0.0, 1.0],
+                                          colors: [
+                                            Colors.blue,
+                                            Color(0xFF39d6ce),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          textStyle: const TextStyle(
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          if (isEditing) {
+                                            showDialog(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                content: const Text(
+                                                  "Discard the changes you made?",
+                                                  textAlign: TextAlign.left,
+                                                ),
+                                                actions: <Widget>[
+                                                  // cancle button
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(ctx).pop();
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              14),
+                                                      child: const Text(
+                                                          "Keep editing"),
+                                                    ),
+                                                  ),
+                                                  //ok button
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      // Navigator.push(
+                                                      //     context,
+                                                      //     MaterialPageRoute(
+                                                      //       builder: (context) => userProfile(
+                                                      //           userType: widget
+                                                      //               .userType,
+                                                      //           selectedTab:
+                                                      //               2,
+                                                      //           selectedSubTab:
+                                                      //               1),
+                                                      //     ));
+                                                      var n =
+                                                          Navigator.of(context);
+                                                      n.pop();
+                                                      n.pop();
+                                                    },
+                                                    child: Container(
+                                                      //color: Color.fromARGB(255, 164, 20, 20),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              14),
+                                                      child: const Text(
+                                                          "Discard",
+                                                          style: TextStyle(
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      164,
+                                                                      10,
+                                                                      10))),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          } else {
+                                            Navigator.of(context).pop();
+                                          }
+                                        },
+                                        child: const Text('Cancel'),
+                                      ),
+                                    ),
+                                    Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                            10, 30, 10, 0),
+                                        decoration: BoxDecoration(
+                                          boxShadow: const [
+                                            BoxShadow(
+                                                color: Colors.black26,
+                                                offset: Offset(0, 4),
+                                                blurRadius: 5.0)
+                                          ],
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            stops: [0.1, 1.0],
+                                            colors: [
+                                              Colors.blue.shade200,
+                                              Colors.blue.shade400,
+                                            ],
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                        ),
+                                        child: Center(
+                                            child: ElevatedButton(
+                                                style: ButtonStyle(
+                                                  shape:
+                                                      MaterialStateProperty.all<
+                                                          RoundedRectangleBorder>(
+                                                    RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              30.0),
+                                                    ),
+                                                  ),
+                                                  minimumSize:
+                                                      MaterialStateProperty.all(
+                                                          const Size(350, 50)),
+                                                  backgroundColor:
+                                                      MaterialStateProperty.all(
+                                                          Colors.transparent),
+                                                  shadowColor:
+                                                      MaterialStateProperty.all(
+                                                          Colors.transparent),
+                                                ),
+                                                child: const Padding(
+                                                  padding: EdgeInsets.fromLTRB(
+                                                      50, 10, 50, 10),
+                                                  child: Text(
+                                                    'التالي',
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                                onPressed: () {}))),
+                                  ])
+                            : ListView(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.02,
+                                ),
+                                children: [
+                                    SizedBox(height: height * 0.01),
+                                    const Align(
+                                      alignment: Alignment.topRight,
+                                      child: Text(
+                                        "الاسم",
+                                        style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                    Visibility(
+                                        visible: isEditing,
+                                        child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: width * 0.08,
+                                            ),
+                                            child: Form(
+                                              key: formKey,
+                                              child: TextFormField(
+                                                controller: nameController,
+                                                decoration: InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                    vertical: width * 0.04,
+                                                  ),
+                                                  labelText: 'اسم الجهاز',
+                                                ),
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty ||
+                                                      (value.trim()).isEmpty) {
+                                                    return 'الرجاء ادخال اسم للجهاز';
+                                                  }
+                                                  return null;
+                                                },
+                                              ),
+                                            ))),
+                                    Visibility(
+                                        visible: isEditing,
+                                        child: Padding(
+                                            padding: EdgeInsets.fromLTRB(
+                                                width * 0.06,
+                                                height * 0.01,
+                                                width * 0.06,
+                                                height * 0.01),
+                                            child: ColorPicker(
+                                              hasBorder: true,
+                                              borderColor: Colors.grey.shade200,
+                                              color: finalColor,
+                                              pickersEnabled: const {
+                                                ColorPickerType.accent: false,
+                                                ColorPickerType.custom: true,
+                                                ColorPickerType.primary: false
+                                              },
+                                              onColorChanged: (Color temp) =>
+                                                  setState(() {
+                                                setState(
+                                                    () => finalColor = temp);
+                                              }),
+                                              width: 35,
+                                              height: 35,
+                                              enableShadesSelection: false,
+                                              selectedColorIcon: Icons.check,
+                                              borderRadius: 30,
+                                              customColorSwatchesAndNames: {
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffFFADAD)):
+                                                    "0xffFFADAD",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffffd6a5)):
+                                                    "0xffffd6a5",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xfffcf6bd)):
+                                                    "0xfffcf6bd",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffcaffbf)):
+                                                    "0xffcaffbf",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffd0f4de)):
+                                                    "0xffd0f4de",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffbde0fe)):
+                                                    "0xffbde0fe",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffa9def9)):
+                                                    "0xffa9def9",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffa0c4ff)):
+                                                    "0xffa0c4ff",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffd7c8f3)):
+                                                    "0xffd7c8f3",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffcdc1ff)):
+                                                    "0xffcdc1ff",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffffc6ff)):
+                                                    "0xffffc6ff",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffffe5ec)):
+                                                    "0xffffe5ec",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xfffffffc)):
+                                                    "0xfffffffc",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffedede9)):
+                                                    "0xffedede9",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffe2e2e2)):
+                                                    "0xffe2e2e2",
+                                                ColorTools.createPrimarySwatch(
+                                                        const Color(
+                                                            0xffe3d5ca)):
+                                                    "0xffe3d5ca",
+                                              },
+                                              padding: const EdgeInsets.all(0),
+                                            ))),
+                                    Visibility(
+                                        visible: !isEditing,
+                                        child: Align(
+                                          alignment: Alignment.topRight,
+                                          child: LiteRollingSwitch(
+                                            value:
+                                                deviceStatus != 'disconnected'
+                                                    ? (deviceStatus == 'ON'
+                                                        ? true
+                                                        : false)
+                                                    : false,
+                                            textOn: 'On',
+                                            textOff:
+                                                deviceStatus != 'disconnected'
+                                                    ? 'Off'
+                                                    : "غير متصل",
+                                            colorOn: Colors.green.shade400,
+                                            colorOff:
+                                                deviceStatus != 'disconnected'
+                                                    ? Colors.red.shade400
+                                                    : Colors.grey.shade600,
+                                            iconOn: Icons.done,
+                                            iconOff:
+                                                Icons.remove_circle_outline,
+                                            textOnColor: Colors.white,
+                                            textSize: 16.0,
+                                            width: 100,
+                                            onChanged: (bool state) async {
+                                              if (deviceStatus !=
+                                                  'disconnected') {
+                                                await updateDeviceStatus(
+                                                    state ? "ON" : "OFF",
+                                                    deviceRealtimeID);
+                                              }
+                                            },
+                                            onTap: () {},
+                                            onSwipe: () {},
+                                            onDoubleTap: () {},
+                                          ),
+                                        )),
+                                    SizedBox(height: height * 0.01),
+                                    Visibility(
+                                        visible: !isEditing,
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              Column(children: [
+                                                Text('$currCons',
+                                                    style: TextStyle(
+                                                        fontSize: 40,
+                                                        fontWeight:
+                                                            FontWeight.w500)),
+                                                Text('الاستهلاك الحالي'),
+                                              ]),
+                                              Column(children: [
+                                                Text('$temperature',
+                                                    style: TextStyle(
+                                                        fontSize: 40,
+                                                        fontWeight:
+                                                            FontWeight.w500)),
+                                                Text('درجة حرارة الجهاز')
+                                              ])
+                                            ])),
+                                    SizedBox(height: height * 0.01),
+                                    Visibility(
+                                        visible: !isEditing,
+                                        child: SfCartesianChart(
+                                            primaryXAxis: CategoryAxis(
+                                                title:
+                                                    AxisTitle(text: 'الأشهر')),
+                                            primaryYAxis: NumericAxis(
+                                                title: AxisTitle(text: 'kWh')),
+                                            series: <
+                                                ChartSeries<ChartData, String>>[
+                                              LineSeries<ChartData, String>(
+                                                  width: 3,
+                                                  dataSource: chartData,
+                                                  dataLabelSettings:
+                                                      const DataLabelSettings(
+                                                          isVisible: true),
+                                                  xValueMapper:
+                                                      (ChartData data, _) =>
+                                                          data.x,
+                                                  pointColorMapper:
+                                                      (ChartData data, _) =>
+                                                          data.color,
+                                                  yValueMapper:
+                                                      (ChartData data, _) =>
+                                                          data.y),
+                                            ]))
+                                  ])),
                   ]);
                 } else {
                   return const Text('');
