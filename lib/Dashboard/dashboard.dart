@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:uuid/uuid.dart';
 import '../Devices/listOfDevices.dart';
@@ -15,8 +16,9 @@ import '../HouseAccount/list_of_houseMembers.dart';
 import '../Registration/welcomePage.dart';
 import '../functions.dart';
 
-// import 'package:flutter_localizations/flutter_localizations.dart';
-// import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+//import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+import 'package:month_year_picker/month_year_picker.dart';
 
 class dashboard extends StatefulWidget {
   final ID; //house id
@@ -31,8 +33,6 @@ class dashboard extends StatefulWidget {
 var sharedHouseName = '';
 
 class _dashboardState extends State<dashboard> {
-  DateTime? selectedDate;
-  DateTime initialDate = DateTime.now();
   Future<void> share() async {
     var uuid = const Uuid();
     uuid.v1();
@@ -121,10 +121,11 @@ class _dashboardState extends State<dashboard> {
   double electricityBill = 0;
   double percentage = 0;
   double energyFromBill = 0;
-
+  //late DateTime _selected;
+  DateTime? _selected;
   @override
   void initState() {
-    selectedDate = initialDate;
+    //  _selected = DateTime.now();
     month = months[DateTime.now().month];
     getData();
     setState(() {
@@ -346,9 +347,12 @@ class _dashboardState extends State<dashboard> {
                                 color: Colors.lightBlue.shade100,
                               ),
                               alignment: Alignment.center,
-                              child: InkWell(
+                              child:
+                                  //month
+                                  InkWell(
                                 onTap: (() {
-                                  ubdateChart('march');
+                                  _onPressed(context: context, locale: 'ar');
+                                  // ubdateChart('march');
                                 }),
                                 child: Text(month,
                                     style: const TextStyle(
@@ -403,9 +407,10 @@ class _dashboardState extends State<dashboard> {
                                         textAlign: TextAlign.right,
                                         style: TextStyle(fontSize: 20),
                                       ),
+
+                                      /// //  textDirection: TextDirection.ltr,
                                       Text(
                                         '${houseData['goal']} kWh',
-                                        textDirection: TextDirection.ltr,
                                         style: const TextStyle(
                                             fontSize: 20, color: Colors.green),
                                       ),
@@ -443,35 +448,39 @@ class _dashboardState extends State<dashboard> {
                     //       return
 
                     //month picker
+                    // if (_selected == null)
+                    //   const Text('No month year selected.')
+                    // else
+                    //   Text(DateFormat().add_yM().format(_selected!)),
+                    // TextButton(
+                    //   child: const Text('DEFAULT LOCALE'),
+                    //   onPressed: () => _onPressed(context: context),
+                    // ),
+                    // TextButton(
+                    //   child: const Text('BAHASA MALAYSIA'),
+                    //   onPressed: () =>
+                    //       _onPressed(context: context, locale: 'ms'),
+                    // ),
+                    // TextButton(
+                    //   child: const Text('اللغة العربية'),
+                    //   onPressed: () =>
+                    //       _onPressed(context: context, locale: 'ar'),
+                    // ),
                     // Center(
                     //   child: Text(
-                    //     'Year: ${selectedDate?.year}\nMonth: ${selectedDate?.month}',
+                    //     'Year: {selectedDate?.year}\nMonth: {selectedDate?.month}',
                     //     style: Theme.of(context).textTheme.headlineMedium,
                     //     textAlign: TextAlign.center,
                     //   ),
                     // ),
                     // FloatingActionButton(
                     //   backgroundColor: Colors.amberAccent,
-                    //   onPressed: () {
-                    //     showMonthPicker(
-                    //       context: context,
-                    //       firstDate: DateTime(DateTime.now().year - 5, 5),
-                    //       lastDate: DateTime(DateTime.now().year + 8, 9),
-                    //       initialDate: selectedDate ?? initialDate,
-                    //       locale: const Locale('en'),
-                    //     ).then((DateTime? date) {
-                    //       if (date != null) {
-                    //         setState(() {
-                    //           selectedDate = date;
-                    //         });
-                    //       }
-                    //     });
-                    //   },
-                    // child: Icon(
-                    //   Icons.calendar_month_outlined,
-                    //   size: 35,
-                    //   color: Colors.black,
-                    // ),
+                    //   onPressed: () {},
+                    //   child: Icon(
+                    //     Icons.calendar_month_outlined,
+                    //     size: 35,
+                    //     color: Colors.black,
+                    //   ),
                     // ),
 
                     Container(
@@ -776,6 +785,32 @@ class _dashboardState extends State<dashboard> {
       backgroundColor: Colors.transparent,
       child: dialogContentBox(context, formatted, height, width),
     );
+  }
+
+  Future<void> _onPressed({
+    required BuildContext context,
+    String? locale,
+  }) async {
+    final localeObj = locale != null ? Locale(locale) : null;
+    final selected = await showMonthYearPicker(
+      context: context,
+      initialDate: _selected ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(3000),
+      locale: localeObj,
+    );
+    // final selected = await showDatePicker(
+    //   context: context,
+    //   initialDate: _selected ?? DateTime.now(),
+    //   firstDate: DateTime(2019),
+    //   lastDate: DateTime(2022),
+    //   locale: localeObj,
+    // );
+    if (selected != null) {
+      setState(() {
+        _selected = selected;
+      });
+    }
   }
 
   Future<void> UpdateGoal() async {
