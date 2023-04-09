@@ -4,35 +4,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rashd/Devices/addDevice.dart';
 import 'package:rashd/Devices/device.dart';
 import '../Dashboard/dashboard.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../HouseAccount/list_of_houseMembers.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 import '../functions.dart';
 
-class listOfDevices extends StatefulWidget {
-  final ID; //house ID
-  const listOfDevices({super.key, required this.ID});
+class ListOfDevices extends StatefulWidget {
+  final houseID; //house ID
+  const ListOfDevices({super.key, required this.houseID});
 
   @override
-  State<listOfDevices> createState() => listOfDevicesState();
+  State<ListOfDevices> createState() => ListOfDevicesState();
 }
 
-Future<void> updateDeviceStatus(value, deviceID) async {
-  final database = FirebaseDatabase.instance.ref('devicesList/${deviceID}');
-  await database
-      .update({'status': value})
-      .then(
-        (value) => print("va!lue"),
-      )
-      .onError((error, stackTrace) => print(error));
-}
-
-class listOfDevicesState extends State<listOfDevices> {
+class ListOfDevicesState extends State<ListOfDevices> {
   @override
   void initState() {
     super.initState();
@@ -48,7 +36,7 @@ class listOfDevicesState extends State<listOfDevices> {
     final double width = MediaQuery.of(context).size.width;
 
     return FutureBuilder<Map<String, dynamic>>(
-        future: readHouseData(widget.ID),
+        future: readHouseData(widget.houseID),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
@@ -162,7 +150,7 @@ class listOfDevicesState extends State<listOfDevices> {
                                             top: Radius.circular(105.0),
                                           )),
                                           builder: (context) =>
-                                              AddDevice(ID: widget.ID));
+                                              AddDevice(ID: widget.houseID));
                                     },
                                   )),
                             ]),
@@ -185,7 +173,7 @@ class listOfDevicesState extends State<listOfDevices> {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection("houseAccount")
-          .doc(widget.ID)
+          .doc(widget.houseID)
           .collection('houseDevices')
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -226,7 +214,7 @@ class listOfDevicesState extends State<listOfDevices> {
                       )),
                       builder: (context) => Device(
                           deviceID: devices.docs[index].id,
-                          houseID: widget.ID));
+                          houseID: widget.houseID));
                 },
                 splashColor: Colors.transparent,
                 child: Container(
@@ -292,7 +280,7 @@ class listOfDevicesState extends State<listOfDevices> {
                             onChanged: (bool state) async {
                               FirebaseFirestore.instance
                                   .collection("houseAccount")
-                                  .doc(widget.ID)
+                                  .doc(widget.houseID)
                                   .collection('houseDevices')
                                   .doc(devices.docs[index].id)
                                   .update({'status': state});
@@ -377,7 +365,7 @@ class listOfDevicesState extends State<listOfDevices> {
               context,
               MaterialPageRoute(
                   builder: (context) => dashboard(
-                        ID: widget.ID,
+                        ID: widget.houseID,
                       )),
             );
           } else if (index == 1) {
@@ -385,7 +373,7 @@ class listOfDevicesState extends State<listOfDevices> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => HouseMembers(houseId: widget.ID)),
+                  builder: (context) => HouseMembers(houseId: widget.houseID)),
             );
           }
         },

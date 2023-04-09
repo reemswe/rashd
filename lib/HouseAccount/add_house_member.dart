@@ -940,8 +940,8 @@ class add_house_memberState extends State<add_house_member> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => listOfDevices(
-                      ID: widget.ID,
+                builder: (context) => ListOfDevices(
+                      houseID: widget.ID,
                     )),
           );
         } else if (index == 2) {

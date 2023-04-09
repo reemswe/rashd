@@ -322,8 +322,8 @@ class _houseMembersState extends State<HouseMembers> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => listOfDevices(
-                        ID: widget.houseId, //house ID
+                  builder: (context) => ListOfDevices(
+                        houseID: widget.houseId, //house ID
                       )),
             );
           } else if (index == 2) {}

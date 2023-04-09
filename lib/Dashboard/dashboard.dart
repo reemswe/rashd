@@ -602,8 +602,8 @@ class _dashboardState extends State<dashboard> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => listOfDevices(
-                            ID: houseID, //house ID
+                      builder: (context) => ListOfDevices(
+                            houseID: houseID, //house ID
                           )),
                 );
               } else if (index == 2) {

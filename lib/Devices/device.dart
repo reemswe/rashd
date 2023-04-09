@@ -3,11 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../Dashboard/dashboard.dart';
-import 'listOfDevices.dart';
+import '../functions.dart';
 
 class Device extends StatefulWidget {
   final deviceID;
@@ -21,7 +20,7 @@ class DeviceState extends State<Device> {
   TextEditingController nameController = TextEditingController();
   var deviceRealtimeID = '', deviceColor = '';
   var deviceData, finalColor = Colors.white;
-  var isEditing = false;
+  var isEditing = false, isEdited = false;
   Object? deviceStatus = 'disconnected', currCons = 0, temperature = 0;
 
   @override
@@ -40,7 +39,6 @@ class DeviceState extends State<Device> {
         .get()
         .then((DocumentSnapshot doc) {
       deviceRealtimeID = doc['ID'];
-      print('deviceColor $deviceColor');
       deviceColor = doc['color'];
       var color = deviceColor.split('(0x')[1].split(')')[0];
       int colorValue = int.parse(color, radix: 16);
@@ -106,7 +104,7 @@ class DeviceState extends State<Device> {
                                 boxShadow: [
                                   BoxShadow(
                                       color: finalColor,
-                                      offset: Offset(4, 4),
+                                      offset: const Offset(4, 4),
                                       blurRadius: 8.0)
                                 ]),
                           ),
@@ -131,7 +129,7 @@ class DeviceState extends State<Device> {
                             boxShadow: [
                               BoxShadow(
                                   color: finalColor,
-                                  offset: Offset(4, 4),
+                                  offset: const Offset(4, 4),
                                   blurRadius: 8.0)
                             ]),
                       ),
@@ -145,6 +143,11 @@ class DeviceState extends State<Device> {
                           iconSize: 30,
                           icon: const Icon(Icons.keyboard_arrow_down, size: 60),
                           onPressed: () {
+                            if (isEdited)
+                              setState(() {
+                                isEditing = false;
+                                isEdited = false;
+                              });
                             Navigator.of(context).pop();
                           },
                         )),
@@ -222,7 +225,7 @@ class DeviceState extends State<Device> {
                                                         textAlign:
                                                             TextAlign.right,
                                                         style: TextStyle(
-                                                            fontSize: 18,
+                                                            fontSize: 20,
                                                             fontWeight:
                                                                 FontWeight
                                                                     .w500),
@@ -268,19 +271,8 @@ class DeviceState extends State<Device> {
                                                           .pop();
                                                       Navigator.of(context)
                                                           .pop();
-
-                                                      Fluttertoast.showToast(
-                                                          msg:
-                                                              "تم حذف الجهاز بنجاح.",
-                                                          toastLength: Toast
-                                                              .LENGTH_SHORT,
-                                                          gravity: ToastGravity
-                                                              .BOTTOM,
-                                                          backgroundColor:
-                                                              Colors.green
-                                                                  .shade400,
-                                                          textColor:
-                                                              Colors.white);
+                                                      showToast('valid',
+                                                          "تم حذف الجهاز بنجاح.");
                                                     },
                                                     child: Container(
                                                       padding:
@@ -349,6 +341,18 @@ class DeviceState extends State<Device> {
                                               ),
                                               labelText: 'اسم الجهاز',
                                             ),
+                                            onChanged: (value) {
+                                              if (nameController.text.trim() !=
+                                                  deviceData['name']) {
+                                                setState(() {
+                                                  isEdited = true;
+                                                });
+                                              } else {
+                                                setState(() {
+                                                  isEdited = false;
+                                                });
+                                              }
+                                            },
                                             validator: (value) {
                                               if (value == null ||
                                                   value.isEmpty ||
@@ -392,10 +396,18 @@ class DeviceState extends State<Device> {
                                           ColorPickerType.custom: true,
                                           ColorPickerType.primary: false
                                         },
-                                        onColorChanged: (Color temp) =>
+                                        onColorChanged: (Color temp) {
+                                          if (temp != deviceData['color']) {
                                             setState(() {
-                                          setState(() => finalColor = temp);
-                                        }),
+                                              isEdited = true;
+                                              finalColor = temp;
+                                            });
+                                          } else {
+                                            setState(() {
+                                              isEdited = false;
+                                            });
+                                          }
+                                        },
                                         width: 35,
                                         height: 35,
                                         enableShadesSelection: false,
@@ -454,156 +466,189 @@ class DeviceState extends State<Device> {
                                         padding: const EdgeInsets.all(0),
                                       ),
                                     ),
-                                    SizedBox(height: height * 0.01),
-                                    Container(
-                                      width: 150,
-                                      decoration: BoxDecoration(
-                                        boxShadow: const [
-                                          BoxShadow(
-                                              color: Colors.black26,
-                                              offset: Offset(0, 4),
-                                              blurRadius: 5.0)
-                                        ],
-                                        gradient: const LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          stops: [0.0, 1.0],
-                                          colors: [
-                                            Colors.blue,
-                                            Color(0xFF39d6ce),
-                                          ],
-                                        ),
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          textStyle: const TextStyle(
-                                            fontSize: 18,
+                                    SizedBox(height: height * 0.05),
+                                    Center(
+                                        child: Row(children: [
+                                      Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: width * 0.02,
+                                              vertical: height * 0.001),
+                                          width: width * 0.4,
+                                          decoration: BoxDecoration(
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                  color: Colors.black26,
+                                                  offset: Offset(0, 4),
+                                                  blurRadius: 5.0)
+                                            ],
+                                            gradient: LinearGradient(
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                              stops: [0.1, 1.0],
+                                              colors: [
+                                                Colors.blue.shade200,
+                                                Colors.blue.shade400,
+                                              ],
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(30),
                                           ),
-                                        ),
-                                        onPressed: () {
-                                          if (isEditing) {
-                                            showDialog(
-                                              context: context,
-                                              builder: (ctx) => AlertDialog(
-                                                content: const Text(
-                                                  "Discard the changes you made?",
-                                                  textAlign: TextAlign.left,
-                                                ),
-                                                actions: <Widget>[
-                                                  // cancle button
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.of(ctx).pop();
-                                                    },
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              14),
-                                                      child: const Text(
-                                                          "Keep editing"),
+                                          child: Center(
+                                              child: ElevatedButton(
+                                                  style: ButtonStyle(
+                                                    shape: MaterialStateProperty
+                                                        .all<
+                                                            RoundedRectangleBorder>(
+                                                      RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(30.0),
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        MaterialStateProperty
+                                                            .all(Colors
+                                                                .transparent),
+                                                    shadowColor:
+                                                        MaterialStateProperty
+                                                            .all(Colors
+                                                                .transparent),
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal:
+                                                                width * 0.001,
+                                                            vertical:
+                                                                height * 0.001),
+                                                    child: const Text(
+                                                      'حفظ',
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          color: Colors.white),
                                                     ),
                                                   ),
-                                                  //ok button
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      // Navigator.push(
-                                                      //     context,
-                                                      //     MaterialPageRoute(
-                                                      //       builder: (context) => userProfile(
-                                                      //           userType: widget
-                                                      //               .userType,
-                                                      //           selectedTab:
-                                                      //               2,
-                                                      //           selectedSubTab:
-                                                      //               1),
-                                                      //     ));
-                                                      var n =
-                                                          Navigator.of(context);
-                                                      n.pop();
-                                                      n.pop();
-                                                    },
-                                                    child: Container(
-                                                      //color: Color.fromARGB(255, 164, 20, 20),
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              14),
-                                                      child: const Text(
-                                                          "Discard",
-                                                          style: TextStyle(
-                                                              color: Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      164,
-                                                                      10,
-                                                                      10))),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          } else {
-                                            Navigator.of(context).pop();
-                                          }
-                                        },
-                                        child: const Text('Cancel'),
-                                      ),
-                                    ),
-                                    Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                            10, 30, 10, 0),
+                                                  onPressed: () async {
+                                                    await updateDeviceInfo();
+                                                    setState(() {
+                                                      isEditing = false;
+                                                      isEdited = false;
+                                                    });
+                                                  }))),
+                                      Container(
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: width * 0.02,
+                                            vertical: height * 0.001),
+                                        width: width * 0.4,
                                         decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.blue.shade400),
                                           boxShadow: const [
                                             BoxShadow(
                                                 color: Colors.black26,
                                                 offset: Offset(0, 4),
                                                 blurRadius: 5.0)
                                           ],
-                                          gradient: LinearGradient(
+                                          gradient: const LinearGradient(
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
-                                            stops: [0.1, 1.0],
+                                            stops: [0.0, 1.0],
                                             colors: [
-                                              Colors.blue.shade200,
-                                              Colors.blue.shade400,
+                                              Colors.white,
+                                              Colors.white,
                                             ],
                                           ),
                                           borderRadius:
                                               BorderRadius.circular(30),
                                         ),
-                                        child: Center(
-                                            child: ElevatedButton(
-                                                style: ButtonStyle(
-                                                  shape:
-                                                      MaterialStateProperty.all<
-                                                          RoundedRectangleBorder>(
-                                                    RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30.0),
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            textStyle: const TextStyle(
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            if (isEdited) {
+                                              showDialog(
+                                                context: context,
+                                                builder: (ctx) => AlertDialog(
+                                                  title: const Text(
+                                                      "تجاهل التغييرات؟"),
+                                                  content: const Text(
+                                                      "تجاهل التغييرات التي قمت بها؟",
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                      style: TextStyle(
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                              FontWeight.w500)),
+                                                  actions: <Widget>[
+                                                    TextButton(
+                                                      onPressed: () async {
+                                                        setState(() {
+                                                          isEditing = false;
+                                                          isEdited = false;
+                                                          finalColor = Color(int.parse(
+                                                              deviceData[
+                                                                      'color']
+                                                                  .split(
+                                                                      '(0x')[1]
+                                                                  .split(
+                                                                      ')')[0],
+                                                              radix: 16));
+                                                        });
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(14),
+                                                        child: const Text(
+                                                            "تجاهل",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        164,
+                                                                        10,
+                                                                        10))),
+                                                      ),
                                                     ),
-                                                  ),
-                                                  minimumSize:
-                                                      MaterialStateProperty.all(
-                                                          const Size(350, 50)),
-                                                  backgroundColor:
-                                                      MaterialStateProperty.all(
-                                                          Colors.transparent),
-                                                  shadowColor:
-                                                      MaterialStateProperty.all(
-                                                          Colors.transparent),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(ctx).pop();
+                                                      },
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(14),
+                                                        child: Text(
+                                                            "استمر في التحرير",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                color: Colors
+                                                                    .blue
+                                                                    .shade400)),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                child: const Padding(
-                                                  padding: EdgeInsets.fromLTRB(
-                                                      50, 10, 50, 10),
-                                                  child: Text(
-                                                    'التالي',
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        color: Colors.white),
-                                                  ),
-                                                ),
-                                                onPressed: () {}))),
+                                              );
+                                            } else {
+                                              Navigator.of(context).pop();
+                                            }
+                                          },
+                                          child: Text(
+                                            'إلغاء',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                color: Colors.blue.shade400),
+                                          ),
+                                        ),
+                                      ),
+                                    ])),
                                   ])
                             : ListView(
                                 padding: EdgeInsets.symmetric(
@@ -611,228 +656,84 @@ class DeviceState extends State<Device> {
                                 ),
                                 children: [
                                     SizedBox(height: height * 0.01),
-                                    const Align(
+                                    Align(
                                       alignment: Alignment.topRight,
-                                      child: Text(
-                                        "الاسم",
-                                        style: TextStyle(
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.w600),
+                                      child: LiteRollingSwitch(
+                                        value: deviceStatus != 'disconnected'
+                                            ? (deviceStatus == 'ON'
+                                                ? true
+                                                : false)
+                                            : false,
+                                        textOn: 'On',
+                                        textOff: deviceStatus != 'disconnected'
+                                            ? 'Off'
+                                            : "غير متصل",
+                                        colorOn: Colors.green.shade400,
+                                        colorOff: deviceStatus != 'disconnected'
+                                            ? Colors.red.shade400
+                                            : Colors.grey.shade600,
+                                        iconOn: Icons.done,
+                                        iconOff: Icons.remove_circle_outline,
+                                        textOnColor: Colors.white,
+                                        textSize: 16.0,
+                                        width: 100,
+                                        onChanged: (bool state) async {
+                                          if (deviceStatus != 'disconnected') {
+                                            await updateDeviceStatus(
+                                                state ? "ON" : "OFF",
+                                                deviceRealtimeID);
+                                          }
+                                        },
+                                        onTap: () {},
+                                        onSwipe: () {},
+                                        onDoubleTap: () {},
                                       ),
                                     ),
-                                    Visibility(
-                                        visible: isEditing,
-                                        child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: width * 0.08,
-                                            ),
-                                            child: Form(
-                                              key: formKey,
-                                              child: TextFormField(
-                                                controller: nameController,
-                                                decoration: InputDecoration(
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                    vertical: width * 0.04,
-                                                  ),
-                                                  labelText: 'اسم الجهاز',
-                                                ),
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.isEmpty ||
-                                                      (value.trim()).isEmpty) {
-                                                    return 'الرجاء ادخال اسم للجهاز';
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-                                            ))),
-                                    Visibility(
-                                        visible: isEditing,
-                                        child: Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                width * 0.06,
-                                                height * 0.01,
-                                                width * 0.06,
-                                                height * 0.01),
-                                            child: ColorPicker(
-                                              hasBorder: true,
-                                              borderColor: Colors.grey.shade200,
-                                              color: finalColor,
-                                              pickersEnabled: const {
-                                                ColorPickerType.accent: false,
-                                                ColorPickerType.custom: true,
-                                                ColorPickerType.primary: false
-                                              },
-                                              onColorChanged: (Color temp) =>
-                                                  setState(() {
-                                                setState(
-                                                    () => finalColor = temp);
-                                              }),
-                                              width: 35,
-                                              height: 35,
-                                              enableShadesSelection: false,
-                                              selectedColorIcon: Icons.check,
-                                              borderRadius: 30,
-                                              customColorSwatchesAndNames: {
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffFFADAD)):
-                                                    "0xffFFADAD",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffffd6a5)):
-                                                    "0xffffd6a5",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xfffcf6bd)):
-                                                    "0xfffcf6bd",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffcaffbf)):
-                                                    "0xffcaffbf",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffd0f4de)):
-                                                    "0xffd0f4de",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffbde0fe)):
-                                                    "0xffbde0fe",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffa9def9)):
-                                                    "0xffa9def9",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffa0c4ff)):
-                                                    "0xffa0c4ff",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffd7c8f3)):
-                                                    "0xffd7c8f3",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffcdc1ff)):
-                                                    "0xffcdc1ff",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffffc6ff)):
-                                                    "0xffffc6ff",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffffe5ec)):
-                                                    "0xffffe5ec",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xfffffffc)):
-                                                    "0xfffffffc",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffedede9)):
-                                                    "0xffedede9",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffe2e2e2)):
-                                                    "0xffe2e2e2",
-                                                ColorTools.createPrimarySwatch(
-                                                        const Color(
-                                                            0xffe3d5ca)):
-                                                    "0xffe3d5ca",
-                                              },
-                                              padding: const EdgeInsets.all(0),
-                                            ))),
-                                    Visibility(
-                                        visible: !isEditing,
-                                        child: Align(
-                                          alignment: Alignment.topRight,
-                                          child: LiteRollingSwitch(
-                                            value:
-                                                deviceStatus != 'disconnected'
-                                                    ? (deviceStatus == 'ON'
-                                                        ? true
-                                                        : false)
-                                                    : false,
-                                            textOn: 'On',
-                                            textOff:
-                                                deviceStatus != 'disconnected'
-                                                    ? 'Off'
-                                                    : "غير متصل",
-                                            colorOn: Colors.green.shade400,
-                                            colorOff:
-                                                deviceStatus != 'disconnected'
-                                                    ? Colors.red.shade400
-                                                    : Colors.grey.shade600,
-                                            iconOn: Icons.done,
-                                            iconOff:
-                                                Icons.remove_circle_outline,
-                                            textOnColor: Colors.white,
-                                            textSize: 16.0,
-                                            width: 100,
-                                            onChanged: (bool state) async {
-                                              if (deviceStatus !=
-                                                  'disconnected') {
-                                                await updateDeviceStatus(
-                                                    state ? "ON" : "OFF",
-                                                    deviceRealtimeID);
-                                              }
-                                            },
-                                            onTap: () {},
-                                            onSwipe: () {},
-                                            onDoubleTap: () {},
-                                          ),
-                                        )),
                                     SizedBox(height: height * 0.01),
-                                    Visibility(
-                                        visible: !isEditing,
-                                        child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: [
-                                              Column(children: [
-                                                Text('$currCons',
-                                                    style: TextStyle(
-                                                        fontSize: 40,
-                                                        fontWeight:
-                                                            FontWeight.w500)),
-                                                Text('الاستهلاك الحالي'),
-                                              ]),
-                                              Column(children: [
-                                                Text('$temperature',
-                                                    style: TextStyle(
-                                                        fontSize: 40,
-                                                        fontWeight:
-                                                            FontWeight.w500)),
-                                                Text('درجة حرارة الجهاز')
-                                              ])
-                                            ])),
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          Column(children: [
+                                            Text('$currCons',
+                                                style: const TextStyle(
+                                                    fontSize: 40,
+                                                    fontWeight:
+                                                        FontWeight.w500)),
+                                            const Text('الاستهلاك الحالي'),
+                                          ]),
+                                          Column(children: [
+                                            Text('$temperature',
+                                                style: const TextStyle(
+                                                    fontSize: 40,
+                                                    fontWeight:
+                                                        FontWeight.w500)),
+                                            const Text('درجة حرارة الجهاز')
+                                          ])
+                                        ]),
                                     SizedBox(height: height * 0.01),
-                                    Visibility(
-                                        visible: !isEditing,
-                                        child: SfCartesianChart(
-                                            primaryXAxis: CategoryAxis(
-                                                title:
-                                                    AxisTitle(text: 'الأشهر')),
-                                            primaryYAxis: NumericAxis(
-                                                title: AxisTitle(text: 'kWh')),
-                                            series: <
-                                                ChartSeries<ChartData, String>>[
-                                              LineSeries<ChartData, String>(
-                                                  width: 3,
-                                                  dataSource: chartData,
-                                                  dataLabelSettings:
-                                                      const DataLabelSettings(
-                                                          isVisible: true),
-                                                  xValueMapper:
-                                                      (ChartData data, _) =>
-                                                          data.x,
-                                                  pointColorMapper:
-                                                      (ChartData data, _) =>
-                                                          data.color,
-                                                  yValueMapper:
-                                                      (ChartData data, _) =>
-                                                          data.y),
-                                            ]))
+                                    SfCartesianChart(
+                                        primaryXAxis: CategoryAxis(
+                                            title: AxisTitle(text: 'الأشهر')),
+                                        primaryYAxis: NumericAxis(
+                                            title: AxisTitle(text: 'kWh')),
+                                        series: <
+                                            ChartSeries<ChartData, String>>[
+                                          LineSeries<ChartData, String>(
+                                              width: 3,
+                                              dataSource: chartData,
+                                              dataLabelSettings:
+                                                  const DataLabelSettings(
+                                                      isVisible: true),
+                                              xValueMapper:
+                                                  (ChartData data, _) => data.x,
+                                              pointColorMapper:
+                                                  (ChartData data, _) =>
+                                                      data.color,
+                                              yValueMapper:
+                                                  (ChartData data, _) =>
+                                                      data.y),
+                                        ])
                                   ])),
                   ]);
                 } else {
@@ -842,6 +743,16 @@ class DeviceState extends State<Device> {
     );
   }
 
+  Future<void> updateDeviceInfo() async {
+    await FirebaseFirestore.instance
+        .collection('houseAccount')
+        .doc(widget.houseID)
+        .collection('houseDevices')
+        .doc(widget.deviceID)
+        .update({'name': nameController.text, 'color': "$finalColor"});
+    showToast("valid", 'تم حفظ التغييرات بنجاح.');
+  }
+
   Future<void> getDeviceRealtimeData() async {
     await getDeviceID();
     var color = deviceColor.split('(0x')[1].split(')')[0];
@@ -849,25 +760,6 @@ class DeviceState extends State<Device> {
 
     final databaseRef =
         FirebaseDatabase.instance.ref('devicesList/$deviceRealtimeID/');
-
-    databaseRef.onValue.listen((event) {
-      Map<dynamic, dynamic>? data =
-          event.snapshot.value as Map<dynamic, dynamic>?;
-      if (data != null) {
-        data.forEach((key, values) {
-          if (key == 'status') {
-            deviceStatus = values;
-            print(values);
-          } else if (key == 'consumption') {
-            print(values['currentConsumption']);
-            currCons = values['currentConsumption'];
-          } else if (key == 'temperature') {
-            print(values);
-            temperature = values;
-          }
-        });
-      }
-    });
 
     databaseRef.onValue.listen((event) {
       // Clear the existing chart data
