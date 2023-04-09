@@ -352,6 +352,7 @@ class _dashboardState extends State<dashboard> {
                                   InkWell(
                                 onTap: (() {
                                   _onPressed(context: context, locale: 'ar');
+
                                   // ubdateChart('march');
                                 }),
                                 child: Text(month,
@@ -809,6 +810,23 @@ class _dashboardState extends State<dashboard> {
     if (selected != null) {
       setState(() {
         _selected = selected;
+        //DateFormat d = print('month');
+        //print(DateFormat.yMMMMd('en_US'));
+        //   DateTime d = DateTime().now();
+
+        // print(DateFormat.yMMMMd('ar').format(selected));
+        // String d = DateFormat.yMMMMd().format(selected);
+        // print(_selected?.year);
+        // print((d.substring(0, d.indexOf(' '))).toLowerCase());
+        // print(_selected?.month);
+        // //  String y = selected?.year.toString();
+        // print('_selected?.year');
+        print((DateFormat('yyyy-MMMM').format(selected)).toLowerCase());
+        String selectedYearMonth =
+            (DateFormat('yyyy-MMMM').format(selected)).toLowerCase();
+        print(DateFormat.MMMM('ar').format(selected));
+        month = DateFormat.MMMM('ar').format(selected);
+        ubdateChart(selectedYearMonth);
       });
     }
   }
@@ -875,13 +893,27 @@ class _dashboardState extends State<dashboard> {
     var collection = await FirebaseFirestore.instance
         .collection('houseAccount')
         .doc('ffDQbRQQ8k9RzlGQ57FL')
-        .collection('houseDevices')
-        .doc('BNNvNt9g1UAiT1z3MLrH')
-        .collection('monthlyConsumption');
-    collection.snapshots().listen(((querySnapshot) {
+        .collection('houseDevices');
+    // .doc('BNNvNt9g1UAiT1z3MLrH')
+    // .collection('monthlyConsumption');
+    collection.snapshots().listen(((querySnapshot) async {
       for (var doc in querySnapshot.docs) {
-        print(doc.toString());
-        //   print('  querySnapshot.docs $querySnapshot.docs');
+        print('==================hd=====================');
+        Map<String, dynamic> data = doc.data();
+        print(data);
+        print('====================m===================');
+        var collection2 = await FirebaseFirestore.instance
+            .collection('houseAccount')
+            .doc('ffDQbRQQ8k9RzlGQ57FL')
+            .collection('houseDevices')
+            .doc('BNNvNt9g1UAiT1z3MLrH')
+            .collection('monthlyConsumption');
+        collection2.snapshots().listen(((querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            Map<String, dynamic> data = doc.data();
+            print(data);
+          }
+        }));
       }
     }));
 
@@ -913,7 +945,7 @@ class _dashboardState extends State<dashboard> {
           //   }
           // ]);
           print(data);
-          print(data['consumption']);
+          print(data['currentConsumption']);
           var color = data['color'].split('(0x')[1].split(')')[0];
           print('color $color');
           int value = int.parse(color, radix: 16);
