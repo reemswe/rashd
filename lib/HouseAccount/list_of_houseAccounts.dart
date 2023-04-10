@@ -348,7 +348,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(const SnackBar(
                                           content:
-                                              Text('تم حذف  المنزل بنجاح '),
+                                              Text('تم الغاء الاشتراك بالمنزل بنجاح '),
                                         ));
                                         setState(() {
                                           print('reload.!');
@@ -359,7 +359,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(14),
-                                  child: const Text("حذف",
+                                  child: const Text("نعم",
                                       style: TextStyle(
                                           fontSize: 18,
                                           color: Color.fromARGB(
@@ -378,7 +378,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                               textAlign: TextAlign.center,
                             ),
                             content: const Text(
-                              "هل أنت متأكد من أنك تريد حذف المنزل ؟ ",
+                              "هل أنت متأكد من أنك تريد حذف المنزل ؟، هذه العملية لا يمكن التراجع عنها ",
                               textAlign: TextAlign.end,
                             ),
                             actions: <Widget>[
