@@ -29,6 +29,7 @@ class dashboard extends StatefulWidget {
 var userType = 'visitor';
 
 class _dashboardState extends State<dashboard> {
+  var deviceRealtimeID = '';
   Future<void> share() async {
     var uuid = const Uuid();
     uuid.v1();
@@ -79,14 +80,14 @@ class _dashboardState extends State<dashboard> {
     'يناير',
     'فبراير',
     'مارس',
-    'ابريل',
+    'أبريل',
     'مايو',
     'يونيو',
     'يوليو',
-    'اغسطس',
+    'أغسطس',
     'سبتمبر',
+    'أكتوبر',
     'نوفمبر',
-    'اكتوبر',
     'ديسمبر'
   ];
 
@@ -94,19 +95,19 @@ class _dashboardState extends State<dashboard> {
   // Future? data;
   final _formKey = GlobalKey<FormState>();
   // List? devices = [];
-  List text = [
+  List energyData = [
     [
       'فاتورة الكهرباء',
       '500.25SR',
-      '\t',
+      '*الفاتورة تشمل ضريبة القيمة المضافة',
       Colors.lightBlue.shade500,
-      Color.fromARGB(255, 232, 175, 175),
+      Colors.white,
       const Color(0xff81D4FA),
     ],
     [
       'إجمالي استهلاك الطاقة',
       '150kWh',
-      'تم بلوغ 50% من هدف الشهر',
+      'تم بلوغ % من هدف الشهر',
       Colors.lightBlue.shade200,
       Colors.white,
       Colors.lightBlue.shade100,
@@ -129,6 +130,8 @@ class _dashboardState extends State<dashboard> {
     super.initState();
     //  _selected = DateTime.now();
     month = months[DateTime.now().month];
+    // getDeviceRealtimeData();
+    // getDeviceID();
     getData();
     setState(() {
       // FirebaseFirestore.instance
@@ -191,24 +194,6 @@ class _dashboardState extends State<dashboard> {
     calculateBill(10000);
     calculateEnergy(1080);
 
-    List energyData = [
-      [
-        'فاتورة الكهرباء',
-        '${electricityBill}SR',
-        '*الفاتورة تشمل ضريبة القيمة المضافة',
-        Colors.lightBlue.shade500,
-        Colors.white,
-        const Color(0xff81D4FA),
-      ],
-      [
-        'إجمالي استهلاك الطاقة',
-        '${total}kWh',
-        'تم بلوغ ${percentage}% من هدف الشهر',
-        Colors.lightBlue.shade200,
-        Colors.white,
-        Colors.lightBlue.shade100,
-      ]
-    ];
     var LRPadding = width * 0.025;
 
     return Scaffold(
@@ -843,7 +828,7 @@ class _dashboardState extends State<dashboard> {
             (DateFormat('yyyy-MMMM').format(selected)).toLowerCase();
         print(DateFormat.MMMM('ar').format(selected));
         month = DateFormat.MMMM('ar').format(selected);
-        ubdateChart(selectedYearMonth);
+        ubdateChart(selectedYearMonth, month);
       });
     }
   }
@@ -875,9 +860,12 @@ class _dashboardState extends State<dashboard> {
       total = total - i;
       setState(() {
         percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
-        text[1][1] = '${total}kWh';
+        energyData[1][1] = '${total}kWh';
         percentage = (total / int.parse('100')) * 100;
         i = total;
+        calculateBill(total.toDouble());
+        String e = electricityBill.toStringAsFixed(2);
+        energyData[0][1] = '${e}SR';
       });
     });
   }
@@ -899,54 +887,135 @@ class _dashboardState extends State<dashboard> {
       total = total - i;
       setState(() {
         percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
-        text[1][1] = '${total}kWh';
+        energyData[1][1] = '${total}kWh';
         percentage = (total / int.parse('100')) * 100;
         i = total;
       });
     });
   }
 
-  Future ubdateChart(String month) async {
-    var collection = await FirebaseFirestore.instance
-        .collection('houseAccount')
-        .doc('ffDQbRQQ8k9RzlGQ57FL')
-        .collection('houseDevices');
-    // .doc('BNNvNt9g1UAiT1z3MLrH')
-    // .collection('monthlyConsumption');
-    collection.snapshots().listen(((querySnapshot) async {
-      for (var doc in querySnapshot.docs) {
-        print('==================hd=====================');
-        Map<String, dynamic> data = doc.data();
-        print(data);
-        print('====================m===================');
-        var collection2 = await FirebaseFirestore.instance
-            .collection('houseAccount')
-            .doc('ffDQbRQQ8k9RzlGQ57FL')
-            .collection('houseDevices')
-            .doc('BNNvNt9g1UAiT1z3MLrH')
-            .collection('monthlyConsumption');
-        collection2.snapshots().listen(((querySnapshot) {
-          for (var doc in querySnapshot.docs) {
-            Map<String, dynamic> data = doc.data();
-            print(data);
-          }
-        }));
-      }
-    }));
+  Future ubdateChart(String selectedYearMonth, String monthar) async {
+    // print(months[DateTime.now().month]);
+    //if (monthar = months[DateTime.now().month]) {
+    print('(monthar = months[DateTime.now().month])');
+    print(monthar);
+    print(months[DateTime.now().month]);
+    if (monthar == months[DateTime.now().month]) {
+      setState(() {
+        getData();
+      });
+    } else {
+      int value = 0;
+      String name = '';
+      double comonthlyCons = 0;
+      String docID = '';
 
-    setState(() {
       chartData.clear();
-      int value = 4278228616;
-      String name = 'dev';
-      double consum = 300;
-      chartData.add(ChartData(name, consum, Color(value)));
-    });
+
+//get devices name,color,id
+      var collection = await FirebaseFirestore.instance
+          .collection('houseAccount')
+          .doc(widget.ID)
+          .collection('houseDevices');
+
+      collection.snapshots().listen(((querySnapshot) async {
+        for (var doc in querySnapshot.docs) {
+          print('==================hd=====================');
+          Map<String, dynamic> data = doc.data();
+          print(data);
+          print(data['name']);
+          name = data['name'];
+          var color = data['color'].split('(0x')[1].split(')')[0];
+          value = int.parse(color, radix: 16);
+          docID = doc.id;
+          print(doc.id);
+
+//get monthlyConsumption
+          var collection2 = await FirebaseFirestore.instance
+              .collection('houseAccount')
+              .doc(widget.ID)
+              .collection('houseDevices')
+              .doc(docID)
+              .collection('monthlyConsumption');
+
+          collection2.snapshots().listen(((querySnapshot) {
+            // print(doc.data().values);
+            for (var doc in querySnapshot.docs) {
+              if (doc.exists) {
+                print('====================m===================');
+                Map<String, dynamic> data = doc.data();
+                print(data);
+                print(data[selectedYearMonth]);
+                //if(data[month] != null)
+                comonthlyCons =
+                    double.parse(data[selectedYearMonth].toString());
+                print(comonthlyCons);
+                // setState(() {
+                //   chartData.add(ChartData(name, comonthlyCons, Color(value)));
+                // });
+              }
+            }
+            print(comonthlyCons);
+          }));
+          print('////////////////////////////////');
+          print('name $name');
+          print('comonthlyCons $comonthlyCons');
+          print('value $value');
+//update chart
+          setState(() {
+            chartData.add(ChartData(name, comonthlyCons, Color(value)));
+          });
+        }
+      }));
+
+      // setState(() {
+      //   chartData.clear();
+      //   int value = 4278228616;
+      //   String name = 'dev';
+      //   double consum = 300;
+      //   chartData.add(ChartData(name, consum, Color(value)));
+      // });
+    } //end of else
   }
+
+  // Future<void> getDeviceID() async {
+  //   await FirebaseFirestore.instance
+  //       .collection('houseAccount')
+  //       .doc(widget.ID)
+  //       .collection('houseDevices')
+  //       .doc(widget.deviceID)
+  //       .get()
+  //       .then((DocumentSnapshot doc) {
+  //     deviceRealtimeID = doc['ID'];
+  //     //  deviceColor = doc['color'];
+  //     var color = deviceColor.split('(0x')[1].split(')')[0];
+  //     int colorValue = int.parse(color, radix: 16);
+  //     finalColor = Color(colorValue);
+  //   });
+  // }
+
+  // Future<void> getRealtimeData() async {
+  //   // await getDeviceID();
+
+  //   final databaseRef = FirebaseDatabase.instance
+  //       .ref('devicesList/${deviceID}/consumption/monthlyConsumption/');
+
+  //   databaseRef.onValue.listen((event) {
+  //     Map<dynamic, dynamic>? data =
+  //         event.snapshot.value as Map<dynamic, dynamic>?;
+  //     if (data != null) {
+  //       data.forEach((key, values) {
+  //         String name = key; //the name of the attribute
+  //         double cons = values.toDouble(); //the value
+  //       });
+  //     }
+  //   });
+  // }
 
   Future getData() async {
     var collection = await FirebaseFirestore.instance
         .collection('houseAccount')
-        .doc('ffDQbRQQ8k9RzlGQ57FL')
+        .doc(widget.ID)
         .collection('houseDevices');
     // to get data from all documents sequentially
     collection.snapshots().listen((querySnapshot) {
