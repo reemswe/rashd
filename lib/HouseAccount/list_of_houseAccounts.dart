@@ -279,53 +279,53 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
           itemCount: dataList.length,
           itemBuilder: (BuildContext context, int index) {
             return Container(
-                margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: const [
-                      BoxShadow(
-                          blurRadius: 30,
-                          color: Colors.black45,
-                          spreadRadius: -10)
-                    ],
-                    borderRadius: BorderRadius.circular(20)),
-                child: ListTile(
+              margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: const [
+                    BoxShadow(
+                        blurRadius: 30,
+                        color: Colors.black45,
+                        spreadRadius: -10)
+                  ],
+                  borderRadius: BorderRadius.circular(20)),
+              child: ListTile(
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
                     iconSize: 35,
                     color: Color.fromARGB(255, 122, 3, 3),
                     onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text(
-                            "هل أنت متأكد ؟",
-                            textAlign: TextAlign.center,
-                          ),
-                          content: const Text(
-                            "هل أنت متأكد من أنك تريد حذف المنزل ؟ ",
-                            textAlign: TextAlign.end,
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(ctx).pop();
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(14),
-                                child: const Text(
-                                  "إلغاء",
-                                  style: TextStyle(
-                                    fontSize: 18,
+                      if (type == 'M') {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text(
+                              "هل أنت متأكد ؟",
+                              textAlign: TextAlign.center,
+                            ),
+                            content: const Text(
+                              "هل أنت متأكد من أنك تريد الغاء الاشتراك بالمنزل  ؟ ",
+                              textAlign: TextAlign.end,
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(14),
+                                  child: const Text(
+                                    "إلغاء",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                Navigator.of(ctx).pop();
-                                if (type == 'M') {
+                              TextButton(
+                                onPressed: () async {
+                                  Navigator.of(ctx).pop();
                                   print("inside member");
                                   await FirebaseFirestore.instance
                                       .collection('houseAccount')
@@ -340,7 +340,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                             .where((document) =>
                                                 (document.data() as Map<String,
                                                     dynamic>)['memberID'] ==
-                                                'TOd45A8GUpbgWLVCTOvHTaKF4CB3') // member ID
+                                                FirebaseAuth.instance.currentUser!) // member ID
                                             .toList();
                                     for (DocumentSnapshot ds in filteredDocs) {
                                       ds.reference.delete().then((_) {
@@ -350,10 +350,55 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                           content:
                                               Text('تم حذف  المنزل بنجاح '),
                                         ));
+                                        setState(() {
+                                          print('reload.!');
+                                        });
                                       });
                                     }
                                   });
-                                } else {
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(14),
+                                  child: const Text("حذف",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Color.fromARGB(
+                                              255, 124, 18, 18))),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text(
+                              "هل أنت متأكد ؟",
+                              textAlign: TextAlign.center,
+                            ),
+                            content: const Text(
+                              "هل أنت متأكد من أنك تريد حذف المنزل ؟ ",
+                              textAlign: TextAlign.end,
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(14),
+                                  child: const Text(
+                                    "إلغاء",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  Navigator.of(ctx).pop();
                                   //if user is owner !
                                   print("inside Owner");
                                   //Delete house account
@@ -371,6 +416,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                 dataList[index][0][
                                                     "houseID"]) // tile list house ID
                                             .toList();
+                                    print("i am here !");      
                                     for (DocumentSnapshot ds in filteredDocs) {
                                       //**********************************************************************
                                       //delete dashboard
@@ -463,20 +509,20 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                       });
                                     }
                                   });
-                                } //else end
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(14),
-                                child: const Text("حذف",
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        color:
-                                            Color.fromARGB(255, 124, 18, 18))),
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(14),
+                                  child: const Text("حذف",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Color.fromARGB(
+                                              255, 124, 18, 18))),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
+                            ],
+                          ),
+                        );
+                      }
                     },
                   ),
                   leading: Text(
@@ -495,6 +541,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                               )),
                     );
                   }),
+            );
           });
     }
     return Column(mainAxisSize: MainAxisSize.min, children: [
