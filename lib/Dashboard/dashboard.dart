@@ -915,7 +915,7 @@ class _dashboardState extends State<dashboard> {
 //get devices name,color,id
       var collection = await FirebaseFirestore.instance
           .collection('houseAccount')
-          .doc(widget.ID)
+          .doc(widget.houseID)
           .collection('houseDevices');
 
       collection.snapshots().listen(((querySnapshot) async {
@@ -933,7 +933,7 @@ class _dashboardState extends State<dashboard> {
 //get monthlyConsumption
           var collection2 = await FirebaseFirestore.instance
               .collection('houseAccount')
-              .doc(widget.ID)
+              .doc(widget.houseID)
               .collection('houseDevices')
               .doc(docID)
               .collection('monthlyConsumption');
@@ -1015,7 +1015,7 @@ class _dashboardState extends State<dashboard> {
   Future getData() async {
     var collection = await FirebaseFirestore.instance
         .collection('houseAccount')
-        .doc(widget.ID)
+        .doc(widget.houseID)
         .collection('houseDevices');
     // to get data from all documents sequentially
     collection.snapshots().listen((querySnapshot) {
