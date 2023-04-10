@@ -290,29 +290,11 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                           spreadRadius: -10)
                     ],
                     borderRadius: BorderRadius.circular(20)),
-                child: Row(
-                children: [
-                  ListTile(
-                      trailing: const Icon(Icons.arrow_forward_ios),
-                      leading: Text(
-                        dataList[index][0]["houseName"],
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                      onTap: () {
-                        print('houseID');
-                        print(dataList[index][0]["houseID"]);
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //       builder: (context) => dashboard(
-                        //             ID: dataList[index][0]
-                        //                 ["houseID"], //'0mHcZmbfEDK8CebdkVYR' //
-                        //           )),
-                        // );
-                      }),
-                  IconButton(
+                child: ListTile(
+                  trailing: IconButton(
                     icon: const Icon(Icons.delete),
-                    color: Colors.white,
+                    iconSize: 35,
+                    color: Color.fromARGB(255, 122, 3, 3),
                     onPressed: () {
                       showDialog(
                         context: context,
@@ -344,6 +326,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                               onPressed: () async {
                                 Navigator.of(ctx).pop();
                                 if (type == 'M') {
+                                  print("inside member");
                                   await FirebaseFirestore.instance
                                       .collection('houseAccount')
                                       .doc(dataList[index][0]["houseID"])
@@ -357,8 +340,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                             .where((document) =>
                                                 (document.data() as Map<String,
                                                     dynamic>)['memberID'] ==
-                                                FirebaseAuth
-                                                    .instance.currentUser!)
+                                                'TOd45A8GUpbgWLVCTOvHTaKF4CB3') // member ID
                                             .toList();
                                     for (DocumentSnapshot ds in filteredDocs) {
                                       ds.reference.delete().then((_) {
@@ -373,6 +355,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                   });
                                 } else {
                                   //if user is owner !
+                                  print("inside Owner");
                                   //Delete house account
                                   await FirebaseFirestore.instance
                                       .collection('houseAccount')
@@ -496,9 +479,22 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                       );
                     },
                   ),
-                ],
-              ),
-            );
+                  leading: Text(
+                    dataList[index][0]["houseName"],
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  onTap: () {
+                    print('houseID');
+                    print(dataList[index][0]["houseID"]);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => dashboard(
+                                ID: dataList[index][0]
+                                    ["houseID"], //'0mHcZmbfEDK8CebdkVYR' //
+                              )),
+                    );
+                  }),
           });
     }
     return Column(mainAxisSize: MainAxisSize.min, children: [
