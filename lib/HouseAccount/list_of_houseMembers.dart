@@ -2,10 +2,9 @@ import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../Dashboard/sharedDashboard.dart';
-import '../Devices/listOfDevices.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
+import '../functions.dart';
 import 'add_house_member.dart';
 import 'list_of_houseAccounts.dart';
 
@@ -56,7 +55,8 @@ class _houseMembersState extends State<HouseMembers> {
     final double width = MediaQuery.of(context).size.width;
 
     return FutureBuilder<Map<String, dynamic>>(
-        future: readHouseData(widget.houseId),
+        future: readHouseData(
+            widget.houseId, FirebaseAuth.instance.currentUser!.uid, false),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
@@ -311,21 +311,21 @@ class _houseMembersState extends State<HouseMembers> {
             () => index = index,
           );
           if (index == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => dashboard(
-                        ID: widget.houseId,
-                      )),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //       builder: (context) => dashboard(
+            //             ID: widget.houseId,
+            //           )),
+            // );
           } else if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ListOfDevices(
-                        houseID: widget.houseId, //house ID
-                      )),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //       builder: (context) => ListOfDevices(
+            //             houseID: widget.houseId, //house ID
+            //           )),
+            // );
           } else if (index == 2) {}
         },
         items: items);

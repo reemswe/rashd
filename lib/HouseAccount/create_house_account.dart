@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 
 class CreateHouseAccount extends StatefulWidget {
   const CreateHouseAccount({super.key});

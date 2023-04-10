@@ -933,17 +933,17 @@ class add_house_memberState extends State<add_house_member> {
             context,
             MaterialPageRoute(
                 builder: (context) => dashboard(
-                      ID: widget.ID,
-                    )),
-          );
-        } else if (index == 1) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ListOfDevices(
                       houseID: widget.ID,
                     )),
           );
+        } else if (index == 1) {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //       builder: (context) => ListOfDevices(
+          //             houseID: widget.ID,
+          //           )),
+          // );
         } else if (index == 2) {
           Navigator.push(
             context,

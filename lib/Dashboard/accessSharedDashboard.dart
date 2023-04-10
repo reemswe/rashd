@@ -1,23 +1,24 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
 import '../Registration/register.dart';
 
-class accessSharedDashboard extends StatefulWidget {
-  const accessSharedDashboard({Key? key}) : super(key: key);
+class AccessSharedDashboard extends StatefulWidget {
+  const AccessSharedDashboard({Key? key}) : super(key: key);
 
   @override
   Satisfies createState() => Satisfies();
 }
 
-class Satisfies extends State<accessSharedDashboard> {
+class Satisfies extends State<AccessSharedDashboard> {
   final _formKey = GlobalKey<FormState>();
   bool invalidCode = false;
   TextEditingController codeController = TextEditingController();
   String codeErrorMessage = '';
   bool inProgress = false;
-  ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -204,18 +205,9 @@ class Satisfies extends State<accessSharedDashboard> {
                                                 .get();
 
                                         await FirebaseFirestore.instance
-                                            .collectionGroup('sharedCode')
-                                            .where('code',
-                                                isEqualTo: int.parse(
-                                                    codeController.text))
-                                            .where('isExpired',
-                                                isEqualTo: false)
-                                            .get();
-
-                                        FirebaseFirestore.instance
-                                            .collection('dashboard')
+                                            .collection('houseAccount')
                                             .doc(sharedDashboard.docs[0]
-                                                .data()["dashID"])
+                                                .data()["houseID"])
                                             .collection('sharedCode')
                                             .doc(sharedDashboard.docs[0].id)
                                             .update({'isExpired': true});
@@ -226,8 +218,8 @@ class Satisfies extends State<accessSharedDashboard> {
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) => dashboard(
-                                                ID: sharedDashboard.docs[0]
-                                                    .data()['dashID'],
+                                                houseID: sharedDashboard.docs[0]
+                                                    .data()['houseID'],
                                                 isShared: true,
                                               ),
                                             ));
@@ -289,7 +281,6 @@ class Satisfies extends State<accessSharedDashboard> {
         .get();
 
     if (codeExistQuery.docs.isNotEmpty) {
-      print('NOT EMPTY');
       QuerySnapshot codeExpiredQuery = await FirebaseFirestore.instance
           .collectionGroup('sharedCode')
           .where('code', isEqualTo: int.parse(codeController.text))
@@ -302,7 +293,6 @@ class Satisfies extends State<accessSharedDashboard> {
         codeErrorMessage = 'رمز لوحة المعلومات تم استخدامه بالفعل.';
       }
     } else {
-      print('EMPTY');
       invalidCode = true;
       codeErrorMessage = 'رمز لوحة المعلومات غير صالح.';
     }

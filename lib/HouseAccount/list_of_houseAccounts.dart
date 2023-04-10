@@ -55,7 +55,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
             GlobalContextService.navigatorKey.currentState!.context,
             PageRouteBuilder(
               pageBuilder: (context, animation1, animation2) => dashboard(
-                ID: payload,
+                houseID: payload,
               ),
               transitionDuration: const Duration(seconds: 1),
               reverseTransitionDuration: Duration.zero,
@@ -81,11 +81,9 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
     getToken();
 
-    setState(() {
-      getData();
-      getOwner();
-      getMember();
-    });
+    getData();
+    getOwner();
+    getMember();
     super.initState();
   }
 
@@ -226,11 +224,6 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                           top: Radius.circular(105.0),
                         )),
                         builder: (context) => const CreateHouseAccount());
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //       builder: (context) => const CreateHouseAccount()),
-                    // );
                   },
                 )),
           ]),
@@ -303,7 +296,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                         context,
                         MaterialPageRoute(
                             builder: (context) => dashboard(
-                                  ID: dataList[index][0]
+                                  houseID: dataList[index][0]
                                       ["houseID"], //'0mHcZmbfEDK8CebdkVYR' //
                                 )),
                       );
@@ -326,11 +319,17 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                   style: TextStyle(fontSize: 17)),
               InkWell(
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CreateHouseAccount(),
-                        ));
+                    showModalBottomSheet(
+                        isScrollControlled: true,
+                        isDismissible: false,
+                        enableDrag: false,
+                        backgroundColor: Colors.transparent,
+                        context: context,
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(105.0),
+                        )),
+                        builder: (context) => const CreateHouseAccount());
                   },
                   child: const Text("بإنشاء حساب منزل",
                       style: TextStyle(

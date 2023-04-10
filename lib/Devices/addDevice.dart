@@ -802,6 +802,8 @@ class AddDeviceState extends State<AddDevice> {
                                                                 ListOfDevices(
                                                                   houseID:
                                                                       widget.ID,
+                                                                  userType:
+                                                                      'owner',
                                                                 )),
                                                       );
                                                     }

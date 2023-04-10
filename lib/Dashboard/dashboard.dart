@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
@@ -15,22 +14,19 @@ import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../HouseAccount/list_of_houseMembers.dart';
 import '../Registration/welcomePage.dart';
 import '../functions.dart';
-
-import 'package:flutter_localizations/flutter_localizations.dart';
-//import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 
 class dashboard extends StatefulWidget {
-  final ID; //house id
+  final houseID; //house id
   final isShared;
 
-  const dashboard({super.key, required this.ID, this.isShared = false});
+  const dashboard({super.key, required this.houseID, this.isShared = false});
 
   @override
   State<dashboard> createState() => _dashboardState();
 }
 
-var sharedHouseName = '';
+var userType = 'visitor';
 
 class _dashboardState extends State<dashboard> {
   Future<void> share() async {
@@ -47,9 +43,13 @@ class _dashboardState extends State<dashboard> {
 
     await FirebaseFirestore.instance
         .collection('houseAccount')
-        .doc(widget.ID)
+        .doc(widget.houseID)
         .collection('sharedCode')
-        .add({'houseID': widget.ID, 'code': codeNumber, 'isExpired': false});
+        .add({
+      'houseID': widget.houseID,
+      'code': codeNumber,
+      'isExpired': false
+    });
   }
 
   //! FCM
@@ -123,8 +123,10 @@ class _dashboardState extends State<dashboard> {
   double energyFromBill = 0;
   //late DateTime _selected;
   DateTime? _selected;
+
   @override
   void initState() {
+    super.initState();
     //  _selected = DateTime.now();
     month = months[DateTime.now().month];
     getData();
@@ -145,8 +147,39 @@ class _dashboardState extends State<dashboard> {
       // double energyFromBill = 0;
       // });
     });
-    getToken();
-    super.initState();
+    // getUserType();
+    if (!widget.isShared) {
+      getToken();
+    }
+  }
+
+  void getUserType() {
+    if (!widget.isShared) {
+      FirebaseFirestore.instance
+          .collection('houseAccount')
+          .doc(widget.houseID)
+          .get()
+          .then(
+        (DocumentSnapshot doc) async {
+          if (['OwnerID'] == FirebaseAuth.instance.currentUser!.uid) {
+            userType = 'owner';
+          } else {
+            FirebaseFirestore.instance
+                .collection('houseAccount')
+                .doc(widget.houseID)
+                .collection('houseMember')
+                .snapshots()
+                .listen((querySnapshot) {
+              for (var doc in querySnapshot.docs) {
+                if (doc['memberID'] == FirebaseAuth.instance.currentUser!.uid) {
+                  userType = doc['privilege'];
+                }
+              }
+            });
+          }
+        },
+      );
+    }
   }
 
   int total = 0;
@@ -180,7 +213,8 @@ class _dashboardState extends State<dashboard> {
 
     return Scaffold(
       body: FutureBuilder<Map<String, dynamic>>(
-          future: readHouseData(widget.ID),
+          future: readHouseData(widget.houseID,
+              FirebaseAuth.instance.currentUser!.uid, widget.isShared),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (snapshot.hasData) {
               var houseData = snapshot.data as Map<String, dynamic>;
@@ -296,9 +330,7 @@ class _dashboardState extends State<dashboard> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        widget.isShared
-                                            ? sharedHouseName
-                                            : houseData['houseName'],
+                                        houseData['houseName'],
                                         style: const TextStyle(
                                           letterSpacing: 1.2,
                                           color: Colors.white,
@@ -307,24 +339,21 @@ class _dashboardState extends State<dashboard> {
                                           height: 1,
                                         ),
                                       ),
-                                      Visibility(
-                                        visible: !widget.isShared,
-                                        child: Text(
-                                          widget.isShared
-                                              ? ''
-                                              : (houseData['OwnerID'] ==
-                                                      FirebaseAuth.instance
-                                                          .currentUser!.uid
-                                                  ? 'مالك المنزل'
-                                                  : "عضو في المنزل"),
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 16,
-                                            height: 1,
-                                          ),
+                                      Text(
+                                        widget.isShared
+                                            ? 'عضو زائر'
+                                            : (userType == 'owner'
+                                                ? 'مالك المنزل'
+                                                : (userType == 'viewer'
+                                                    ? 'عضو مشاهد في المنزل'
+                                                    : "عضو محرر في المنزل")),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 16,
+                                          height: 1,
                                         ),
-                                      )
+                                      ),
                                     ])
                               ]),
                             ])),
@@ -365,21 +394,11 @@ class _dashboardState extends State<dashboard> {
                             ),
                             SizedBox(width: width * 0.26),
                             Visibility(
-                                visible: !widget.isShared,
+                                visible: userType == 'owner',
                                 child: IconButton(
                                   icon: const Icon(Icons.ios_share),
                                   onPressed: () {
-                                    final databaseRef = FirebaseDatabase
-                                        .instance
-                                        .ref('devicesList/Rashd-123/');
-
-                                    databaseRef
-                                        .once()
-                                        .then((DatabaseEvent event) {
-                                      print('Data : ${event.snapshot.value}');
-                                    });
-
-                                    // share();
+                                    share();
                                   },
                                 )),
                           ]),
@@ -408,8 +427,6 @@ class _dashboardState extends State<dashboard> {
                                         textAlign: TextAlign.right,
                                         style: TextStyle(fontSize: 20),
                                       ),
-
-                                      /// //  textDirection: TextDirection.ltr,
                                       Text(
                                         '${houseData['goal']} kWh',
                                         style: const TextStyle(
@@ -418,7 +435,7 @@ class _dashboardState extends State<dashboard> {
                                     ]),
                               ))),
                       Visibility(
-                          visible: !widget.isShared,
+                          visible: userType == 'owner',
                           child: Container(
                               margin: EdgeInsets.fromLTRB(
                                   0, height * 0.09, width * 0.02, 0),
@@ -447,7 +464,6 @@ class _dashboardState extends State<dashboard> {
                     //     future: data,
                     //     builder: (context, snapshot) {
                     //       return
-
                     //month picker
                     // if (_selected == null)
                     //   const Text('No month year selected.')
@@ -487,8 +503,6 @@ class _dashboardState extends State<dashboard> {
                     Container(
                         margin:
                             EdgeInsets.fromLTRB(LRPadding, 0, LRPadding, 12),
-                        // padding: EdgeInsets.fromLTRB(width * 0.01,
-                        //     height * 0.02, width * 0.05, height * 0.02),
                         child: Material(
                           elevation: 20,
                           borderRadius: BorderRadius.circular(30),
@@ -511,8 +525,6 @@ class _dashboardState extends State<dashboard> {
                                         title: AxisTitle(text: 'kWh')),
                                     series: <ChartSeries<ChartData, String>>[
                                       ColumnSeries<ChartData, String>(
-                                          // color: const Color.fromARGB(
-                                          //     255, 98, 227, 165),
                                           borderRadius: const BorderRadius.all(
                                               Radius.circular(4)),
                                           dataSource: chartData,
@@ -538,12 +550,15 @@ class _dashboardState extends State<dashboard> {
               return const Text("No data");
             }
           }),
-      bottomNavigationBar: buildBottomNavigation(height, widget.ID, true),
+      bottomNavigationBar: buildBottomNavigation(height, userType),
     );
   }
 
-  Widget buildBottomNavigation(height, houseID, isOwner) {
-    var items = isOwner
+  Widget buildBottomNavigation(
+    height,
+    userType,
+  ) {
+    var items = userType == 'owner'
         ? <BottomNavyBarItem>[
             BottomNavyBarItem(
                 icon: const Icon(Icons.bar_chart_rounded),
@@ -574,6 +589,7 @@ class _dashboardState extends State<dashboard> {
                 icon: const Icon(Icons.bar_chart_rounded),
                 title: const Text(
                   'لوحة المعلومات',
+                  style: TextStyle(fontSize: 13),
                   textAlign: TextAlign.center,
                 ),
                 activeColor: Colors.lightBlue),
@@ -582,6 +598,7 @@ class _dashboardState extends State<dashboard> {
               title: const Text(
                 'الأجهزة',
                 textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 13),
               ),
               activeColor: Colors.lightBlue,
             ),
@@ -604,14 +621,14 @@ class _dashboardState extends State<dashboard> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => ListOfDevices(
-                            houseID: houseID, //house ID
-                          )),
+                          houseID: widget.houseID, userType: userType)),
                 );
               } else if (index == 2) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => HouseMembers(houseId: houseID)),
+                      builder: (context) =>
+                          HouseMembers(houseId: widget.houseID)),
                 );
               }
             },
@@ -834,7 +851,7 @@ class _dashboardState extends State<dashboard> {
   Future<void> UpdateGoal() async {
     await FirebaseFirestore.instance
         .collection('houseAccount')
-        .doc(widget.ID)
+        .doc(widget.houseID)
         .update({
       'goal': goalController.text,
     });
@@ -845,7 +862,7 @@ class _dashboardState extends State<dashboard> {
     String percentageStr = '';
     var collection = await FirebaseFirestore.instance
         .collection('dashboard')
-        .doc(widget.ID)
+        .doc(widget.houseID)
         .collection('dashboard_readings');
     collection.snapshots().listen((querySnapshot) {
       for (var doc in querySnapshot.docs) {
@@ -869,7 +886,7 @@ class _dashboardState extends State<dashboard> {
     String percentageStr = '';
     var collection = await FirebaseFirestore.instance
         .collection('houseAccount')
-        .doc(widget.ID)
+        .doc(widget.houseID)
         .collection('houseDevices');
     collection.snapshots().listen((querySnapshot) {
       for (var doc in querySnapshot.docs) {

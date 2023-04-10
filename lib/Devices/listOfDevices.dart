@@ -13,8 +13,9 @@ import '../HouseAccount/list_of_houseMembers.dart';
 import '../functions.dart';
 
 class ListOfDevices extends StatefulWidget {
-  final houseID; //house ID
-  const ListOfDevices({super.key, required this.houseID});
+  final houseID, userType;
+  const ListOfDevices(
+      {super.key, required this.houseID, required this.userType});
 
   @override
   State<ListOfDevices> createState() => ListOfDevicesState();
@@ -23,11 +24,10 @@ class ListOfDevices extends StatefulWidget {
 class ListOfDevicesState extends State<ListOfDevices> {
   @override
   void initState() {
+    print(widget.userType);
     super.initState();
   }
 
-  TextEditingController phoneController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
   ScrollController scrollController = ScrollController();
 
   @override
@@ -36,7 +36,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
     final double width = MediaQuery.of(context).size.width;
 
     return FutureBuilder<Map<String, dynamic>>(
-        future: readHouseData(widget.houseID),
+        future: readHouseData(widget.houseID, FirebaseAuth.instance.currentUser!.uid, false),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
@@ -46,8 +46,8 @@ class ListOfDevicesState extends State<ListOfDevices> {
                 child: Stack(children: [
                   Positioned(
                     bottom: height * 0,
-                    top: height * -1.4,
-                    left: width * 0.01,
+                    top: height * -1.39,
+                    left: width * 0.0001,
                     child: Container(
                       width: width * 1.5,
                       decoration: BoxDecoration(
@@ -102,12 +102,12 @@ class ListOfDevicesState extends State<ListOfDevices> {
                                             ),
                                           ),
                                           Text(
-                                            (houseData['OwnerID'] ==
-                                                    FirebaseAuth.instance
-                                                        .currentUser!.uid
+                                            widget.userType == 'owner'
                                                 ? 'مالك المنزل'
-                                                : "عضو في المنزل"),
-                                            style: TextStyle(
+                                                : (widget.userType == 'viewer'
+                                                    ? 'عضو مشاهد في المنزل'
+                                                    : "عضو محرر في المنزل"),
+                                            style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.w400,
                                               fontSize: 16,
@@ -131,28 +131,33 @@ class ListOfDevicesState extends State<ListOfDevices> {
                                       fontSize: 24,
                                     ),
                                   )),
-                              Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                  child: IconButton(
-                                    iconSize: 33,
-                                    icon: const Icon(Icons.add),
-                                    onPressed: () {
-                                      showModalBottomSheet(
-                                          isScrollControlled: true,
-                                          isDismissible: false,
-                                          enableDrag: false,
-                                          backgroundColor: Colors.transparent,
-                                          context: context,
-                                          shape: const RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.vertical(
-                                            top: Radius.circular(105.0),
-                                          )),
-                                          builder: (context) =>
-                                              AddDevice(ID: widget.houseID));
-                                    },
-                                  )),
+                              Visibility(
+                                  visible: widget.userType == 'owner' ||
+                                      widget.userType == 'editor',
+                                  child: Padding(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                      child: IconButton(
+                                        iconSize: 33,
+                                        icon: const Icon(Icons.add),
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                              isScrollControlled: true,
+                                              isDismissible: false,
+                                              enableDrag: false,
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                              context: context,
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.vertical(
+                                                top: Radius.circular(105.0),
+                                              )),
+                                              builder: (context) => AddDevice(
+                                                  ID: widget.houseID));
+                                        },
+                                      ))),
                             ]),
                         buildDevicesList(height, width),
                       ]),
@@ -164,7 +169,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
                       FirebaseAuth.instance.currentUser!.uid),
             );
           } else {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
         });
   }
@@ -260,7 +265,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
                                     borderRadius: BorderRadius.circular(50),
                                     color: Color(value)),
                                 alignment: Alignment.center,
-                                child: Text(''),
+                                child: const Text(''),
                               ),
                             ]),
                         SizedBox(height: height * 0.02),
@@ -300,7 +305,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
             },
           ));
         } else {
-          return Text("No data");
+          return const Text("No data");
         }
       },
     );
@@ -365,7 +370,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
               context,
               MaterialPageRoute(
                   builder: (context) => dashboard(
-                        ID: widget.houseID,
+                        houseID: widget.houseID,
                       )),
             );
           } else if (index == 1) {
