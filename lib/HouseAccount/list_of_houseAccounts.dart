@@ -333,7 +333,8 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                             .where((document) =>
                                                 (document.data() as Map<String,
                                                     dynamic>)['memberID'] ==
-                                                'q1aH3WrXCWRiHPpvKbdUICjacCd2') // member ID
+                                                FirebaseAuth
+                .instance.currentUser!.uid) // member ID
                                             .toList();
                                     for (DocumentSnapshot ds in filteredDocs) {
                                       ds.reference.delete().then((_) {
