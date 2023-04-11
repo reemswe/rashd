@@ -272,35 +272,269 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
           itemCount: dataList.length,
           itemBuilder: (BuildContext context, int index) {
             return Container(
-                margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: const [
-                      BoxShadow(
-                          blurRadius: 30,
-                          color: Colors.black45,
-                          spreadRadius: -10)
-                    ],
-                    borderRadius: BorderRadius.circular(20)),
-                child: ListTile(
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    leading: Text(
-                      dataList[index][0]["houseName"],
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    onTap: () {
-                      print('houseID');
-                      print(dataList[index][0]["houseID"]);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => dashboard(
-                                  houseID: dataList[index][0]
-                                      ["houseID"], //'0mHcZmbfEDK8CebdkVYR' //
-                                )),
-                      );
-                    }));
+              margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: const [
+                    BoxShadow(
+                        blurRadius: 30,
+                        color: Colors.black45,
+                        spreadRadius: -10)
+                  ],
+                  borderRadius: BorderRadius.circular(20)),
+              child: ListTile(
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    iconSize: 35,
+                    color: Color.fromARGB(255, 122, 3, 3),
+                    onPressed: () {
+                      if (type == 'M') {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text(
+                              "هل أنت متأكد ؟",
+                              textAlign: TextAlign.center,
+                            ),
+                            content: const Text(
+                              "هل أنت متأكد من أنك تريد الغاء الاشتراك بالمنزل  ؟ ",
+                              textAlign: TextAlign.end,
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(14),
+                                  child: const Text(
+                                    "إلغاء",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  Navigator.of(ctx).pop();
+                                  print("inside member");
+                                  await FirebaseFirestore.instance
+                                      .collection('houseAccount')
+                                      .doc(dataList[index][0]["houseID"])
+                                      .collection('houseMember')
+                                      .get()
+                                      .then((snapshot) {
+                                    List<DocumentSnapshot> allDocs =
+                                        snapshot.docs;
+                                    List<DocumentSnapshot> filteredDocs =
+                                        allDocs
+                                            .where((document) =>
+                                                (document.data() as Map<String,
+                                                    dynamic>)['memberID'] ==
+                                                'q1aH3WrXCWRiHPpvKbdUICjacCd2') // member ID
+                                            .toList();
+                                    for (DocumentSnapshot ds in filteredDocs) {
+                                      ds.reference.delete().then((_) {
+                                        print("member delete deleted");
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                          content:
+                                              Text('تم الغاء الاشتراك بالمنزل بنجاح '),
+                                        ));
+                                        setState(() {
+                                          print('reload.!');
+                                        });
+                                      });
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(14),
+                                  child: const Text("نعم",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Color.fromARGB(
+                                              255, 124, 18, 18))),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text(
+                              "هل أنت متأكد ؟",
+                              textAlign: TextAlign.center,
+                            ),
+                            content: const Text(
+                              "هل أنت متأكد من أنك تريد حذف المنزل ؟ ",
+                              textAlign: TextAlign.end,
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(14),
+                                  child: const Text(
+                                    "إلغاء",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  Navigator.of(ctx).pop();
+                                  //if user is owner !
+                                  print("inside Owner");
+                                  //Delete house account
+                                  await FirebaseFirestore.instance
+                                      .collection('houseAccount')
+                                      .get()
+                                      .then((snapshot) async {
+                                    List<DocumentSnapshot> allDocs =
+                                        snapshot.docs;
+                                    List<DocumentSnapshot> filteredDocs =
+                                        allDocs
+                                            .where((document) =>
+                                                (document.data() as Map<String,
+                                                    dynamic>)['houseID'] ==
+                                                dataList[index][0][
+                                                    "houseID"]) // tile list house ID
+                                            .toList();
+                                    print("i am here !");      
+                                    for (DocumentSnapshot ds in filteredDocs) {
+                                      //**********************************************************************
+                                      //delete dashboard
+                                      await FirebaseFirestore.instance
+                                          .collection('dashboard')
+                                          .get()
+                                          .then((snapshot) async {
+                                        List<DocumentSnapshot> dash_allDocs =
+                                            snapshot.docs;
+                                        List<DocumentSnapshot>
+                                            dash_filteredDocs = dash_allDocs
+                                                .where((document) =>
+                                                    (document.data() as Map<
+                                                        String,
+                                                        dynamic>)['houseID'] ==
+                                                    dataList[index][0]
+                                                        ["houseID"])
+                                                .toList();
+                                        for (DocumentSnapshot dash_ds
+                                            in dash_filteredDocs) {
+                                          //delete dashboard_readings
+                                          await FirebaseFirestore.instance
+                                              .collection('dashboard')
+                                              .doc(dash_ds['dashboardID'])
+                                              .collection('dashboard_readings')
+                                              .get()
+                                              .then((snapshot) {
+                                            for (DocumentSnapshot dash_ds
+                                                in snapshot.docs) {
+                                              dash_ds.reference.delete();
+                                            }
+                                          });
+                                          print("dashboard_readings deleted");
+
+                                          //delete sharedCode
+                                          await FirebaseFirestore.instance
+                                              .collection('dashboard')
+                                              .doc(dash_ds['dashboardID'])
+                                              .collection('sharedCode')
+                                              .get()
+                                              .then((snapshot) {
+                                            for (DocumentSnapshot dash_ds
+                                                in snapshot.docs) {
+                                              dash_ds.reference.delete();
+                                            }
+                                          });
+                                          print("dashboard sharecode deleted");
+
+                                          dash_ds.reference.delete().then((_) {
+                                            print("dashboard deleted");
+                                          });
+                                        }
+                                      });
+                                      //**********************************************************************
+                                      //delete house account devices
+                                      await FirebaseFirestore.instance
+                                          .collection('houseAccount')
+                                          .doc(ds['houseID'])
+                                          .collection('houseDevices')
+                                          .get()
+                                          .then((snapshot) {
+                                        for (DocumentSnapshot ds
+                                            in snapshot.docs) {
+                                          ds.reference.delete();
+                                        }
+                                      });
+                                      print("house account devices deleted");
+
+                                      //delete house account members
+                                      await FirebaseFirestore.instance
+                                          .collection('houseAccount')
+                                          .doc(ds['houseID'])
+                                          .collection('houseMember')
+                                          .get()
+                                          .then((snapshot) {
+                                        for (DocumentSnapshot ds
+                                            in snapshot.docs) {
+                                          ds.reference.delete();
+                                        }
+                                      });
+                                      print("house account members deleted");
+
+                                      ds.reference.delete().then((_) {
+                                        print("house account deleted");
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                          content:
+                                              Text('تم حذف  المنزل بنجاح '),
+                                        ));
+                                      });
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(14),
+                                  child: const Text("حذف",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Color.fromARGB(
+                                              255, 124, 18, 18))),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  leading: Text(
+                    dataList[index][0]["houseName"],
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  onTap: () {
+                    print('houseID');
+                    print(dataList[index][0]["houseID"]);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => dashboard(
+                                ID: dataList[index][0]
+                                    ["houseID"], //'0mHcZmbfEDK8CebdkVYR' //
+                              )),
+                    );
+                  }),
+            );
           });
     }
     return Column(mainAxisSize: MainAxisSize.min, children: [
