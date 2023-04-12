@@ -1,6 +1,7 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
+import 'package:rashd/functions.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import '../Devices/listOfDevices.dart';
 import 'package:flutter/material.dart';
@@ -382,7 +383,8 @@ class add_house_memberState extends State<add_house_member> {
             MaterialPageRoute(
                 builder: (context) => ListOfDevices(
                       houseID: widget.ID,
-                      userType: null,
+                      userType: getUserType(userType,
+                          FirebaseAuth.instance.currentUser!.uid, false),
                     )),
           );
         } else if (index == 2) {
