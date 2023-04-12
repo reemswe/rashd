@@ -161,8 +161,8 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
   }
 
   var assetName = 'assets/images/house.svg';
-  
-  void rebuildPage(){
+
+  void rebuildPage() {
     setState(() {
       getData();
       getOwner();
@@ -343,15 +343,17 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                 (document.data() as Map<String,
                                                     dynamic>)['memberID'] ==
                                                 FirebaseAuth
-                .instance.currentUser!.uid) // member ID
+                                                    .instance
+                                                    .currentUser!
+                                                    .uid) // member ID
                                             .toList();
                                     for (DocumentSnapshot ds in filteredDocs) {
                                       ds.reference.delete().then((_) {
                                         print("member delete deleted");
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(const SnackBar(
-                                          content:
-                                              Text('تم الغاء الاشتراك بالمنزل بنجاح '),
+                                          content: Text(
+                                              'تم الغاء الاشتراك بالمنزل بنجاح '),
                                         ));
                                         rebuildPage();
                                       });
@@ -417,7 +419,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                 dataList[index][0][
                                                     "houseID"]) // tile list house ID
                                             .toList();
-                                    print("i am here !");      
+                                    print("i am here !");
                                     for (DocumentSnapshot ds in filteredDocs) {
                                       //**********************************************************************
                                       //delete dashboard
@@ -538,7 +540,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                       context,
                       MaterialPageRoute(
                           builder: (context) => dashboard(
-                                ID: dataList[index][0]
+                                houseID: dataList[index][0]
                                     ["houseID"], //'0mHcZmbfEDK8CebdkVYR' //
                               )),
                     );

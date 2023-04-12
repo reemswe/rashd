@@ -1,10 +1,13 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import '../Devices/listOfDevices.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'list_of_houseAccounts.dart';
 
 class add_house_member extends StatefulWidget {
   final ID;
@@ -29,7 +32,6 @@ class add_house_memberState extends State<add_house_member> {
     privilege = '';
     privilege_index = 1;
   }
-
 
   @override
   void initState() {
@@ -289,7 +291,7 @@ class add_house_memberState extends State<add_house_member> {
                             ),
                             child: ElevatedButton(
                               onPressed: () async {
-                                 bool flag = true;
+                                bool flag = true;
                                 if (!_formKey.currentState!.validate()) {
                                 } else {
                                   if (await exixts(membersPhoneNumber1.text) ==
@@ -372,12 +374,15 @@ class add_house_memberState extends State<add_house_member> {
                       houseID: widget.ID,
                     )),
           );
-        } else if (index == 1) {
+        }
+        //need to get userType
+        else if (index == 1) {
           Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => ListOfDevices(
                       houseID: widget.ID,
+                      userType: null,
                     )),
           );
         } else if (index == 2) {
