@@ -5,6 +5,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
+import '../functions.dart';
+import 'list_of_houseAccounts.dart';
+
 class CreateHouseAccount extends StatefulWidget {
   const CreateHouseAccount({super.key});
 
@@ -662,20 +665,16 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                                       }
                                                       if (singular == 0) {
                                                         setData();
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                                const SnackBar(
-                                                                    content:
-                                                                        Text(
-                                                                      '  تم اضافة المنزل بنجاح',
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .center,
-                                                                    ),
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .green));
+                                                        showToast('valid',
+                                                            "تم إضافة المنزل بنجاح");
+
+                                                        // navigate back when house added successfully
+                                                        Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  const ListOfHouseAccounts(),
+                                                            ));
                                                       } else {
                                                         if (singular > 1) {
                                                           existing +=
@@ -684,25 +683,9 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                                           existing +=
                                                               ' غير موجود بالنظام';
                                                         }
-                                                        Fluttertoast.showToast(
-                                                            msg: existing,
-                                                            toastLength: Toast
-                                                                .LENGTH_SHORT,
-                                                            gravity:
-                                                                ToastGravity
-                                                                    .BOTTOM,
-                                                            backgroundColor:
-                                                                Colors.red
-                                                                    .shade400,
-                                                            textColor:
-                                                                Colors.white);
+                                                        showToast('invalid',
+                                                            existing);
                                                       }
-                                                      //navigate back when house added successfully
-                                                      // Navigator.push(
-                                                      //     context,
-                                                      //     MaterialPageRoute(
-                                                      //       builder: (context) => const ListOfHouseAccounts(),
-                                                      //     ));
                                                     }
                                                   },
                                                   style: ButtonStyle(

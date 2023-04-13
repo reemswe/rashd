@@ -9,7 +9,6 @@ import 'package:rashd/Devices/device.dart';
 import '../Dashboard/dashboard.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../HouseAccount/list_of_houseMembers.dart';
-
 import '../functions.dart';
 
 class ListOfDevices extends StatefulWidget {
@@ -36,7 +35,8 @@ class ListOfDevicesState extends State<ListOfDevices> {
     final double width = MediaQuery.of(context).size.width;
 
     return FutureBuilder<Map<String, dynamic>>(
-        future: readHouseData(widget.houseID, FirebaseAuth.instance.currentUser!.uid, false),
+        future: readHouseData(
+            widget.houseID, FirebaseAuth.instance.currentUser!.uid, false),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
@@ -254,10 +254,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
                                     ),
                                   )),
                               Container(
-                                // margin: EdgeInsets.only(left: width * 0.56),
                                 width: width * 0.12,
-                                // height: height * 0.05,
-
                                 padding: EdgeInsets.only(
                                     top: height * 0.008,
                                     bottom: height * 0.008),
@@ -271,11 +268,21 @@ class ListOfDevicesState extends State<ListOfDevices> {
                         SizedBox(height: height * 0.02),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: LiteRollingSwitch(
+                          child: 
+                          LiteRollingSwitch(
                             value: devices.docs[index]['status'],
-                            textOn: 'On',
-                            textOff: 'Off',
-                            colorOn: Colors.green.shade400,
+                            textOn:
+                                devices.docs[index]['status'] == 'disconnected'
+                                    ? "غير متصل"
+                                    : 'On',
+                            textOff:
+                                devices.docs[index]['status'] == 'disconnected'
+                                    ? "غير متصل"
+                                    : 'Off',
+                            colorOn:
+                                devices.docs[index]['status'] == 'disconnected'
+                                    ? Colors.grey
+                                    : Colors.green.shade400,
                             colorOff: Colors.red.shade400,
                             iconOn: Icons.done,
                             iconOff: Icons.remove_circle_outline,

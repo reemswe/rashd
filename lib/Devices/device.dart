@@ -25,7 +25,7 @@ class DeviceState extends State<Device> {
 
   @override
   initState() {
-    getDeviceRealtimeData();
+    // getDeviceRealtimeData();
     getDeviceID();
     super.initState();
   }
@@ -76,7 +76,7 @@ class DeviceState extends State<Device> {
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
           child: FutureBuilder<Map<String, dynamic>>(
-              future: readDeviceData(),
+              future: getDeviceRealtimeData(widget.houseID, widget.deviceID),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData) {
                   var deviceData = snapshot.data as Map<String, dynamic>;
@@ -93,10 +93,7 @@ class DeviceState extends State<Device> {
                             decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
-                                  colors: [
-                                    finalColor,
-                                    finalColor,
-                                  ],
+                                  colors: [finalColor, finalColor],
                                   begin: Alignment.topRight,
                                   end: Alignment.bottomLeft,
                                   stops: [0.1, 1.0],
@@ -118,10 +115,7 @@ class DeviceState extends State<Device> {
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
-                              colors: [
-                                finalColor,
-                                finalColor,
-                              ],
+                              colors: [finalColor, finalColor],
                               begin: Alignment.topRight,
                               end: Alignment.bottomLeft,
                               stops: [0.1, 1.0],
@@ -143,11 +137,12 @@ class DeviceState extends State<Device> {
                           iconSize: 30,
                           icon: const Icon(Icons.keyboard_arrow_down, size: 60),
                           onPressed: () {
-                            if (isEdited)
+                            if (isEdited) {
                               setState(() {
                                 isEditing = false;
                                 isEdited = false;
                               });
+                            }
                             Navigator.of(context).pop();
                           },
                         )),
@@ -657,45 +652,16 @@ class DeviceState extends State<Device> {
                                 children: [
                                     SizedBox(height: height * 0.01),
                                     Align(
-                                      alignment: Alignment.topRight,
-                                      child: LiteRollingSwitch(
-                                        value: deviceStatus != 'disconnected'
-                                            ? (deviceStatus == 'ON'
-                                                ? true
-                                                : false)
-                                            : false,
-                                        textOn: 'On',
-                                        textOff: deviceStatus != 'disconnected'
-                                            ? 'Off'
-                                            : "غير متصل",
-                                        colorOn: Colors.green.shade400,
-                                        colorOff: deviceStatus != 'disconnected'
-                                            ? Colors.red.shade400
-                                            : Colors.grey.shade600,
-                                        iconOn: Icons.done,
-                                        iconOff: Icons.remove_circle_outline,
-                                        textOnColor: Colors.white,
-                                        textSize: 16.0,
-                                        width: 100,
-                                        onChanged: (bool state) async {
-                                          if (deviceStatus != 'disconnected') {
-                                            await updateDeviceStatus(
-                                                state ? "ON" : "OFF",
-                                                deviceRealtimeID);
-                                          }
-                                        },
-                                        onTap: () {},
-                                        onSwipe: () {},
-                                        onDoubleTap: () {},
-                                      ),
-                                    ),
+                                        alignment: Alignment.topRight,
+                                        child: controlDeviceStatus(
+                                            deviceStatus, deviceRealtimeID)),
                                     SizedBox(height: height * 0.01),
                                     Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
                                         children: [
                                           Column(children: [
-                                            Text('$currCons',
+                                            Text('${deviceData["currCons"]}',
                                                 style: const TextStyle(
                                                     fontSize: 40,
                                                     fontWeight:
@@ -703,7 +669,7 @@ class DeviceState extends State<Device> {
                                             const Text('الاستهلاك الحالي'),
                                           ]),
                                           Column(children: [
-                                            Text('$temperature',
+                                            Text('${deviceData['temperature']}',
                                                 style: const TextStyle(
                                                     fontSize: 40,
                                                     fontWeight:
@@ -721,7 +687,8 @@ class DeviceState extends State<Device> {
                                             ChartSeries<ChartData, String>>[
                                           LineSeries<ChartData, String>(
                                               width: 3,
-                                              dataSource: chartData,
+                                              dataSource: deviceData[
+                                                  'monthlyConsumption'],
                                               dataLabelSettings:
                                                   const DataLabelSettings(
                                                       isVisible: true),
@@ -753,40 +720,40 @@ class DeviceState extends State<Device> {
     showToast("valid", 'تم حفظ التغييرات بنجاح.');
   }
 
-  Future<void> getDeviceRealtimeData() async {
-    await getDeviceID();
-    var color = deviceColor.split('(0x')[1].split(')')[0];
-    int colorValue = int.parse(color, radix: 16);
+  // Future<void> getDeviceRealtimeData(houseID) async {
+  //   await getDeviceID();
+  //   var color = deviceColor.split('(0x')[1].split(')')[0];
+  //   int colorValue = int.parse(color, radix: 16);
 
-    final databaseRef =
-        FirebaseDatabase.instance.ref('devicesList/$deviceRealtimeID/');
+  //   final databaseRef =
+  //       FirebaseDatabase.instance.ref('devicesList/$deviceRealtimeID/');
 
-    databaseRef.onValue.listen((event) {
-      // Clear the existing chart data
-      chartData.clear();
+  //   databaseRef.onValue.listen((event) {
+  //     // Clear the existing chart data
+  //     chartData.clear();
 
-      // Convert the retrieved data to a list of ChartData objects
-      Map<dynamic, dynamic>? data =
-          event.snapshot.value as Map<dynamic, dynamic>?;
-      setState(() {});
-      if (data != null) {
-        data.forEach((key, values) {
-          if (key == 'status') {
-            deviceStatus = values;
-          } else if (key == 'consumption') {
-            currCons = values['currentConsumption'];
-            var monthlyConsumption = values['monthlyConsumption'];
-            monthlyConsumption.forEach((key, values) {
-              String name = key;
-              double cons = values.toDouble();
-              ChartData chart = ChartData(name, cons, Color(colorValue));
-              chartData.add(chart);
-            });
-          } else if (key == 'temperature') {
-            temperature = values;
-          }
-        });
-      }
-    });
-  }
+  //     // Convert the retrieved data to a list of ChartData objects
+  //     Map<dynamic, dynamic>? data =
+  //         event.snapshot.value as Map<dynamic, dynamic>?;
+  //     setState(() {});
+  //     if (data != null) {
+  //       data.forEach((key, values) {
+  //         if (key == 'status') {
+  //           deviceStatus = values;
+  //         } else if (key == 'consumption') {
+  //           currCons = values['currentConsumption'];
+  //           var monthlyConsumption = values['monthlyConsumption'];
+  //           monthlyConsumption.forEach((key, values) {
+  //             String name = key;
+  //             double cons = values.toDouble();
+  //             ChartData chart = ChartData(name, cons, Color(colorValue));
+  //             chartData.add(chart);
+  //           });
+  //         } else if (key == 'temperature') {
+  //           temperature = values;
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
 }
