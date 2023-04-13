@@ -127,6 +127,15 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
   var assetName = 'assets/images/house.svg';
 
+  void rebuildPage() {
+    setState(() {
+      getData();
+      getOwner();
+      getMember();
+    });
+    print('page reloaded !');
+  }
+
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
