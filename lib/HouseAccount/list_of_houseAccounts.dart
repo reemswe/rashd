@@ -129,7 +129,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
   void rebuildPage() {
     setState(() {
-      getData();
+      getUsername();
       getOwner();
       getMember();
     });
