@@ -944,8 +944,10 @@ class _dashboardState extends State<dashboard> {
                 event.snapshot.value as Map<dynamic, dynamic>?;
             if (data != null) {
               data.forEach((key, values) {
-                String name = key; //the name of the attribute
-                double monthlyCons = values.toDouble(); //the value
+                if (key == 'monthlyConsumption') {
+                  String name = key; //the name of the attribute
+                  monthlyCons = values[selectedYearMonth]; //the value
+                }
               });
             }
           });
@@ -966,16 +968,16 @@ class _dashboardState extends State<dashboard> {
           //       print(data);
           //       print(data[selectedYearMonth]);
           //       //if(data[month] != null)
-          //       comonthlyCons =
-          //           double.parse(data[selectedYearMonth].toString());
-          //       print(comonthlyCons);
+          //       monthlyCons = double.parse(data[selectedYearMonth].toString());
+          //       print(monthlyCons);
           //       // setState(() {
           //       //   chartData.add(ChartData(name, comonthlyCons, Color(value)));
           //       // });
           //     }
           //   }
-          //   print(comonthlyCons);
+          //   print(monthlyCons);
           // }));
+
           print('////////////////////////////////');
           print('name $name');
           print('comonthlyCons $monthlyCons');
@@ -1046,17 +1048,19 @@ class _dashboardState extends State<dashboard> {
         final databaseRef = FirebaseDatabase.instance
             .ref('devicesList/${deviceID}/consumption/');
         databaseRef.onValue.listen((DatabaseEvent event) {
-          var data = event.snapshot.value;
-          cons = double.parse(data.toString());
+          // var data = event.snapshot.value;
+          // cons = double.parse(data.toString());
           //or
-          //  Map<dynamic, dynamic>? data =
-          //      event.snapshot.value as Map<dynamic, dynamic>?;
-          //     if (data != null) {
-          //   data.forEach((key, values) {
-          //     String name = key; //the name of the attribute
-          //     double cons = values.toDouble(); //the value
-          //   });
-          // }
+          Map<dynamic, dynamic>? data =
+              event.snapshot.value as Map<dynamic, dynamic>?;
+          if (data != null) {
+            data.forEach((key, values) {
+              if (key == 'currentConsumption') {
+                String name = key; //the name of the attribute
+                cons = values['currentConsumption'];
+              }
+            });
+          }
         });
         setState(() {
           // print(data['currentConsumption']);
