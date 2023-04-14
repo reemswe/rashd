@@ -123,18 +123,13 @@ class _dashboardState extends State<dashboard> {
   double electricityBill = 0;
   double percentage = 0;
   double energyFromBill = 0;
-  //late DateTime _selected;
   DateTime? _selected;
   var devicesID;
   @override
   void initState() {
     super.initState();
     devicesID = [];
-
-    //  _selected = DateTime.now();
     month = months[DateTime.now().month];
-    // getDeviceRealtimeData();
-    // getDeviceID();
     getData();
     setState(() {
       // FirebaseFirestore.instance
@@ -194,8 +189,6 @@ class _dashboardState extends State<dashboard> {
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
-    calculateBill(10000);
-    calculateEnergy(1080);
 
     var LRPadding = width * 0.025;
 
@@ -924,32 +917,33 @@ class _dashboardState extends State<dashboard> {
               });
             }
           });
-//get monthlyConsumption fireStore
-          // var collection2 = await FirebaseFirestore.instance
-          //     .collection('houseAccount')
-          //     .doc(widget.houseID)
-          //     .collection('houseDevices')
-          //     .doc(docID)
-          //     .collection('monthlyConsumption');
 
-          // collection2.snapshots().listen(((querySnapshot) {
-          //   // print(doc.data().values);
-          //   for (var doc in querySnapshot.docs) {
-          //     if (doc.exists) {
-          //       print('====================m===================');
-          //       Map<String, dynamic> data = doc.data();
-          //       print(data);
-          //       print(data[selectedYearMonth]);
-          //       //if(data[month] != null)
-          //       monthlyCons = double.parse(data[selectedYearMonth].toString());
-          //       print(monthlyCons);
-          //       // setState(() {
-          //       //   chartData.add(ChartData(name, comonthlyCons, Color(value)));
-          //       // });
-          //     }
-          //   }
-          //   print(monthlyCons);
-          // }));
+//get monthlyConsumption fireStore
+          var collection2 = await FirebaseFirestore.instance
+              .collection('houseAccount')
+              .doc(widget.houseID)
+              .collection('houseDevices')
+              .doc(docID)
+              .collection('monthlyConsumption');
+
+          collection2.snapshots().listen(((querySnapshot) {
+            // print(doc.data().values);
+            for (var doc in querySnapshot.docs) {
+              if (doc.exists) {
+                print('====================m===================');
+                Map<String, dynamic> data = doc.data();
+                print(data);
+                print(data[selectedYearMonth]);
+                //if(data[month] != null)
+                monthlyCons = double.parse(data[selectedYearMonth].toString());
+                print(monthlyCons);
+                // setState(() {
+                //   chartData.add(ChartData(name, comonthlyCons, Color(value)));
+                // });
+              }
+            }
+            print(monthlyCons);
+          }));
 
           print('////////////////////////////////');
           print('name $name');
@@ -1006,6 +1000,7 @@ class _dashboardState extends State<dashboard> {
     // to get data from all documents sequentially
     collection.snapshots().listen((querySnapshot) {
       chartData.clear();
+      total = 0;
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> data = doc.data(); // <-- Retrieving the value.
 
@@ -1014,7 +1009,9 @@ class _dashboardState extends State<dashboard> {
         var color = data['color'].split('(0x')[1].split(')')[0];
         String name = data['name'];
         int value = int.parse(color, radix: 16);
-        double cons = data['currentConsumption'];
+        double consum = 0;
+        if (data['currentConsumption'] != null)
+          consum = double.parse(data['currentConsumption'].toString());
         print('========================');
 
         //get currentConsumption from realtime
@@ -1030,25 +1027,31 @@ class _dashboardState extends State<dashboard> {
             data.forEach((key, values) {
               if (key == 'currentConsumption') {
                 String name = key; //the name of the attribute
-                cons = values['currentConsumption'];
+                consum = values['currentConsumption'];
               }
             });
           }
         });
         setState(() {
-          // print(data['currentConsumption']);
-          // var color = data['color'].split('(0x')[1].split(')')[0];
-          // print('color $color');
-          // int value = int.parse(color, radix: 16);
-          // print('value $value');
-          // String name = data['name'];
-          // double consum = double.parse(data['currentConsumption'].toString());
-          chartData.add(ChartData(name, cons, Color(value)));
+          total += consum.toInt();
+          chartData.add(ChartData(name, consum, Color(value)));
         });
       }
+      //set total consumption and bill
+      setState(() {
+        String percentageStr = '';
+        percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
+        energyData[1][1] = '${total}kWh';
+        percentage = (total / int.parse('100')) * 100;
+        i = total;
+        calculateBill(total.toDouble());
+        String e = electricityBill.toStringAsFixed(2);
+        energyData[0][1] = '${e}SR';
+      });
+
       chartData.sort((a, b) => b.y.compareTo(a.y));
       chartData = chartData.take(10).toList();
-      chartData.shuffle();
+      //  chartData.shuffle();
     });
   }
 
