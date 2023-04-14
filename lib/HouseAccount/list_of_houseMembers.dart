@@ -39,7 +39,10 @@ class _houseMembersState extends State<HouseMembers> {
         Map<String, dynamic> data = doc.data(); // <-- Retrieving the value.
         setState(() {
           membersList!.add([
-            {'nickName': data['nickName'], 'privilege': data['privilege']}
+            {
+              'nickName': data['nickName'],
+              'privilege': data['privilege'],
+            }
           ]);
         });
       }
@@ -249,7 +252,51 @@ class _houseMembersState extends State<HouseMembers> {
                             Icons.delete_forever_outlined,
                             color: Colors.red,
                           ),
-                          onPressed: () {},
+                          //delet house member
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text(
+                                  "حذف عضو من المزل ",
+                                  textAlign: TextAlign.center,
+                                ),
+                                content: const Text(
+                                  "هل أنت متأكد من حذف العضو؟",
+                                  textAlign: TextAlign.left,
+                                ),
+                                actions: <Widget>[
+                                  //delet
+                                  TextButton(
+                                    onPressed: () {
+                                      deletHouseMember(
+                                          dataList[index][0]['docId']);
+                                      Navigator.of(ctx).pop();
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(14),
+                                      child: const Text("حذف",
+                                          style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 164, 10, 10))),
+                                    ),
+                                  ),
+                                  //cancel button
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(ctx).pop();
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(14),
+                                      child: const Text(
+                                        "تراجع",
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ]),
                 ]));
@@ -329,5 +376,18 @@ class _houseMembersState extends State<HouseMembers> {
           } else if (index == 2) {}
         },
         items: items);
+  }
+
+  Future<void> deletHouseMember(docId) async {
+    print('===============================');
+    print(docId);
+    final db = FirebaseFirestore.instance
+        .collection('houseAccount')
+        .doc(widget.houseId)
+        .collection('houseMember')
+        .doc(docId);
+    db.delete();
+
+    showToast('valid', 'تم حذف العضو ');
   }
 }
