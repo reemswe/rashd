@@ -219,7 +219,8 @@ class ListOfDevicesState extends State<ListOfDevices> {
                       )),
                       builder: (context) => Device(
                           deviceID: devices.docs[index].id,
-                          houseID: widget.houseID));
+                          houseID: widget.houseID,
+                          userType: widget.userType));
                 },
                 splashColor: Colors.transparent,
                 child: Container(
@@ -243,33 +244,30 @@ class ListOfDevicesState extends State<ListOfDevices> {
                             children: [
                               Padding(
                                   padding:
-                                      const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                                      const EdgeInsets.fromLTRB(0, 0, 10, 0),
                                   child: Text(
                                     devices.docs[index]['name'],
-                                    textDirection: TextDirection.rtl,
-                                    textAlign: TextAlign.right,
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 24,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 22,
                                     ),
                                   )),
-                              Container(
-                                width: width * 0.12,
-                                padding: EdgeInsets.only(
-                                    top: height * 0.008,
-                                    bottom: height * 0.008),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(50),
-                                    color: Color(value)),
-                                alignment: Alignment.center,
-                                child: const Text(''),
-                              ),
+                              // Container(
+                              //   width: width * 0.12,
+                              //   padding: EdgeInsets.only(
+                              //       top: height * 0.008,
+                              //       bottom: height * 0.008),
+                              //   decoration: BoxDecoration(
+                              //       borderRadius: BorderRadius.circular(50),
+                              //       color: Color(value)),
+                              //   alignment: Alignment.center,
+                              //   child: const Text(''),
+                              // ),
                             ]),
                         SizedBox(height: height * 0.02),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: 
-                          LiteRollingSwitch(
+                          child: LiteRollingSwitch(
                             value: devices.docs[index]['status'],
                             textOn:
                                 devices.docs[index]['status'] == 'disconnected'
@@ -305,7 +303,6 @@ class ListOfDevicesState extends State<ListOfDevices> {
                             onDoubleTap: () {},
                           ),
                         ),
-                        // Text(data.consumption),
                       ],
                     )),
               ));

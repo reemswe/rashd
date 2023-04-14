@@ -27,8 +27,6 @@ class dashboard extends StatefulWidget {
   State<dashboard> createState() => _dashboardState();
 }
 
-var userType = 'visitor';
-
 class _dashboardState extends State<dashboard> {
   var deviceRealtimeID = '';
   Future<void> share() async {
@@ -92,10 +90,7 @@ class _dashboardState extends State<dashboard> {
     'ديسمبر'
   ];
 
-  // Future<void>? energy;
-  // Future? data;
   final _formKey = GlobalKey<FormState>();
-  // List? devices = [];
   List energyData = [
     [
       'فاتورة الكهرباء',
@@ -115,7 +110,6 @@ class _dashboardState extends State<dashboard> {
     ]
   ];
   List<ChartData> chartData = [];
-  // var houseID, houseName;
   int i = 0;
 
   var month = '';
@@ -130,62 +124,41 @@ class _dashboardState extends State<dashboard> {
   void initState() {
     super.initState();
     devicesID = [];
-
-    //  _selected = DateTime.now();
     month = months[DateTime.now().month];
-    // getDeviceRealtimeData();
-    // getDeviceID();
     getData();
-    setState(() {
-      // FirebaseFirestore.instance
-      //     .collection("dashboard")
-      //     .doc(widget.ID)
-      //     .get()
-      //     .then((value) {
-      // energy = totalEnergy();
-      // FirebaseFirestore.instance
-      //     .collection("houseAccount")
-      //     .doc(houseID)
-      //     .get()
-      //     .then((value) {
-      //   houseName = value.data()!["houseName"];
-      // double electricityBill = 0;
-      // double energyFromBill = 0;
-      // });
-    });
-    // getUserType();
     if (!widget.isShared) {
       getToken();
     }
   }
 
-  void getUserType() {
+  Future<String> getUserType() async {
+    var userType = '';
+    var query;
+
     if (!widget.isShared) {
-      FirebaseFirestore.instance
+      await FirebaseFirestore.instance
           .collection('houseAccount')
           .doc(widget.houseID)
           .get()
-          .then(
-        (DocumentSnapshot doc) async {
-          if (['OwnerID'] == FirebaseAuth.instance.currentUser!.uid) {
-            userType = 'owner';
-          } else {
-            FirebaseFirestore.instance
-                .collection('houseAccount')
-                .doc(widget.houseID)
-                .collection('houseMember')
-                .snapshots()
-                .listen((querySnapshot) {
-              for (var doc in querySnapshot.docs) {
-                if (doc['memberID'] == FirebaseAuth.instance.currentUser!.uid) {
-                  userType = doc['privilege'];
-                }
-              }
-            });
+          .then((DocumentSnapshot doc) async {
+        if (doc['OwnerID'] == FirebaseAuth.instance.currentUser!.uid) {
+          userType = 'owner';
+        } else {
+          query = await FirebaseFirestore.instance
+              .collection('houseAccount')
+              .doc(widget.houseID)
+              .collection('houseMember')
+              .get();
+
+          for (var doc in query.docs) {
+            if (doc['memberID'] == FirebaseAuth.instance.currentUser!.uid) {
+              userType = doc['privilege'];
+            }
           }
-        },
-      );
+        }
+      });
     }
+    return userType;
   }
 
   int total = 0;
@@ -199,347 +172,388 @@ class _dashboardState extends State<dashboard> {
 
     var LRPadding = width * 0.025;
 
-    return Scaffold(
-      body: FutureBuilder<Map<String, dynamic>>(
-          future: readHouseData(widget.houseID,
-              FirebaseAuth.instance.currentUser!.uid, widget.isShared),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasData) {
-              var houseData = snapshot.data as Map<String, dynamic>;
-              return Container(
-                transformAlignment: Alignment.topRight,
-                child: Stack(children: [
-                  Positioned(
-                    bottom: height * 0,
-                    top: height * -1.1,
-                    left: width * 0.1,
-                    child: Container(
-                      width: width * 1.5,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                              colors: [Colors.lightBlue.shade200, Colors.blue]),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.blue.shade100,
-                                offset: const Offset(4.0, 4.0),
-                                blurRadius: 10.0)
-                          ]),
-                    ),
-                  ),
-                  ListView(children: [
-                    Padding(
-                        padding: EdgeInsets.fromLTRB(
-                            width * 0.01, 5, width * 0.05, 5),
-                        child: Wrap(
-                            direction: Axis.vertical,
-                            spacing: 1,
-                            children: <Widget>[
-                              SizedBox(height: height * 0.02),
-                              Row(children: [
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_back_ios),
-                                  color: Colors.white,
-                                  onPressed: () {
-                                    if (widget.isShared) {
-                                      showDialog(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                          title: const Text(
-                                              "الخروج من لوحة المعلومات؟"),
-                                          content: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: const [
-                                                Text(
-                                                  "هل أنت متأكد أنك تريد الخروج من لوحة المعلومات المشتركة؟",
-                                                  textAlign: TextAlign.right,
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                ),
-                                                Align(
-                                                    alignment:
-                                                        Alignment.centerRight,
-                                                    child: Text(
-                                                      "\n*يرجى ملاحظة أن الرمز المشترك يستخدم مرة واحدة.",
-                                                      style: TextStyle(
-                                                          fontSize: 15,
-                                                          fontWeight:
-                                                              FontWeight.w300),
-                                                      textAlign:
-                                                          TextAlign.right,
-                                                    ))
-                                              ]),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              onPressed: () async {
-                                                // Navigator.of(ctx).pop();
-                                                Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            const welcomePage()));
-                                              },
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.all(14),
-                                                child: const Text("خروج",
-                                                    style: TextStyle(
-                                                        color: Color.fromARGB(
-                                                            255, 194, 98, 98))),
-                                              ),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(ctx).pop();
-                                              },
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.all(14),
-                                                child: const Text("إلغاء"),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    } else {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const ListOfHouseAccounts(),
-                                          ));
-                                    }
-                                  },
-                                ),
-                                Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        houseData['houseName'],
-                                        style: const TextStyle(
-                                          letterSpacing: 1.2,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 30,
-                                          height: 1,
-                                        ),
-                                      ),
-                                      Text(
-                                        widget.isShared
-                                            ? 'عضو زائر'
-                                            : (userType == 'owner'
-                                                ? 'مالك المنزل'
-                                                : (userType == 'viewer'
-                                                    ? 'عضو مشاهد في المنزل'
-                                                    : "عضو محرر في المنزل")),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          height: 1,
-                                        ),
-                                      ),
-                                    ])
-                              ]),
-                            ])),
-                    Container(
-                        padding: const EdgeInsets.fromLTRB(6, 0, 0, 0),
-                        child: Column(children: [
-                          Row(children: [
-                            const Padding(
-                              padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                              child: Text('لوحة المعلومات',
-                                  style: TextStyle(
-                                      fontSize: 25, color: Colors.white)),
-                            ),
-                            SizedBox(width: width * 0.02),
-                            Container(
-                              width: width * 0.2,
-                              padding: const EdgeInsets.all(3),
+    return FutureBuilder<String>(
+        future: getUserType(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            var userType = snapshot.data;
+
+            return Scaffold(
+              body: FutureBuilder<Map<String, dynamic>>(
+                  future: readHouseData(widget.houseID,
+                      FirebaseAuth.instance.currentUser!.uid, widget.isShared),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData) {
+                      var houseData = snapshot.data as Map<String, dynamic>;
+                      return Container(
+                        transformAlignment: Alignment.topRight,
+                        child: Stack(children: [
+                          Positioned(
+                            bottom: height * 0,
+                            top: height * -1.1,
+                            left: width * 0.1,
+                            child: Container(
+                              width: width * 1.5,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                color: Colors.lightBlue.shade100,
-                              ),
-                              alignment: Alignment.center,
-                              child:
-                                  //month
-                                  InkWell(
-                                onTap: (() {
-                                  _onPressed(context: context, locale: 'ar');
-
-                                  // ubdateChart('march');
-                                }),
-                                child: Text(month,
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.blue,
-                                        height: 1,
-                                        fontWeight: FontWeight.w300)),
-                              ),
-                            ),
-                            SizedBox(width: width * 0.26),
-                            Visibility(
-                                visible: userType == 'owner',
-                                child: IconButton(
-                                  icon: const Icon(Icons.ios_share),
-                                  onPressed: () {
-                                    share();
-                                  },
-                                )),
-                          ]),
-                        ])),
-                    Stack(children: [
-                      Container(
-                          decoration: const BoxDecoration(
-                              border: Border(top: BorderSide.none)),
-                          padding: EdgeInsets.fromLTRB(
-                              LRPadding, height * 0.02, LRPadding, 0),
-                          child: Material(
-                              elevation: 20,
-                              borderRadius: BorderRadius.circular(30),
-                              child: Padding(
-                                padding: EdgeInsets.fromLTRB(
-                                    width * 0.01,
-                                    height * 0.035,
-                                    width * 0.01,
-                                    height * 0.035),
-                                child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      const Text(
-                                        'الهدف الإجمالي لإستهلاك الطاقة',
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(fontSize: 20),
-                                      ),
-                                      Text(
-                                        '${houseData['goal']} kWh',
-                                        style: const TextStyle(
-                                            fontSize: 20, color: Colors.green),
-                                      ),
-                                    ]),
-                              ))),
-                      Visibility(
-                          visible: userType == 'owner',
-                          child: Container(
-                              margin: EdgeInsets.fromLTRB(
-                                  0, height * 0.09, width * 0.02, 0),
-                              child: FloatingActionButton(
-                                  backgroundColor: Colors.lightGreen,
-                                  child: const Icon(Icons.edit),
-                                  onPressed: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return goalDialog(
-                                              month, height, width);
-                                        });
-                                  })))
-                    ]),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          SizedBox(width: width * 0.025),
-                          buildCard(energyData[0], width, height),
-                          SizedBox(width: width * 0.025),
-                          buildCard(energyData[1], width, height),
-                          SizedBox(width: width * 0.025),
-                        ]),
-                    // FutureBuilder(
-                    //     future: data,
-                    //     builder: (context, snapshot) {
-                    //       return
-                    //month picker
-                    // if (_selected == null)
-                    //   const Text('No month year selected.')
-                    // else
-                    //   Text(DateFormat().add_yM().format(_selected!)),
-                    // TextButton(
-                    //   child: const Text('DEFAULT LOCALE'),
-                    //   onPressed: () => _onPressed(context: context),
-                    // ),
-                    // TextButton(
-                    //   child: const Text('BAHASA MALAYSIA'),
-                    //   onPressed: () =>
-                    //       _onPressed(context: context, locale: 'ms'),
-                    // ),
-                    // TextButton(
-                    //   child: const Text('اللغة العربية'),
-                    //   onPressed: () =>
-                    //       _onPressed(context: context, locale: 'ar'),
-                    // ),
-                    // Center(
-                    //   child: Text(
-                    //     'Year: {selectedDate?.year}\nMonth: {selectedDate?.month}',
-                    //     style: Theme.of(context).textTheme.headlineMedium,
-                    //     textAlign: TextAlign.center,
-                    //   ),
-                    // ),
-                    // FloatingActionButton(
-                    //   backgroundColor: Colors.amberAccent,
-                    //   onPressed: () {},
-                    //   child: Icon(
-                    //     Icons.calendar_month_outlined,
-                    //     size: 35,
-                    //     color: Colors.black,
-                    //   ),
-                    // ),
-
-                    Container(
-                        margin:
-                            EdgeInsets.fromLTRB(LRPadding, 0, LRPadding, 12),
-                        child: Material(
-                          elevation: 20,
-                          borderRadius: BorderRadius.circular(30),
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.fromLTRB(width * 0.01,
-                                  height * 0.02, width * 0.01, height * 0.02),
-                              child: Stack(children: <Widget>[
-                                const Text(
-                                  'الأجهزة الأعلى استهلاكًا للطاقة',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: Color.fromARGB(255, 62, 62, 62)),
-                                ),
-                                SizedBox(height: height * 0.0),
-                                SfCartesianChart(
-                                    primaryXAxis: CategoryAxis(
-                                        title: AxisTitle(text: 'الأجهزة')),
-                                    primaryYAxis: NumericAxis(
-                                        title: AxisTitle(text: 'kWh')),
-                                    series: <ChartSeries<ChartData, String>>[
-                                      ColumnSeries<ChartData, String>(
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(4)),
-                                          dataSource: chartData,
-                                          dataLabelSettings:
-                                              const DataLabelSettings(
-                                                  isVisible: true),
-                                          xValueMapper: (ChartData data, _) =>
-                                              data.x,
-                                          pointColorMapper:
-                                              (ChartData data, _) => data.color,
-                                          yValueMapper: (ChartData data, _) =>
-                                              data.y),
-                                    ])
-                              ]),
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(colors: [
+                                    Colors.lightBlue.shade200,
+                                    Colors.blue
+                                  ]),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.blue.shade100,
+                                        offset: const Offset(4.0, 4.0),
+                                        blurRadius: 10.0)
+                                  ]),
                             ),
                           ),
-                        ))
-                    //     }),
-                  ]),
-                ]),
-              );
-            } else {
-              return const Text("No data");
-            }
-          }),
-      bottomNavigationBar: buildBottomNavigation(height, userType),
-    );
+                          ListView(children: [
+                            Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                    width * 0.01, 5, width * 0.05, 5),
+                                child: Wrap(
+                                    direction: Axis.vertical,
+                                    spacing: 1,
+                                    children: <Widget>[
+                                      SizedBox(height: height * 0.02),
+                                      Row(children: [
+                                        IconButton(
+                                          icon:
+                                              const Icon(Icons.arrow_back_ios),
+                                          color: Colors.white,
+                                          onPressed: () {
+                                            if (widget.isShared) {
+                                              showDialog(
+                                                context: context,
+                                                builder: (ctx) => AlertDialog(
+                                                  title: const Text(
+                                                      "الخروج من لوحة المعلومات؟"),
+                                                  content: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: const [
+                                                        Text(
+                                                          "هل أنت متأكد أنك تريد الخروج من لوحة المعلومات المشتركة؟",
+                                                          textAlign:
+                                                              TextAlign.right,
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500),
+                                                        ),
+                                                        Align(
+                                                            alignment: Alignment
+                                                                .centerRight,
+                                                            child: Text(
+                                                              "\n*يرجى ملاحظة أن الرمز المشترك يستخدم مرة واحدة.",
+                                                              style: TextStyle(
+                                                                  fontSize: 15,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w300),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .right,
+                                                            ))
+                                                      ]),
+                                                  actions: <Widget>[
+                                                    TextButton(
+                                                      onPressed: () async {
+                                                        // Navigator.of(ctx).pop();
+                                                        Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        const welcomePage()));
+                                                      },
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(14),
+                                                        child: const Text(
+                                                            "خروج",
+                                                            style: TextStyle(
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        194,
+                                                                        98,
+                                                                        98))),
+                                                      ),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(ctx).pop();
+                                                      },
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(14),
+                                                        child:
+                                                            const Text("إلغاء"),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            } else {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const ListOfHouseAccounts(),
+                                                  ));
+                                            }
+                                          },
+                                        ),
+                                        Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                houseData['houseName'],
+                                                style: const TextStyle(
+                                                  letterSpacing: 1.2,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 30,
+                                                  height: 1,
+                                                ),
+                                              ),
+                                              Text(
+                                                widget.isShared
+                                                    ? 'عضو زائر'
+                                                    : (userType == 'owner'
+                                                        ? 'مالك المنزل'
+                                                        : (userType == 'viewer'
+                                                            ? 'عضو مشاهد في المنزل'
+                                                            : "عضو محرر في المنزل")),
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 16,
+                                                  height: 1,
+                                                ),
+                                              ),
+                                            ])
+                                      ]),
+                                    ])),
+                            Container(
+                                padding: const EdgeInsets.fromLTRB(6, 0, 0, 0),
+                                child: Column(children: [
+                                  Row(children: [
+                                    const Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                                      child: Text('لوحة المعلومات',
+                                          style: TextStyle(
+                                              fontSize: 25,
+                                              color: Colors.white)),
+                                    ),
+                                    SizedBox(width: width * 0.02),
+                                    Container(
+                                      width: width * 0.2,
+                                      padding: const EdgeInsets.all(3),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(30),
+                                        color: Colors.lightBlue.shade100,
+                                      ),
+                                      alignment: Alignment.center,
+                                      child:
+                                          //month
+                                          InkWell(
+                                        onTap: (() {
+                                          _onPressed(
+                                              context: context, locale: 'ar');
+
+                                          // ubdateChart('march');
+                                        }),
+                                        child: Text(month,
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.blue,
+                                                height: 1,
+                                                fontWeight: FontWeight.w300)),
+                                      ),
+                                    ),
+                                    SizedBox(width: width * 0.26),
+                                    Visibility(
+                                        visible: userType == 'owner',
+                                        child: IconButton(
+                                          icon: const Icon(Icons.ios_share),
+                                          onPressed: () {
+                                            share();
+                                          },
+                                        )),
+                                  ]),
+                                ])),
+                            Stack(children: [
+                              Container(
+                                  decoration: const BoxDecoration(
+                                      border: Border(top: BorderSide.none)),
+                                  padding: EdgeInsets.fromLTRB(
+                                      LRPadding, height * 0.02, LRPadding, 0),
+                                  child: Material(
+                                      elevation: 20,
+                                      borderRadius: BorderRadius.circular(30),
+                                      child: Padding(
+                                        padding: EdgeInsets.fromLTRB(
+                                            width * 0.01,
+                                            height * 0.035,
+                                            width * 0.01,
+                                            height * 0.035),
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              const Text(
+                                                'الهدف الإجمالي لإستهلاك الطاقة',
+                                                textAlign: TextAlign.right,
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                              Text(
+                                                '${houseData['goal']} kWh',
+                                                style: const TextStyle(
+                                                    fontSize: 20,
+                                                    color: Colors.green),
+                                              ),
+                                            ]),
+                                      ))),
+                              Visibility(
+                                  visible: userType == 'owner',
+                                  child: Container(
+                                      margin: EdgeInsets.fromLTRB(
+                                          0, height * 0.09, width * 0.02, 0),
+                                      child: FloatingActionButton(
+                                          backgroundColor: Colors.lightGreen,
+                                          child: const Icon(Icons.edit),
+                                          onPressed: () {
+                                            showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return goalDialog(
+                                                      month, height, width);
+                                                });
+                                          })))
+                            ]),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  SizedBox(width: width * 0.025),
+                                  buildCard(energyData[0], width, height),
+                                  SizedBox(width: width * 0.025),
+                                  buildCard(energyData[1], width, height),
+                                  SizedBox(width: width * 0.025),
+                                ]),
+                            // FutureBuilder(
+                            //     future: data,
+                            //     builder: (context, snapshot) {
+                            //       return
+                            //month picker
+                            // if (_selected == null)
+                            //   const Text('No month year selected.')
+                            // else
+                            //   Text(DateFormat().add_yM().format(_selected!)),
+                            // TextButton(
+                            //   child: const Text('DEFAULT LOCALE'),
+                            //   onPressed: () => _onPressed(context: context),
+                            // ),
+                            // TextButton(
+                            //   child: const Text('BAHASA MALAYSIA'),
+                            //   onPressed: () =>
+                            //       _onPressed(context: context, locale: 'ms'),
+                            // ),
+                            // TextButton(
+                            //   child: const Text('اللغة العربية'),
+                            //   onPressed: () =>
+                            //       _onPressed(context: context, locale: 'ar'),
+                            // ),
+                            // Center(
+                            //   child: Text(
+                            //     'Year: {selectedDate?.year}\nMonth: {selectedDate?.month}',
+                            //     style: Theme.of(context).textTheme.headlineMedium,
+                            //     textAlign: TextAlign.center,
+                            //   ),
+                            // ),
+                            // FloatingActionButton(
+                            //   backgroundColor: Colors.amberAccent,
+                            //   onPressed: () {},
+                            //   child: Icon(
+                            //     Icons.calendar_month_outlined,
+                            //     size: 35,
+                            //     color: Colors.black,
+                            //   ),
+                            // ),
+
+                            Container(
+                                margin: EdgeInsets.fromLTRB(
+                                    LRPadding, 0, LRPadding, 12),
+                                child: Material(
+                                  elevation: 20,
+                                  borderRadius: BorderRadius.circular(30),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.fromLTRB(
+                                          width * 0.01,
+                                          height * 0.02,
+                                          width * 0.01,
+                                          height * 0.02),
+                                      child: Stack(children: <Widget>[
+                                        const Text(
+                                          'الأجهزة الأعلى استهلاكًا للطاقة',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              color: Color.fromARGB(
+                                                  255, 62, 62, 62)),
+                                        ),
+                                        SizedBox(height: height * 0.0),
+                                        SfCartesianChart(
+                                            primaryXAxis: CategoryAxis(
+                                                title:
+                                                    AxisTitle(text: 'الأجهزة')),
+                                            primaryYAxis: NumericAxis(
+                                                title: AxisTitle(text: 'kWh')),
+                                            series: <
+                                                ChartSeries<ChartData, String>>[
+                                              ColumnSeries<ChartData, String>(
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                          Radius.circular(4)),
+                                                  dataSource: chartData,
+                                                  dataLabelSettings:
+                                                      const DataLabelSettings(
+                                                          isVisible: true),
+                                                  xValueMapper:
+                                                      (ChartData data, _) =>
+                                                          data.x,
+                                                  pointColorMapper:
+                                                      (ChartData data, _) =>
+                                                          data.color,
+                                                  yValueMapper:
+                                                      (ChartData data, _) =>
+                                                          data.y),
+                                            ])
+                                      ]),
+                                    ),
+                                  ),
+                                ))
+                            //     }),
+                          ]),
+                        ]),
+                      );
+                    } else {
+                      return const Text("No data");
+                    }
+                  }),
+              bottomNavigationBar: buildBottomNavigation(height, userType),
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
+        });
   }
 
   Widget buildBottomNavigation(

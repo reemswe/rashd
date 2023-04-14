@@ -10,40 +10,10 @@ import 'main.dart';
 Future<Map<String, dynamic>> readHouseData(id, uid, isShared) =>
     FirebaseFirestore.instance.collection('houseAccount').doc(id).get().then(
       (DocumentSnapshot doc) async {
-        userType = await getUserType(id, uid, isShared);
+        // userType = await getUserType(id, uid, isShared);
         return doc.data() as Map<String, dynamic>;
       },
     );
-
-Future<String> getUserType(houseID, uid, isShared) async {
-  if (!isShared) {
-    await FirebaseFirestore.instance
-        .collection('houseAccount')
-        .doc(houseID)
-        .get()
-        .then(
-      (DocumentSnapshot doc) async {
-        if (['OwnerID'] == uid) {
-          return 'owner';
-        } else {
-          FirebaseFirestore.instance
-              .collection('houseAccount')
-              .doc(houseID)
-              .collection('houseMember')
-              .snapshots()
-              .listen((querySnapshot) {
-            for (var doc in querySnapshot.docs) {
-              if (doc['memberID'] == uid) {
-                return doc['privilege'];
-              }
-            }
-          });
-        }
-      },
-    );
-  }
-  return 'visitor';
-}
 
 void showToast(type, message) {
   Fluttertoast.showToast(

@@ -9,9 +9,12 @@ import '../Dashboard/dashboard.dart';
 import '../functions.dart';
 
 class Device extends StatefulWidget {
-  final deviceID;
-  final houseID;
-  const Device({super.key, required this.houseID, required this.deviceID});
+  final deviceID, houseID, userType;
+  const Device(
+      {super.key,
+      required this.houseID,
+      required this.deviceID,
+      required this.userType});
   @override
   DeviceState createState() => DeviceState();
 }
@@ -164,143 +167,158 @@ class DeviceState extends State<Device> {
                                 ),
                               ),
                               Visibility(
-                                  visible: !isEditing,
-                                  child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        Container(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: width * 0.0001,
-                                                vertical: height * 0.0001),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                              color:
-                                                  finalColor, //Colors.lightBlue.shade100,
-                                            ),
-                                            alignment: Alignment.center,
-                                            child: IconButton(
-                                              icon: const Icon(
-                                                color: Colors.black,
-                                                Icons.create_rounded,
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  nameController.text =
-                                                      deviceData['name'];
-                                                  isEditing = true;
-                                                });
-                                              },
-                                            )),
-                                        IconButton(
-                                          icon: const Icon(
-                                            size: 30,
-                                            color: Colors.red,
-                                            Icons.delete_forever_outlined,
-                                          ),
-                                          onPressed: () async {
-                                            showDialog(
-                                              context: context,
-                                              builder: (ctx) => AlertDialog(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                        horizontal:
-                                                            width * 0.05,
-                                                        vertical:
-                                                            height * 0.01),
-                                                title:
-                                                    const Text("حذف الجهاز؟"),
-                                                content: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: const [
-                                                      Text(
-                                                        "هل أنت متأكد أنك تريد حذف الجهاز؟",
-                                                        textAlign:
-                                                            TextAlign.right,
-                                                        style: TextStyle(
-                                                            fontSize: 20,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w500),
-                                                      ),
-                                                      Align(
-                                                          alignment: Alignment
-                                                              .centerRight,
-                                                          child: Text(
-                                                            "\n*لا يمكن التراجع عن هذا الإجراء",
-                                                            style: TextStyle(
-                                                                fontSize: 15,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w300),
-                                                            textAlign:
-                                                                TextAlign.right,
-                                                          ))
-                                                    ]),
-                                                actions: <Widget>[
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      await FirebaseFirestore
-                                                          .instance
-                                                          .collection(
-                                                              'houseAccount')
-                                                          .doc(widget.houseID)
-                                                          .collection(
-                                                              'houseDevices')
-                                                          .doc(widget.deviceID)
-                                                          .delete();
-
-                                                      DatabaseReference
-                                                          database =
-                                                          FirebaseDatabase
-                                                              .instance
-                                                              .ref(
-                                                                  'devicesList/${deviceRealtimeID}/');
-
-                                                      await database.update(
-                                                          {'HouseID': ''});
-
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                      showToast('valid',
-                                                          "تم حذف الجهاز بنجاح.");
-                                                    },
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              14),
-                                                      child: const Text("حذف",
-                                                          style: TextStyle(
-                                                              color: Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      194,
-                                                                      98,
-                                                                      98))),
-                                                    ),
+                                  visible: widget.userType == 'owner' ||
+                                      widget.userType == 'editor',
+                                  child: Visibility(
+                                      visible: !isEditing,
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: width * 0.0001,
+                                                    vertical: height * 0.0001),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          100),
+                                                  color:
+                                                      finalColor, //Colors.lightBlue.shade100,
+                                                ),
+                                                alignment: Alignment.center,
+                                                child: IconButton(
+                                                  icon: const Icon(
+                                                    color: Colors.black,
+                                                    Icons.create_rounded,
                                                   ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.of(ctx).pop();
-                                                    },
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              14),
-                                                      child:
-                                                          const Text("إلغاء"),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      nameController.text =
+                                                          deviceData['name'];
+                                                      isEditing = true;
+                                                    });
+                                                  },
+                                                )),
+                                            IconButton(
+                                                icon: const Icon(
+                                                  size: 30,
+                                                  color: Colors.red,
+                                                  Icons.delete_forever_outlined,
+                                                ),
+                                                onPressed: () async {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (ctx) =>
+                                                        AlertDialog(
+                                                      contentPadding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal:
+                                                                  width * 0.05,
+                                                              vertical: height *
+                                                                  0.01),
+                                                      title: const Text(
+                                                          "حذف الجهاز؟"),
+                                                      content: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: const [
+                                                            Text(
+                                                              "هل أنت متأكد أنك تريد حذف الجهاز؟",
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .right,
+                                                              style: TextStyle(
+                                                                  fontSize: 20,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500),
+                                                            ),
+                                                            Align(
+                                                                alignment: Alignment
+                                                                    .centerRight,
+                                                                child: Text(
+                                                                  "\n*لا يمكن التراجع عن هذا الإجراء",
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          15,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w300),
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .right,
+                                                                ))
+                                                          ]),
+                                                      actions: <Widget>[
+                                                        TextButton(
+                                                          onPressed: () async {
+                                                            await FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'houseAccount')
+                                                                .doc(widget
+                                                                    .houseID)
+                                                                .collection(
+                                                                    'houseDevices')
+                                                                .doc(widget
+                                                                    .deviceID)
+                                                                .delete();
+
+                                                            DatabaseReference
+                                                                database =
+                                                                FirebaseDatabase
+                                                                    .instance
+                                                                    .ref(
+                                                                        'devicesList/${deviceRealtimeID}/');
+
+                                                            await database
+                                                                .update({
+                                                              'HouseID': ''
+                                                            });
+
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                            showToast('valid',
+                                                                "تم حذف الجهاز بنجاح.");
+                                                          },
+                                                          child: Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(14),
+                                                            child: const Text(
+                                                                "حذف",
+                                                                style: TextStyle(
+                                                                    color: Color
+                                                                        .fromARGB(
+                                                                            255,
+                                                                            194,
+                                                                            98,
+                                                                            98))),
+                                                          ),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator.of(ctx)
+                                                                .pop();
+                                                          },
+                                                          child: Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(14),
+                                                            child: const Text(
+                                                                "إلغاء"),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ])),
+                                                  );
+                                                }),
+                                          ]))),
                             ])),
                     Positioned(
                         width: width,
@@ -329,6 +347,7 @@ class DeviceState extends State<Device> {
                                           key: formKey,
                                           child: TextFormField(
                                             controller: nameController,
+                                            maxLength: 10,
                                             decoration: InputDecoration(
                                               contentPadding:
                                                   EdgeInsets.symmetric(
@@ -678,29 +697,29 @@ class DeviceState extends State<Device> {
                                           ])
                                         ]),
                                     SizedBox(height: height * 0.01),
-                                    SfCartesianChart(
-                                        primaryXAxis: CategoryAxis(
-                                            title: AxisTitle(text: 'الأشهر')),
-                                        primaryYAxis: NumericAxis(
-                                            title: AxisTitle(text: 'kWh')),
-                                        series: <
-                                            ChartSeries<ChartData, String>>[
-                                          LineSeries<ChartData, String>(
-                                              width: 3,
-                                              dataSource: deviceData[
-                                                  'monthlyConsumption'],
-                                              dataLabelSettings:
-                                                  const DataLabelSettings(
-                                                      isVisible: true),
-                                              xValueMapper:
-                                                  (ChartData data, _) => data.x,
-                                              pointColorMapper:
-                                                  (ChartData data, _) =>
-                                                      data.color,
-                                              yValueMapper:
-                                                  (ChartData data, _) =>
-                                                      data.y),
-                                        ])
+                                    // SfCartesianChart(
+                                    //     primaryXAxis: CategoryAxis(
+                                    //         title: AxisTitle(text: 'الأشهر')),
+                                    //     primaryYAxis: NumericAxis(
+                                    //         title: AxisTitle(text: 'kWh')),
+                                    //     series: <
+                                    //         ChartSeries<ChartData, String>>[
+                                    //       LineSeries<ChartData, String>(
+                                    //           width: 3,
+                                    //           dataSource: deviceData[
+                                    //               'monthlyConsumption'],
+                                    //           dataLabelSettings:
+                                    //               const DataLabelSettings(
+                                    //                   isVisible: true),
+                                    //           xValueMapper:
+                                    //               (ChartData data, _) => data.x,
+                                    //           pointColorMapper:
+                                    //               (ChartData data, _) =>
+                                    //                   data.color,
+                                    //           yValueMapper:
+                                    //               (ChartData data, _) =>
+                                    //                   data.y),
+                                    //     ])
                                   ])),
                   ]);
                 } else {
