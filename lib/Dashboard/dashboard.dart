@@ -358,8 +358,10 @@ class _dashboardState extends State<dashboard> {
                             SizedBox(width: width * 0.02),
                             Container(
                               width: width * 0.2,
-                              padding: const EdgeInsets.all(3),
+                              padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: Colors.blue, width: 1),
                                 borderRadius: BorderRadius.circular(30),
                                 color: Colors.lightBlue.shade100,
                               ),
@@ -376,7 +378,7 @@ class _dashboardState extends State<dashboard> {
                                     style: const TextStyle(
                                         fontSize: 16,
                                         color: Colors.blue,
-                                        height: 1,
+                                        height: 0,
                                         fontWeight: FontWeight.w300)),
                               ),
                             ),
@@ -448,36 +450,7 @@ class _dashboardState extends State<dashboard> {
                           buildCard(energyData[1], width, height),
                           SizedBox(width: width * 0.025),
                         ]),
-                    // FutureBuilder(
-                    //     future: data,
-                    //     builder: (context, snapshot) {
-                    //       return
-                    //month picker
-                    // if (_selected == null)
-                    //   const Text('No month year selected.')
-                    // else
-                    //   Text(DateFormat().add_yM().format(_selected!)),
-                    // TextButton(
-                    //   child: const Text('DEFAULT LOCALE'),
-                    //   onPressed: () => _onPressed(context: context),
-                    // ),
-                    // TextButton(
-                    //   child: const Text('BAHASA MALAYSIA'),
-                    //   onPressed: () =>
-                    //       _onPressed(context: context, locale: 'ms'),
-                    // ),
-                    // TextButton(
-                    //   child: const Text('اللغة العربية'),
-                    //   onPressed: () =>
-                    //       _onPressed(context: context, locale: 'ar'),
-                    // ),
-                    // Center(
-                    //   child: Text(
-                    //     'Year: {selectedDate?.year}\nMonth: {selectedDate?.month}',
-                    //     style: Theme.of(context).textTheme.headlineMedium,
-                    //     textAlign: TextAlign.center,
-                    //   ),
-                    // ),
+
                     // FloatingActionButton(
                     //   backgroundColor: Colors.amberAccent,
                     //   onPressed: () {},
