@@ -341,16 +341,19 @@ class add_house_memberState extends State<add_house_member> {
   }
 
   Future<void> setData() async {
-    CollectionReference houses =
-        FirebaseFirestore.instance.collection('houseAccount');
+    CollectionReference houses = FirebaseFirestore.instance
+        .collection('houseAccount')
+        .doc(widget.ID)
+        .collection('houseMember');
 
-    houses.doc(widget.ID).collection('houseMember').add({
+    DocumentReference docReference = await houses.add({
       "memberID": FirebaseAuth.instance.currentUser!.uid,
       'memberPhoneNumber': membersPhoneNumber1.text,
       'nickName': membersNames1.text,
       'privilege': privilege,
+      'docId': ''
     });
-
+    houses.doc(docReference.id).update({'docId': docReference.id.toString()});
     setState(() {
       clearText();
     });

@@ -117,7 +117,6 @@ class _dashboardState extends State<dashboard> {
   double electricityBill = 0;
   double percentage = 0;
   double energyFromBill = 0;
-  //late DateTime _selected;
   DateTime? _selected;
   var devicesID;
   @override
@@ -167,8 +166,6 @@ class _dashboardState extends State<dashboard> {
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
-    calculateBill(10000);
-    calculateEnergy(1080);
 
     var LRPadding = width * 0.025;
 
@@ -368,126 +365,94 @@ class _dashboardState extends State<dashboard> {
                                           _onPressed(
                                               context: context, locale: 'ar');
 
-                                          // ubdateChart('march');
-                                        }),
-                                        child: Text(month,
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.blue,
-                                                height: 1,
-                                                fontWeight: FontWeight.w300)),
+                                  // ubdateChart('march');
+                                }),
+                                child: Text(month,
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.blue,
+                                        height: 0,
+                                        fontWeight: FontWeight.w300)),
+                              ),
+                            ),
+                            SizedBox(width: width * 0.26),
+                            Visibility(
+                                visible: userType == 'owner',
+                                child: IconButton(
+                                  icon: const Icon(Icons.ios_share),
+                                  onPressed: () {
+                                    share();
+                                  },
+                                )),
+                          ]),
+                        ])),
+                    Stack(children: [
+                      Container(
+                          decoration: const BoxDecoration(
+                              border: Border(top: BorderSide.none)),
+                          padding: EdgeInsets.fromLTRB(
+                              LRPadding, height * 0.02, LRPadding, 0),
+                          child: Material(
+                              elevation: 20,
+                              borderRadius: BorderRadius.circular(30),
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                    width * 0.01,
+                                    height * 0.035,
+                                    width * 0.01,
+                                    height * 0.035),
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      const Text(
+                                        'الهدف الإجمالي لإستهلاك الطاقة',
+                                        textAlign: TextAlign.right,
+                                        style: TextStyle(fontSize: 20),
                                       ),
-                                    ),
-                                    SizedBox(width: width * 0.26),
-                                    Visibility(
-                                        visible: userType == 'owner',
-                                        child: IconButton(
-                                          icon: const Icon(Icons.ios_share),
-                                          onPressed: () {
-                                            share();
-                                          },
-                                        )),
-                                  ]),
-                                ])),
-                            Stack(children: [
-                              Container(
-                                  decoration: const BoxDecoration(
-                                      border: Border(top: BorderSide.none)),
-                                  padding: EdgeInsets.fromLTRB(
-                                      LRPadding, height * 0.02, LRPadding, 0),
-                                  child: Material(
-                                      elevation: 20,
-                                      borderRadius: BorderRadius.circular(30),
-                                      child: Padding(
-                                        padding: EdgeInsets.fromLTRB(
-                                            width * 0.01,
-                                            height * 0.035,
-                                            width * 0.01,
-                                            height * 0.035),
-                                        child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: [
-                                              const Text(
-                                                'الهدف الإجمالي لإستهلاك الطاقة',
-                                                textAlign: TextAlign.right,
-                                                style: TextStyle(fontSize: 20),
-                                              ),
-                                              Text(
-                                                '${houseData['goal']} kWh',
-                                                style: const TextStyle(
-                                                    fontSize: 20,
-                                                    color: Colors.green),
-                                              ),
-                                            ]),
-                                      ))),
-                              Visibility(
-                                  visible: userType == 'owner',
-                                  child: Container(
-                                      margin: EdgeInsets.fromLTRB(
-                                          0, height * 0.09, width * 0.02, 0),
-                                      child: FloatingActionButton(
-                                          backgroundColor: Colors.lightGreen,
-                                          child: const Icon(Icons.edit),
-                                          onPressed: () {
-                                            showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return goalDialog(
-                                                      month, height, width);
-                                                });
-                                          })))
-                            ]),
-                            Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  SizedBox(width: width * 0.025),
-                                  buildCard(energyData[0], width, height),
-                                  SizedBox(width: width * 0.025),
-                                  buildCard(energyData[1], width, height),
-                                  SizedBox(width: width * 0.025),
-                                ]),
-                            // FutureBuilder(
-                            //     future: data,
-                            //     builder: (context, snapshot) {
-                            //       return
-                            //month picker
-                            // if (_selected == null)
-                            //   const Text('No month year selected.')
-                            // else
-                            //   Text(DateFormat().add_yM().format(_selected!)),
-                            // TextButton(
-                            //   child: const Text('DEFAULT LOCALE'),
-                            //   onPressed: () => _onPressed(context: context),
-                            // ),
-                            // TextButton(
-                            //   child: const Text('BAHASA MALAYSIA'),
-                            //   onPressed: () =>
-                            //       _onPressed(context: context, locale: 'ms'),
-                            // ),
-                            // TextButton(
-                            //   child: const Text('اللغة العربية'),
-                            //   onPressed: () =>
-                            //       _onPressed(context: context, locale: 'ar'),
-                            // ),
-                            // Center(
-                            //   child: Text(
-                            //     'Year: {selectedDate?.year}\nMonth: {selectedDate?.month}',
-                            //     style: Theme.of(context).textTheme.headlineMedium,
-                            //     textAlign: TextAlign.center,
-                            //   ),
-                            // ),
-                            // FloatingActionButton(
-                            //   backgroundColor: Colors.amberAccent,
-                            //   onPressed: () {},
-                            //   child: Icon(
-                            //     Icons.calendar_month_outlined,
-                            //     size: 35,
-                            //     color: Colors.black,
-                            //   ),
-                            // ),
+                                      Text(
+                                        '${houseData['goal']} kWh',
+                                        style: const TextStyle(
+                                            fontSize: 20, color: Colors.green),
+                                      ),
+                                    ]),
+                              ))),
+                      Visibility(
+                          visible: userType == 'owner',
+                          child: Container(
+                              margin: EdgeInsets.fromLTRB(
+                                  0, height * 0.09, width * 0.02, 0),
+                              child: FloatingActionButton(
+                                  backgroundColor: Colors.lightGreen,
+                                  child: const Icon(Icons.edit),
+                                  onPressed: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return goalDialog(
+                                              month, height, width);
+                                        });
+                                  })))
+                    ]),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          SizedBox(width: width * 0.025),
+                          buildCard(energyData[0], width, height),
+                          SizedBox(width: width * 0.025),
+                          buildCard(energyData[1], width, height),
+                          SizedBox(width: width * 0.025),
+                        ]),
+
+                    // FloatingActionButton(
+                    //   backgroundColor: Colors.amberAccent,
+                    //   onPressed: () {},
+                    //   child: Icon(
+                    //     Icons.calendar_month_outlined,
+                    //     size: 35,
+                    //     color: Colors.black,
+                    //   ),
+                    // ),
 
                             Container(
                                 margin: EdgeInsets.fromLTRB(
@@ -965,32 +930,33 @@ class _dashboardState extends State<dashboard> {
               });
             }
           });
-//get monthlyConsumption fireStore
-          // var collection2 = await FirebaseFirestore.instance
-          //     .collection('houseAccount')
-          //     .doc(widget.houseID)
-          //     .collection('houseDevices')
-          //     .doc(docID)
-          //     .collection('monthlyConsumption');
 
-          // collection2.snapshots().listen(((querySnapshot) {
-          //   // print(doc.data().values);
-          //   for (var doc in querySnapshot.docs) {
-          //     if (doc.exists) {
-          //       print('====================m===================');
-          //       Map<String, dynamic> data = doc.data();
-          //       print(data);
-          //       print(data[selectedYearMonth]);
-          //       //if(data[month] != null)
-          //       monthlyCons = double.parse(data[selectedYearMonth].toString());
-          //       print(monthlyCons);
-          //       // setState(() {
-          //       //   chartData.add(ChartData(name, comonthlyCons, Color(value)));
-          //       // });
-          //     }
-          //   }
-          //   print(monthlyCons);
-          // }));
+//get monthlyConsumption fireStore
+          var collection2 = await FirebaseFirestore.instance
+              .collection('houseAccount')
+              .doc(widget.houseID)
+              .collection('houseDevices')
+              .doc(docID)
+              .collection('monthlyConsumption');
+
+          collection2.snapshots().listen(((querySnapshot) {
+            // print(doc.data().values);
+            for (var doc in querySnapshot.docs) {
+              if (doc.exists) {
+                print('====================m===================');
+                Map<String, dynamic> data = doc.data();
+                print(data);
+                print(data[selectedYearMonth]);
+                //if(data[month] != null)
+                monthlyCons = double.parse(data[selectedYearMonth].toString());
+                print(monthlyCons);
+                // setState(() {
+                //   chartData.add(ChartData(name, comonthlyCons, Color(value)));
+                // });
+              }
+            }
+            print(monthlyCons);
+          }));
 
           print('////////////////////////////////');
           print('name $name');
@@ -1047,6 +1013,7 @@ class _dashboardState extends State<dashboard> {
     // to get data from all documents sequentially
     collection.snapshots().listen((querySnapshot) {
       chartData.clear();
+      total = 0;
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> data = doc.data(); // <-- Retrieving the value.
 
@@ -1055,7 +1022,9 @@ class _dashboardState extends State<dashboard> {
         var color = data['color'].split('(0x')[1].split(')')[0];
         String name = data['name'];
         int value = int.parse(color, radix: 16);
-        double cons = data['currentConsumption'];
+        double consum = 0;
+        if (data['currentConsumption'] != null)
+          consum = double.parse(data['currentConsumption'].toString());
         print('========================');
 
         //get currentConsumption from realtime
@@ -1071,25 +1040,31 @@ class _dashboardState extends State<dashboard> {
             data.forEach((key, values) {
               if (key == 'currentConsumption') {
                 String name = key; //the name of the attribute
-                cons = values['currentConsumption'];
+                consum = values['currentConsumption'];
               }
             });
           }
         });
         setState(() {
-          // print(data['currentConsumption']);
-          // var color = data['color'].split('(0x')[1].split(')')[0];
-          // print('color $color');
-          // int value = int.parse(color, radix: 16);
-          // print('value $value');
-          // String name = data['name'];
-          // double consum = double.parse(data['currentConsumption'].toString());
-          chartData.add(ChartData(name, cons, Color(value)));
+          total += consum.toInt();
+          chartData.add(ChartData(name, consum, Color(value)));
         });
       }
+      //set total consumption and bill
+      setState(() {
+        String percentageStr = '';
+        percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
+        energyData[1][1] = '${total}kWh';
+        percentage = (total / int.parse('100')) * 100;
+        i = total;
+        calculateBill(total.toDouble());
+        String e = electricityBill.toStringAsFixed(2);
+        energyData[0][1] = '${e}SR';
+      });
+
       chartData.sort((a, b) => b.y.compareTo(a.y));
       chartData = chartData.take(10).toList();
-      chartData.shuffle();
+      //  chartData.shuffle();
     });
   }
 
