@@ -197,119 +197,121 @@ class ListOfDevicesState extends State<ListOfDevices> {
             itemCount: devices!.size,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 1.15,
+                childAspectRatio: 1,
                 crossAxisSpacing: 15,
-                mainAxisSpacing: 15),
+                mainAxisSpacing: 18),
             itemBuilder: (BuildContext context, int index) {
               var color =
                   devices.docs[index]['color'].split('(0x')[1].split(')')[0];
               int value = int.parse(color, radix: 16);
-              return GridTile(
-                  child: InkWell(
-                onTap: () {
-                  showModalBottomSheet(
-                      isScrollControlled: true,
-                      isDismissible: false,
-                      enableDrag: false,
-                      backgroundColor: Colors.transparent,
-                      context: context,
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(105.0),
-                      )),
-                      builder: (context) => Device(
-                          deviceID: devices.docs[index].id,
-                          houseID: widget.houseID,
-                          userType: widget.userType));
-                },
-                splashColor: Colors.transparent,
-                child: Container(
-                    margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                    // height: height * 0.05,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: const [
-                          BoxShadow(
-                              blurRadius: 30,
-                              color: Colors.black45,
-                              spreadRadius: -10)
-                        ],
-                        borderRadius: BorderRadius.circular(20)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                  child: Text(
-                                    devices.docs[index]['name'],
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 22,
+              return FutureBuilder<Map<String, dynamic>>(
+                  future: getDeviceRealtimeData(
+                      widget.houseID, devices.docs[index].id),
+                  builder: (BuildContext context, AsyncSnapshot snapshot2) {
+                    if (snapshot2.connectionState == ConnectionState.done &&
+                        snapshot2.hasData) {
+                      var deviceData = snapshot2.data as Map<String, dynamic>;
+                      return Container(
+                          height: double.infinity,
+                          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: const [
+                                BoxShadow(
+                                    blurRadius: 30,
+                                    color: Colors.black45,
+                                    spreadRadius: -10)
+                              ],
+                              borderRadius: BorderRadius.circular(20)),
+                          child: GridTile(
+                            header: GridTileBar(
+                              // backgroundColor: Color(value),
+                              title: Container(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  deviceData['name'],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                    fontSize: 22,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            child: InkWell(
+                                onTap: () {
+                                  showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      isDismissible: false,
+                                      enableDrag: false,
+                                      backgroundColor: Colors.transparent,
+                                      context: context,
+                                      shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(105.0),
+                                      )),
+                                      builder: (context) => Device(
+                                          deviceID: devices.docs[index].id,
+                                          houseID: widget.houseID,
+                                          userType: widget.userType));
+                                },
+                                splashColor: Colors.transparent,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                      height: height * 0.05,
+                                      margin: const EdgeInsets.all(0),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: Color(value),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Text(''),
                                     ),
-                                  )),
-                              // Container(
-                              //   width: width * 0.12,
-                              //   padding: EdgeInsets.only(
-                              //       top: height * 0.008,
-                              //       bottom: height * 0.008),
-                              //   decoration: BoxDecoration(
-                              //       borderRadius: BorderRadius.circular(50),
-                              //       color: Color(value)),
-                              //   alignment: Alignment.center,
-                              //   child: const Text(''),
-                              // ),
-                            ]),
-                        SizedBox(height: height * 0.02),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: LiteRollingSwitch(
-                            value: devices.docs[index]['status'],
-                            textOn:
-                                devices.docs[index]['status'] == 'disconnected'
-                                    ? "غير متصل"
-                                    : 'On',
-                            textOff:
-                                devices.docs[index]['status'] == 'disconnected'
-                                    ? "غير متصل"
-                                    : 'Off',
-                            colorOn:
-                                devices.docs[index]['status'] == 'disconnected'
-                                    ? Colors.grey
-                                    : Colors.green.shade400,
-                            colorOff: Colors.red.shade400,
-                            iconOn: Icons.done,
-                            iconOff: Icons.remove_circle_outline,
-                            textOnColor: Colors.white,
-                            textSize: 16.0,
-                            width: 100,
-                            onChanged: (bool state) async {
-                              FirebaseFirestore.instance
-                                  .collection("houseAccount")
-                                  .doc(widget.houseID)
-                                  .collection('houseDevices')
-                                  .doc(devices.docs[index].id)
-                                  .update({'status': state});
-
-                              await updateDeviceStatus(
-                                  state ? "ON" : "OFF", devices.docs[index].id);
-                            },
-                            onTap: () {},
-                            onSwipe: () {},
-                            onDoubleTap: () {},
-                          ),
-                        ),
-                      ],
-                    )),
-              ));
+                                    SizedBox(height: height * 0.02),
+                                    RichText(
+                                        text: TextSpan(
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                            text: '${deviceData["currCons"]}',
+                                            style: const TextStyle(
+                                                fontSize: 23,
+                                                fontWeight: FontWeight.w500)),
+                                        const TextSpan(
+                                          text: 'KWh',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.normal),
+                                        ),
+                                      ],
+                                    )),
+                                    // Text(deviceData['status'] == 'ON'
+                                    //     ? 'الاستهلاك الحالي'
+                                    //     : 'آخر استهلاك تم تسجيله'),
+                                    SizedBox(height: height * 0.02),
+                                    Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 0.0),
+                                        child: controlDeviceStatus(
+                                            deviceData['status'],
+                                            deviceData['RealtimeID'])),
+                                  ],
+                                )),
+                          ));
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  });
             },
           ));
         } else {
-          return const Text("No data");
+          return const Center(child: CircularProgressIndicator());
         }
       },
     );

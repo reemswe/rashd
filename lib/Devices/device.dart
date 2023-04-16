@@ -22,13 +22,11 @@ class Device extends StatefulWidget {
 class DeviceState extends State<Device> {
   TextEditingController nameController = TextEditingController();
   var deviceRealtimeID = '', deviceColor = '';
-  var deviceData, finalColor = Colors.white;
+  var finalColor = Colors.white;
   var isEditing = false, isEdited = false;
-  Object? deviceStatus = 'disconnected', currCons = 0, temperature = 0;
 
   @override
   initState() {
-    // getDeviceRealtimeData();
     getDeviceID();
     super.initState();
   }
@@ -49,20 +47,7 @@ class DeviceState extends State<Device> {
     });
   }
 
-  Future<Map<String, dynamic>> readDeviceData() => FirebaseFirestore.instance
-          .collection('houseAccount')
-          .doc(widget.houseID)
-          .collection('houseDevices')
-          .doc(widget.deviceID)
-          .get()
-          .then(
-        (DocumentSnapshot doc) {
-          return doc.data() as Map<String, dynamic>;
-        },
-      );
-
   List<ChartData> chartData = [];
-
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -81,8 +66,10 @@ class DeviceState extends State<Device> {
           child: FutureBuilder<Map<String, dynamic>>(
               future: getDeviceRealtimeData(widget.houseID, widget.deviceID),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData) {
                   var deviceData = snapshot.data as Map<String, dynamic>;
+                  chartData = deviceData['monthlyConsumption'];
 
                   return Stack(children: [
                     Positioned(
@@ -99,7 +86,7 @@ class DeviceState extends State<Device> {
                                   colors: [finalColor, finalColor],
                                   begin: Alignment.topRight,
                                   end: Alignment.bottomLeft,
-                                  stops: [0.1, 1.0],
+                                  stops: const [0.1, 1.0],
                                 ),
                                 boxShadow: [
                                   BoxShadow(
@@ -121,7 +108,7 @@ class DeviceState extends State<Device> {
                               colors: [finalColor, finalColor],
                               begin: Alignment.topRight,
                               end: Alignment.bottomLeft,
-                              stops: [0.1, 1.0],
+                              stops: const [0.1, 1.0],
                             ),
                             boxShadow: [
                               BoxShadow(
@@ -183,8 +170,7 @@ class DeviceState extends State<Device> {
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           100),
-                                                  color:
-                                                      finalColor, //Colors.lightBlue.shade100,
+                                                  color: finalColor,
                                                 ),
                                                 alignment: Alignment.center,
                                                 child: IconButton(
@@ -498,7 +484,7 @@ class DeviceState extends State<Device> {
                                             gradient: LinearGradient(
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
-                                              stops: [0.1, 1.0],
+                                              stops: const [0.1, 1.0],
                                               colors: [
                                                 Colors.blue.shade200,
                                                 Colors.blue.shade400,
@@ -673,53 +659,87 @@ class DeviceState extends State<Device> {
                                     Align(
                                         alignment: Alignment.topRight,
                                         child: controlDeviceStatus(
-                                            deviceStatus, deviceRealtimeID)),
-                                    SizedBox(height: height * 0.01),
+                                            deviceData['status'],
+                                            deviceRealtimeID)),
+                                    SizedBox(height: height * 0.05),
                                     Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
                                         children: [
                                           Column(children: [
-                                            Text('${deviceData["currCons"]}',
-                                                style: const TextStyle(
-                                                    fontSize: 40,
-                                                    fontWeight:
-                                                        FontWeight.w500)),
-                                            const Text('الاستهلاك الحالي'),
+                                            RichText(
+                                                text: TextSpan(
+                                              style: const TextStyle(
+                                                  color: Colors.black),
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                    text:
+                                                        '${deviceData["currCons"]}',
+                                                    style: const TextStyle(
+                                                        fontSize: 40,
+                                                        fontWeight:
+                                                            FontWeight.w500)),
+                                                const TextSpan(
+                                                  text: 'KWh',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.normal),
+                                                ),
+                                              ],
+                                            )),
+                                            Text(deviceData['status'] == 'ON'
+                                                ? 'الاستهلاك الحالي'
+                                                : 'آخر استهلاك تم تسجيله'),
                                           ]),
                                           Column(children: [
-                                            Text('${deviceData['temperature']}',
-                                                style: const TextStyle(
-                                                    fontSize: 40,
-                                                    fontWeight:
-                                                        FontWeight.w500)),
-                                            const Text('درجة حرارة الجهاز')
+                                            RichText(
+                                                text: TextSpan(
+                                              style: const TextStyle(
+                                                  color: Colors.black),
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                    text:
+                                                        '${deviceData["temperature"]}',
+                                                    style: const TextStyle(
+                                                        fontSize: 40,
+                                                        fontWeight:
+                                                            FontWeight.w500)),
+                                                const TextSpan(
+                                                  text: '\u00b0C',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.normal),
+                                                ),
+                                              ],
+                                            )),
+                                            Text(deviceData['status'] == 'ON'
+                                                ? 'درجة حرارة الجهاز'
+                                                : 'آخر درجة حرارة مسجلة')
                                           ])
                                         ]),
-                                    SizedBox(height: height * 0.01),
-                                    // SfCartesianChart(
-                                    //     primaryXAxis: CategoryAxis(
-                                    //         title: AxisTitle(text: 'الأشهر')),
-                                    //     primaryYAxis: NumericAxis(
-                                    //         title: AxisTitle(text: 'kWh')),
-                                    //     series: <
-                                    //         ChartSeries<ChartData, String>>[
-                                    //       LineSeries<ChartData, String>(
-                                    //           width: 3,
-                                    //           dataSource: deviceData[
-                                    //               'monthlyConsumption'],
-                                    //           dataLabelSettings:
-                                    //               const DataLabelSettings(
-                                    //                   isVisible: true),
-                                    //           xValueMapper:
-                                    //               (ChartData data, _) => data.x,
-                                    //           pointColorMapper:
-                                    //               (ChartData data, _) =>
-                                    //                   data.color,
-                                    //           yValueMapper:
-                                    //               (ChartData data, _) =>
-                                    //                   data.y),
-                                    //     ])
+                                    SizedBox(height: height * 0.05),
+                                    SfCartesianChart(
+                                        primaryXAxis: CategoryAxis(
+                                            title: AxisTitle(text: 'الأشهر')),
+                                        primaryYAxis: NumericAxis(
+                                            title: AxisTitle(text: 'kWh')),
+                                        series: <
+                                            ChartSeries<ChartData, String>>[
+                                          LineSeries<ChartData, String>(
+                                              width: 3,
+                                              dataSource: chartData,
+                                              dataLabelSettings:
+                                                  const DataLabelSettings(
+                                                      isVisible: true),
+                                              xValueMapper:
+                                                  (ChartData data, _) => data.x,
+                                              pointColorMapper:
+                                                  (ChartData data, _) =>
+                                                      data.color,
+                                              yValueMapper:
+                                                  (ChartData data, _) =>
+                                                      data.y),
+                                        ])
                                   ])),
                   ]);
                 } else {

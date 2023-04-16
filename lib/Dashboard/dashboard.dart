@@ -351,108 +351,111 @@ class _dashboardState extends State<dashboard> {
                                     ),
                                     SizedBox(width: width * 0.02),
                                     Container(
-                                      width: width * 0.2,
-                                      padding: const EdgeInsets.all(3),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(30),
-                                        color: Colors.lightBlue.shade100,
-                                      ),
-                                      alignment: Alignment.center,
-                                      child:
-                                          //month
-                                          InkWell(
-                                        onTap: (() {
-                                          _onPressed(
-                                              context: context, locale: 'ar');
+                                        width: width * 0.2,
+                                        padding: const EdgeInsets.all(3),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                          color: Colors.lightBlue.shade100,
+                                        ),
+                                        alignment: Alignment.center,
+                                        child:
+                                            //month
+                                            InkWell(
+                                          onTap: (() {
+                                            _onPressed(
+                                                context: context, locale: 'ar');
 
-                                  // ubdateChart('march');
-                                }),
-                                child: Text(month,
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.blue,
-                                        height: 0,
-                                        fontWeight: FontWeight.w300)),
-                              ),
-                            ),
-                            SizedBox(width: width * 0.26),
-                            Visibility(
-                                visible: userType == 'owner',
-                                child: IconButton(
-                                  icon: const Icon(Icons.ios_share),
-                                  onPressed: () {
-                                    share();
-                                  },
-                                )),
-                          ]),
-                        ])),
-                    Stack(children: [
-                      Container(
-                          decoration: const BoxDecoration(
-                              border: Border(top: BorderSide.none)),
-                          padding: EdgeInsets.fromLTRB(
-                              LRPadding, height * 0.02, LRPadding, 0),
-                          child: Material(
-                              elevation: 20,
-                              borderRadius: BorderRadius.circular(30),
-                              child: Padding(
-                                padding: EdgeInsets.fromLTRB(
-                                    width * 0.01,
-                                    height * 0.035,
-                                    width * 0.01,
-                                    height * 0.035),
-                                child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      const Text(
-                                        'الهدف الإجمالي لإستهلاك الطاقة',
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(fontSize: 20),
-                                      ),
-                                      Text(
-                                        '${houseData['goal']} kWh',
-                                        style: const TextStyle(
-                                            fontSize: 20, color: Colors.green),
-                                      ),
-                                    ]),
-                              ))),
-                      Visibility(
-                          visible: userType == 'owner',
-                          child: Container(
-                              margin: EdgeInsets.fromLTRB(
-                                  0, height * 0.09, width * 0.02, 0),
-                              child: FloatingActionButton(
-                                  backgroundColor: Colors.lightGreen,
-                                  child: const Icon(Icons.edit),
-                                  onPressed: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return goalDialog(
-                                              month, height, width);
-                                        });
-                                  })))
-                    ]),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          SizedBox(width: width * 0.025),
-                          buildCard(energyData[0], width, height),
-                          SizedBox(width: width * 0.025),
-                          buildCard(energyData[1], width, height),
-                          SizedBox(width: width * 0.025),
-                        ]),
+                                            // ubdateChart('march');
+                                          }),
+                                          child: Text(month,
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.blue,
+                                                  height: 0,
+                                                  fontWeight: FontWeight.w300)),
+                                        )),
+                                    SizedBox(width: width * 0.26),
+                                    Visibility(
+                                        visible: userType == 'owner',
+                                        child: IconButton(
+                                          icon: const Icon(Icons.ios_share),
+                                          onPressed: () {
+                                            share();
+                                          },
+                                        )),
+                                  ]),
+                                ])),
+                            Stack(children: [
+                              Container(
+                                  decoration: const BoxDecoration(
+                                      border: Border(top: BorderSide.none)),
+                                  padding: EdgeInsets.fromLTRB(
+                                      LRPadding, height * 0.02, LRPadding, 0),
+                                  child: Material(
+                                      elevation: 20,
+                                      borderRadius: BorderRadius.circular(30),
+                                      child: Padding(
+                                        padding: EdgeInsets.fromLTRB(
+                                            width * 0.01,
+                                            height * 0.035,
+                                            width * 0.01,
+                                            height * 0.035),
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              const Text(
+                                                'الهدف الإجمالي لإستهلاك الطاقة',
+                                                textAlign: TextAlign.right,
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                              Text(
+                                                '${houseData['goal']} kWh',
+                                                style: const TextStyle(
+                                                    fontSize: 20,
+                                                    color: Colors.green),
+                                              ),
+                                            ]),
+                                      ))),
+                              Visibility(
+                                  visible: userType == 'owner',
+                                  child: Container(
+                                      margin: EdgeInsets.fromLTRB(
+                                          0, height * 0.09, width * 0.02, 0),
+                                      child: FloatingActionButton(
+                                          backgroundColor: Colors.lightGreen,
+                                          child: const Icon(Icons.edit),
+                                          onPressed: () {
+                                            showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return goalDialog(
+                                                      month, height, width);
+                                                });
+                                          })))
+                            ]),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  SizedBox(width: width * 0.025),
+                                  buildCard(energyData[0], width, height),
+                                  SizedBox(width: width * 0.025),
+                                  buildCard(energyData[1], width, height),
+                                  SizedBox(width: width * 0.025),
+                                ]),
 
-                    // FloatingActionButton(
-                    //   backgroundColor: Colors.amberAccent,
-                    //   onPressed: () {},
-                    //   child: Icon(
-                    //     Icons.calendar_month_outlined,
-                    //     size: 35,
-                    //     color: Colors.black,
-                    //   ),
-                    // ),
+                            // FloatingActionButton(
+                            //   backgroundColor: Colors.amberAccent,
+                            //   onPressed: () {},
+                            //   child: Icon(
+                            //     Icons.calendar_month_outlined,
+                            //     size: 35,
+                            //     color: Colors.black,
+                            //   ),
+                            // ),
 
                             Container(
                                 margin: EdgeInsets.fromLTRB(

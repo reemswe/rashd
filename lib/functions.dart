@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -39,16 +41,18 @@ Widget controlDeviceStatus(deviceStatus, deviceRealtimeID) {
     textOn: deviceStatus == 'disconnected' ? "غير متصل" : 'On',
     textOff: deviceStatus != 'disconnected' ? 'Off' : "غير متصل",
     colorOn: deviceStatus == 'disconnected'
-        ? Colors.grey.shade400
+        ? Colors.grey.shade600
         : Colors.green.shade400,
     colorOff: deviceStatus != 'disconnected'
         ? Colors.red.shade400
         : Colors.grey.shade600,
-    iconOn: Icons.done,
-    iconOff: Icons.remove_circle_outline,
+    iconOn: deviceStatus == 'disconnected' ? Icons.cancel : Icons.done,
+    iconOff: deviceStatus == 'disconnected'
+        ? Icons.cancel
+        : Icons.remove_circle_outline,
     textOnColor: Colors.white,
-    textSize: 16.0,
-    width: 100,
+    textSize: 16,
+    width: 130,
     onChanged: (bool state) async {
       if (deviceStatus != 'disconnected') {
         await updateDeviceStatus(state ? "ON" : "OFF", deviceRealtimeID);
@@ -63,6 +67,7 @@ Widget controlDeviceStatus(deviceStatus, deviceRealtimeID) {
 Future<Map<String, dynamic>> getDeviceRealtimeData(houseID, deviceID) async {
   List<ChartData> chartData = [];
   Map<String, dynamic> deviceData = {};
+  Completer<Map<String, dynamic>> completer = Completer();
 
   await FirebaseFirestore.instance //retrieve id and color from firestore
       .collection('houseAccount')
@@ -70,7 +75,7 @@ Future<Map<String, dynamic>> getDeviceRealtimeData(houseID, deviceID) async {
       .collection('houseDevices')
       .doc(deviceID)
       .get()
-      .then((DocumentSnapshot doc) {
+      .then((DocumentSnapshot doc) async {
     var finalColor =
         Color(int.parse(doc['color'].split('(0x')[1].split(')')[0], radix: 16));
     deviceData = {
@@ -81,7 +86,7 @@ Future<Map<String, dynamic>> getDeviceRealtimeData(houseID, deviceID) async {
     final databaseRef =
         FirebaseDatabase.instance.ref('devicesList/${doc["ID"]}/');
 
-    databaseRef.onValue.listen((event) {
+    await databaseRef.onValue.listen((event) {
       chartData.clear();
 
       // Convert the retrieved data to a list of ChartData objects
@@ -110,9 +115,12 @@ Future<Map<String, dynamic>> getDeviceRealtimeData(houseID, deviceID) async {
           }
         });
       }
+      // Resolve the completer when the variables have been updated
+      completer.complete(deviceData);
     });
   });
-  return deviceData;
+  // Return the completer's future to wait for the variables to be updated
+  return completer.future;
 }
 
 //! tapping local notification
