@@ -123,6 +123,53 @@ Future<Map<String, dynamic>> getDeviceRealtimeData(houseID, deviceID) async {
   return completer.future;
 }
 
+getCurrentConsumption(deviceID) {
+  Completer<double> completer = Completer();
+  double consum = 0;
+  //get currentConsumption from realtime
+  final databaseRef = FirebaseDatabase.instance.ref('devicesList/${deviceID}/');
+  databaseRef.onValue.listen((DatabaseEvent event) {
+    Map<dynamic, dynamic>? data =
+        event.snapshot.value as Map<dynamic, dynamic>?;
+    if (data != null) {
+      data.forEach((key, values) {
+        if (key == 'consumption') {
+          print(values['currentConsumption']);
+          consum = double.parse(values['currentConsumption'].toString());
+        }
+      });
+    }
+    completer.complete(consum);
+  });
+  return completer.future;
+}
+
+getMonthlyConsumption(deviceID, selectedYearMonth) {
+  Completer<double> completer = Completer();
+  double consum = 0;
+  //get currentConsumption from realtime
+  final databaseRef = FirebaseDatabase.instance.ref('devicesList/${deviceID}/');
+  databaseRef.onValue.listen((DatabaseEvent event) {
+    Map<dynamic, dynamic>? data =
+        event.snapshot.value as Map<dynamic, dynamic>?;
+    if (data != null) {
+      data.forEach((key, values) {
+        if (key == 'consumption') {
+          var monthlyConsumption = values['monthlyConsumption'];
+          monthlyConsumption.forEach((key, values) {
+            if (key == selectedYearMonth) {
+               consum = values.toDouble();
+            }
+          });
+          print(consum);
+        }
+      });
+    }
+    completer.complete(consum);
+  });
+  return completer.future;
+}
+
 //! tapping local notification
 void listenToNotificationStream(notificationService) =>
     notificationService.behaviorSubject.listen((payload) {
