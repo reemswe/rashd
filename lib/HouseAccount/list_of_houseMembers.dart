@@ -40,6 +40,7 @@ class _houseMembersState extends State<HouseMembers> {
         setState(() {
           membersList!.add([
             {
+              'docId': data['docId'],
               'nickName': data['nickName'],
               'privilege': data['privilege'],
             }
@@ -258,20 +259,48 @@ class _houseMembersState extends State<HouseMembers> {
                               context: context,
                               builder: (ctx) => AlertDialog(
                                 title: const Text(
-                                  "حذف عضو من المزل ",
+                                  "حذف عضو من المنزل ",
                                   textAlign: TextAlign.center,
                                 ),
                                 content: const Text(
-                                  "هل أنت متأكد من حذف العضو؟",
+                                  "هل أنت متأكد من أنك تريد حذف العضو؟",
                                   textAlign: TextAlign.left,
                                 ),
                                 actions: <Widget>[
                                   //delet
                                   TextButton(
-                                    onPressed: () {
-                                      deletHouseMember(
-                                          dataList[index][0]['docId']);
+                                    onPressed: () async {
                                       Navigator.of(ctx).pop();
+                                      print("inside delete");
+                                      await FirebaseFirestore.instance
+                                          .collection('houseAccount')
+                                          .doc(widget.houseId)
+                                          .collection('houseMember')
+                                          .get()
+                                          .then((snapshot) {
+                                        List<DocumentSnapshot> allDocs =
+                                            snapshot.docs;
+                                        List<DocumentSnapshot> filteredDocs =
+                                            allDocs
+                                                .where((document) =>
+                                                    (document.data() as Map<
+                                                        String,
+                                                        dynamic>)['docId'] ==
+                                                    dataList[index][0]
+                                                        ["docId"]) // member ID
+                                                .toList();
+                                        for (DocumentSnapshot ds
+                                            in filteredDocs) {
+                                          ds.reference.delete().then((_) {
+                                            print("member delete deleted");
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                              content:
+                                                  Text('تم حذف العضو بنجاح '),
+                                            ));
+                                          });
+                                        }
+                                      });
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.all(14),
@@ -378,16 +407,4 @@ class _houseMembersState extends State<HouseMembers> {
         items: items);
   }
 
-  Future<void> deletHouseMember(docId) async {
-    print('===============================');
-    print(docId);
-    final db = FirebaseFirestore.instance
-        .collection('houseAccount')
-        .doc(widget.houseId)
-        .collection('houseMember')
-        .doc(docId);
-    db.delete();
-
-    showToast('valid', 'تم حذف العضو ');
-  }
 }
