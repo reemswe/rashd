@@ -960,14 +960,12 @@ class _dashboardState extends State<dashboard> {
           });
         }
         setState(() {
-          String percentageStr = '';
-          percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
           energyData[1][1] = '${total}kWh';
-          percentage = (total / int.parse('100')) * 100;
-          // i = total;
           calculateBill(total.toDouble());
           String e = electricityBill.toStringAsFixed(2);
           energyData[0][1] = '${e}SR';
+          //remove precentae
+          energyData[1][2] = '';
         });
       }));
     } //end of else
