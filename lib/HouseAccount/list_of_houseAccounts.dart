@@ -268,8 +268,6 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
   }
 
   Widget buildItems(type, height, width) {
-    // clearForm();
-
     return FutureBuilder(
         future: type == "O" ? getOwner() : getMember(),
         builder: (context, snapshot) {
@@ -284,7 +282,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
                       margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                      padding: const EdgeInsets.fromLTRB(5, 10, 20, 10),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           boxShadow: const [
@@ -295,258 +293,291 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                           ],
                           borderRadius: BorderRadius.circular(20)),
                       child: ListTile(
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete_forever),
-                            iconSize: 35,
-                            color: Colors.red,
-                            onPressed: () {
-                              if (type == 'M') {
-                                showDialog(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    title: const Text(
-                                      "إلغاء الاشتراك؟",
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    content: const Text(
-                                      "هل أنت متأكد من أنك تريد إلغاء الاشتراك بالمنزل؟ ",
-                                      textAlign: TextAlign.end,
-                                    ),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(ctx).pop();
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(14),
-                                          child: const Text(
-                                            "إلغاء",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                            ),
+                          trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.delete_forever),
+                                  iconSize: 30,
+                                  color: Colors.red,
+                                  onPressed: () {
+                                    if (type == 'M') {
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text(
+                                            "إلغاء الاشتراك؟",
+                                            textAlign: TextAlign.center,
                                           ),
-                                        ),
-                                      ),
-                                      TextButton(
-                                        onPressed: () async {
-                                          Navigator.of(ctx).pop();
-                                          await FirebaseFirestore.instance
-                                              .collection('houseAccount')
-                                              .doc(
-                                                  dataList[index][0]["houseID"])
-                                              .collection('houseMember')
-                                              .get()
-                                              .then((snapshot) {
-                                            List<DocumentSnapshot> allDocs =
-                                                snapshot.docs;
-                                            List<DocumentSnapshot>
-                                                filteredDocs = allDocs
-                                                    .where((document) =>
-                                                        (document.data() as Map<
-                                                                String,
-                                                                dynamic>)[
-                                                            'memberID'] ==
-                                                        FirebaseAuth.instance
-                                                            .currentUser!.uid)
-                                                    .toList();
-                                            for (DocumentSnapshot ds
-                                                in filteredDocs) {
-                                              ds.reference.delete().then((_) {
-                                                showToast('valid',
-                                                    'تم إلغاء الاشتراك بالمنزل بنجاح');
-                                                setState(() {
-                                                  dataList.remove(index);
+                                          content: const Text(
+                                            "هل أنت متأكد من أنك تريد إلغاء الاشتراك بالمنزل؟ ",
+                                            textAlign: TextAlign.end,
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(ctx).pop();
+                                              },
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.all(14),
+                                                child: const Text(
+                                                  "إلغاء",
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () async {
+                                                Navigator.of(ctx).pop();
+                                                await FirebaseFirestore.instance
+                                                    .collection('houseAccount')
+                                                    .doc(dataList[index][0]
+                                                        ["houseID"])
+                                                    .collection('houseMember')
+                                                    .get()
+                                                    .then((snapshot) {
+                                                  List<DocumentSnapshot>
+                                                      allDocs = snapshot.docs;
+                                                  List<DocumentSnapshot>
+                                                      filteredDocs = allDocs
+                                                          .where((document) =>
+                                                              (document.data()
+                                                                      as Map<
+                                                                          String,
+                                                                          dynamic>)[
+                                                                  'memberID'] ==
+                                                              FirebaseAuth
+                                                                  .instance
+                                                                  .currentUser!
+                                                                  .uid)
+                                                          .toList();
+                                                  for (DocumentSnapshot ds
+                                                      in filteredDocs) {
+                                                    ds.reference
+                                                        .delete()
+                                                        .then((_) {
+                                                      showToast('valid',
+                                                          'تم إلغاء الاشتراك بالمنزل بنجاح');
+                                                      setState(() {
+                                                        dataList.remove(index);
+                                                      });
+                                                    });
+                                                  }
                                                 });
-                                              });
-                                            }
-                                          });
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(14),
-                                          child: const Text("نعم",
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Color.fromARGB(
-                                                      255, 124, 18, 18))),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    title: const Text(
-                                      "حذف حساب المنزل؟",
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    content: const Text(
-                                      "هل أنت متأكد من أنك تريد حذف حساب المنزل؟ ",
-                                    ),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () async {
-                                          Navigator.of(ctx).pop();
-                                          //if user is owner !
-                                          print("inside Owner");
-                                          //Delete house account
-                                          await FirebaseFirestore.instance
-                                              .collection('houseAccount')
-                                              .get()
-                                              .then((snapshot) async {
-                                            List<DocumentSnapshot> allDocs =
-                                                snapshot.docs;
-                                            List<DocumentSnapshot>
-                                                filteredDocs = allDocs
-                                                    .where((document) =>
-                                                        (document.data() as Map<
-                                                                String,
-                                                                dynamic>)[
-                                                            'houseID'] ==
-                                                        dataList[index][0][
-                                                            "houseID"]) // tile list house ID
-                                                    .toList();
-                                            print("i am here !");
-                                            for (DocumentSnapshot ds
-                                                in filteredDocs) {
-                                              //**********************************************************************
-                                              //delete dashboard
-                                              await FirebaseFirestore.instance
-                                                  .collection('dashboard')
-                                                  .get()
-                                                  .then((snapshot) async {
-                                                List<DocumentSnapshot>
-                                                    dash_allDocs =
-                                                    snapshot.docs;
-                                                List<DocumentSnapshot>
-                                                    dash_filteredDocs =
-                                                    dash_allDocs
-                                                        .where((document) =>
-                                                            (document.data()
-                                                                    as Map<
-                                                                        String,
-                                                                        dynamic>)[
-                                                                'houseID'] ==
-                                                            dataList[index][0]
-                                                                ["houseID"])
-                                                        .toList();
-                                                for (DocumentSnapshot dash_ds
-                                                    in dash_filteredDocs) {
-                                                  //delete dashboard_readings
-                                                  await FirebaseFirestore
-                                                      .instance
-                                                      .collection('dashboard')
-                                                      .doc(dash_ds[
-                                                          'dashboardID'])
-                                                      .collection(
-                                                          'dashboard_readings')
-                                                      .get()
-                                                      .then((snapshot) {
-                                                    for (DocumentSnapshot dash_ds
-                                                        in snapshot.docs) {
-                                                      dash_ds.reference
-                                                          .delete();
-                                                    }
-                                                  });
-                                                  print(
-                                                      "dashboard_readings deleted");
-
-                                                  //delete sharedCode
-                                                  await FirebaseFirestore
-                                                      .instance
-                                                      .collection(
-                                                          'houseAccount')
-                                                      .doc(dataList[index][0]
-                                                          ["houseID"])
-                                                      .collection('sharedCode')
-                                                      .get()
-                                                      .then((snapshot) {
-                                                    for (DocumentSnapshot dash_ds
-                                                        in snapshot.docs) {
-                                                      dash_ds.reference
-                                                          .delete();
-                                                    }
-                                                  });
-                                                  print(
-                                                      "dashboard sharecode deleted");
-
-                                                  dash_ds.reference
-                                                      .delete()
-                                                      .then((_) {
-                                                    print("dashboard deleted");
-                                                  });
-                                                }
-                                              });
-                                              //**********************************************************************
-                                              //delete house account devices
-                                              await FirebaseFirestore.instance
-                                                  .collection('houseAccount')
-                                                  .doc(ds['houseID'])
-                                                  .collection('houseDevices')
-                                                  .get()
-                                                  .then((snapshot) {
-                                                for (DocumentSnapshot ds
-                                                    in snapshot.docs) {
-                                                  ds.reference.delete();
-                                                }
-                                              });
-                                              print(
-                                                  "house account devices deleted");
-
-                                              //delete house account members
-                                              await FirebaseFirestore.instance
-                                                  .collection('houseAccount')
-                                                  .doc(ds['houseID'])
-                                                  .collection('houseMember')
-                                                  .get()
-                                                  .then((snapshot) {
-                                                for (DocumentSnapshot ds
-                                                    in snapshot.docs) {
-                                                  ds.reference.delete();
-                                                }
-                                              });
-                                              print(
-                                                  "house account members deleted");
-
-                                              ds.reference.delete().then((_) {
-                                                setState(() {});
-                                                print("house account deleted");
-                                                showToast('valid',
-                                                    'تم حذف حساب المنزل بنجاح');
-                                              });
-                                            }
-                                          });
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(14),
-                                          child: const Text("حذف",
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Color.fromARGB(
-                                                      255, 124, 18, 18))),
-                                        ),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(ctx).pop();
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(14),
-                                          child: const Text(
-                                            "إلغاء",
-                                            style: TextStyle(
-                                              fontSize: 18,
+                                              },
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.all(14),
+                                                child: const Text("نعم",
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        color: Color.fromARGB(
+                                                            255, 124, 18, 18))),
+                                              ),
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-                            },
-                          ),
+                                      );
+                                    } else {
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text(
+                                            "حذف حساب المنزل؟",
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          content: const Text(
+                                            "هل أنت متأكد من أنك تريد حذف حساب المنزل؟ ",
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () async {
+                                                Navigator.of(ctx).pop();
+                                                //if user is owner !
+                                                print("inside Owner");
+                                                //Delete house account
+                                                await FirebaseFirestore.instance
+                                                    .collection('houseAccount')
+                                                    .get()
+                                                    .then((snapshot) async {
+                                                  List<DocumentSnapshot>
+                                                      allDocs = snapshot.docs;
+                                                  List<DocumentSnapshot>
+                                                      filteredDocs = allDocs
+                                                          .where((document) =>
+                                                              (document.data()
+                                                                      as Map<
+                                                                          String,
+                                                                          dynamic>)[
+                                                                  'houseID'] ==
+                                                              dataList[index][0]
+                                                                  [
+                                                                  "houseID"]) // tile list house ID
+                                                          .toList();
+                                                  print("i am here !");
+                                                  for (DocumentSnapshot ds
+                                                      in filteredDocs) {
+                                                    //**********************************************************************
+                                                    //delete dashboard
+                                                    await FirebaseFirestore
+                                                        .instance
+                                                        .collection('dashboard')
+                                                        .get()
+                                                        .then((snapshot) async {
+                                                      List<DocumentSnapshot>
+                                                          dash_allDocs =
+                                                          snapshot.docs;
+                                                      List<DocumentSnapshot>
+                                                          dash_filteredDocs =
+                                                          dash_allDocs
+                                                              .where((document) =>
+                                                                  (document.data() as Map<
+                                                                          String,
+                                                                          dynamic>)[
+                                                                      'houseID'] ==
+                                                                  dataList[index]
+                                                                          [0][
+                                                                      "houseID"])
+                                                              .toList();
+                                                      for (DocumentSnapshot dash_ds
+                                                          in dash_filteredDocs) {
+                                                        //delete dashboard_readings
+                                                        await FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                'dashboard')
+                                                            .doc(dash_ds[
+                                                                'dashboardID'])
+                                                            .collection(
+                                                                'dashboard_readings')
+                                                            .get()
+                                                            .then((snapshot) {
+                                                          for (DocumentSnapshot dash_ds
+                                                              in snapshot
+                                                                  .docs) {
+                                                            dash_ds.reference
+                                                                .delete();
+                                                          }
+                                                        });
+                                                        print(
+                                                            "dashboard_readings deleted");
+
+                                                        //delete sharedCode
+                                                        await FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                'houseAccount')
+                                                            .doc(dataList[index]
+                                                                [0]["houseID"])
+                                                            .collection(
+                                                                'sharedCode')
+                                                            .get()
+                                                            .then((snapshot) {
+                                                          for (DocumentSnapshot dash_ds
+                                                              in snapshot
+                                                                  .docs) {
+                                                            dash_ds.reference
+                                                                .delete();
+                                                          }
+                                                        });
+                                                        print(
+                                                            "dashboard sharecode deleted");
+
+                                                        dash_ds.reference
+                                                            .delete()
+                                                            .then((_) {
+                                                          print(
+                                                              "dashboard deleted");
+                                                        });
+                                                      }
+                                                    });
+                                                    //**********************************************************************
+                                                    //delete house account devices
+                                                    await FirebaseFirestore
+                                                        .instance
+                                                        .collection(
+                                                            'houseAccount')
+                                                        .doc(ds['houseID'])
+                                                        .collection(
+                                                            'houseDevices')
+                                                        .get()
+                                                        .then((snapshot) {
+                                                      for (DocumentSnapshot ds
+                                                          in snapshot.docs) {
+                                                        ds.reference.delete();
+                                                      }
+                                                    });
+                                                    print(
+                                                        "house account devices deleted");
+
+                                                    //delete house account members
+                                                    await FirebaseFirestore
+                                                        .instance
+                                                        .collection(
+                                                            'houseAccount')
+                                                        .doc(ds['houseID'])
+                                                        .collection(
+                                                            'houseMember')
+                                                        .get()
+                                                        .then((snapshot) {
+                                                      for (DocumentSnapshot ds
+                                                          in snapshot.docs) {
+                                                        ds.reference.delete();
+                                                      }
+                                                    });
+                                                    print(
+                                                        "house account members deleted");
+
+                                                    ds.reference
+                                                        .delete()
+                                                        .then((_) {
+                                                      setState(() {});
+                                                      print(
+                                                          "house account deleted");
+                                                      showToast('valid',
+                                                          'تم حذف حساب المنزل بنجاح');
+                                                    });
+                                                  }
+                                                });
+                                              },
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.all(14),
+                                                child: const Text("حذف",
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        color: Color.fromARGB(
+                                                            255, 124, 18, 18))),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(ctx).pop();
+                                              },
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.all(14),
+                                                child: const Text(
+                                                  "إلغاء",
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                                const SizedBox(width: 5),
+                                const Icon(Icons.arrow_forward_ios),
+                              ]),
                           leading: Text(
                             dataList[index][0]["houseName"],
                             style: const TextStyle(fontSize: 18),
@@ -722,7 +753,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                         stops: [0.1, 1.0],
                         colors: [
                           Colors.blue.shade200,
-                          Color(0xFF42A5F5),
+                          const Color(0xFF42A5F5),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(30),
