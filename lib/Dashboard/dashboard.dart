@@ -121,7 +121,8 @@ class _dashboardState extends State<dashboard> {
   @override
   void initState() {
     super.initState();
-    devicesID = [];
+    // devicesID = [];
+    getGoal();
     month = months[DateTime.now().month];
     getData();
     if (!widget.isShared) {
@@ -159,7 +160,8 @@ class _dashboardState extends State<dashboard> {
     return userType;
   }
 
-  int total = 0;
+  double total = 0;
+  double usergoal = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -629,8 +631,8 @@ class _dashboardState extends State<dashboard> {
                   color: Colors.black26, offset: Offset(0, 4), blurRadius: 8.0)
             ],
             borderRadius: BorderRadius.circular(20)),
-        // width: width * 0.44,
-        height: height * 0.15,
+        //width: width * 0.44,
+        // height: height * 0.15,
         padding: EdgeInsets.fromLTRB(
             width * 0.02, height * 0.01, width * 0.02, height * 0.01),
         margin: const EdgeInsets.fromLTRB(0, 20, 0, 10),
@@ -835,6 +837,12 @@ class _dashboardState extends State<dashboard> {
         .update({
       'goal': goalController.text,
     });
+    setState(() {
+      //refreshing page for new goal & precentage
+      usergoal = double.parse(goalController.text);
+      percentage = (total / usergoal) * 100;
+      energyData[1][2] = 'تم بلوغ ${percentage.toInt()}% من هدف الشهر';
+    });
     goalController.clear();
   }
 
@@ -857,7 +865,7 @@ class _dashboardState extends State<dashboard> {
         percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
         energyData[1][1] = '${total}kWh';
         percentage = (total / int.parse('100')) * 100;
-        i = total;
+        //  i = total;
         calculateBill(total.toDouble());
         String e = electricityBill.toStringAsFixed(2);
         energyData[0][1] = '${e}SR';
@@ -865,29 +873,29 @@ class _dashboardState extends State<dashboard> {
     });
   }
 
-  Future<void> totalConsumption() async {
-    String percentageStr = '';
-    var collection = await FirebaseFirestore.instance
-        .collection('houseAccount')
-        .doc(widget.houseID)
-        .collection('houseDevices');
-    collection.snapshots().listen((querySnapshot) {
-      for (var doc in querySnapshot.docs) {
-        Map<String, dynamic> data = doc.data();
-        var deviceID = data['ID']; // <-- Retrieving the value.
-        setState(() {
-          total += int.parse('100');
-        });
-      }
-      total = total - i;
-      setState(() {
-        percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
-        energyData[1][1] = '${total}kWh';
-        percentage = (total / int.parse('100')) * 100;
-        i = total;
-      });
-    });
-  }
+  // Future<void> totalConsumption() async {
+  //   String percentageStr = '';
+  //   var collection = await FirebaseFirestore.instance
+  //       .collection('houseAccount')
+  //       .doc(widget.houseID)
+  //       .collection('houseDevices');
+  //   collection.snapshots().listen((querySnapshot) {
+  //     for (var doc in querySnapshot.docs) {
+  //       Map<String, dynamic> data = doc.data();
+  //       var deviceID = data['ID']; // <-- Retrieving the value.
+  //       setState(() {
+  //         total += int.parse('100');
+  //       });
+  //     }
+  //     total = total - i;
+  //     setState(() {
+  //       percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
+  //       energyData[1][1] = '${total}kWh';
+  //       percentage = (total / int.parse('100')) * 100;
+  //       // i = total;
+  //     });
+  //   });
+  // }
 
   Future ubdateChart(String selectedYearMonth, String monthar) async {
     double total = 0;
@@ -965,28 +973,49 @@ class _dashboardState extends State<dashboard> {
     } //end of else
   }
 
-  Future<double> getMontlyConsum(
-      String docID, String selectedYearMonth, String monthlyConsId) async {
-    double monthlyCons = 0;
+  // Future<double> getMontlyConsum(
+  //     String docID, String selectedYearMonth, String monthlyConsId) async {
+  //   double monthlyCons = 0;
+  //   await FirebaseFirestore.instance
+  //       .collection('houseAccount')
+  //       .doc(widget.houseID)
+  //       .collection('houseDevices')
+  //       .doc(docID)
+  //       .collection('monthlyConsumption')
+  //       .doc(monthlyConsId)
+  //       .get()
+  //       .then((DocumentSnapshot doc) {
+  //     if (doc.exists) {
+  //       print(doc.data());
+  //       Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+  //       print('====================m===================');
+  //       print(data[selectedYearMonth]);
+  //       monthlyCons = double.parse(data[selectedYearMonth].toString());
+  //     }
+  //   });
+
+  //   return monthlyCons;
+  // }
+
+  Future<double> getGoal() async {
+    double goal = 0;
     await FirebaseFirestore.instance
         .collection('houseAccount')
         .doc(widget.houseID)
-        .collection('houseDevices')
-        .doc(docID)
-        .collection('monthlyConsumption')
-        .doc(monthlyConsId)
         .get()
         .then((DocumentSnapshot doc) {
       if (doc.exists) {
         print(doc.data());
         Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
-        print('====================m===================');
-        print(data[selectedYearMonth]);
-        monthlyCons = double.parse(data[selectedYearMonth].toString());
+        print('====================goal===================');
+        print(data['goal']);
+        goal = double.parse(data['goal'].toString());
       }
     });
-
-    return monthlyCons;
+    setState(() {
+      usergoal = goal;
+    });
+    return goal;
   }
 
   Future getData() async {
@@ -1006,21 +1035,24 @@ class _dashboardState extends State<dashboard> {
         String name = data['name'];
         int value = int.parse(color, radix: 16);
         double consum = 0;
+        //   String usergoaldb = data['goal'].toString();
 
         consum = await getCurrentConsumption(deviceID);
         //total = total - i;
         setState(() {
-          total += consum.toInt();
+          total += consum;
+          //    usergoal = usergoaldb;
           chartData.add(ChartData(name, consum, Color(value)));
         });
       }
+      print('usergoal');
+      print(usergoal);
       //set total consumption and bill
       setState(() {
-        String percentageStr = '';
-        percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
-        energyData[1][1] = '${total}kWh';
-        percentage = (total / int.parse('100')) * 100;
-        i = total;
+        energyData[1][1] = '${total.toStringAsFixed(2)}kWh';
+        percentage = (total / usergoal) * 100;
+        //  i = total;
+        energyData[1][2] = 'تم بلوغ ${percentage.toInt()}% من هدف الشهر';
         calculateBill(total.toDouble());
         String e = electricityBill.toStringAsFixed(2);
         energyData[0][1] = '${e}SR';
@@ -1028,6 +1060,8 @@ class _dashboardState extends State<dashboard> {
 
       chartData.sort((a, b) => b.y.compareTo(a.y));
     });
+    print('================precentage==================');
+    print((total / usergoal) * 100);
   }
 
   //calculate electricity bill for 30 days
