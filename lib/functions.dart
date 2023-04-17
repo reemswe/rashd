@@ -9,10 +9,9 @@ import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'Dashboard/dashboard.dart';
 import 'main.dart';
 
-Future<Map<String, dynamic>> readHouseData(id, uid, isShared) =>
+Future<Map<String, dynamic>> readHouseData(id, isShared) =>
     FirebaseFirestore.instance.collection('houseAccount').doc(id).get().then(
       (DocumentSnapshot doc) async {
-        // userType = await getUserType(id, uid, isShared);
         return doc.data() as Map<String, dynamic>;
       },
     );
@@ -33,7 +32,10 @@ Future<void> updateDeviceStatus(value, deviceID) async {
   await database.update({'status': value});
 }
 
-Widget controlDeviceStatus(deviceStatus, deviceRealtimeID) {
+Widget controlDeviceStatus(
+  deviceStatus,
+  deviceRealtimeID,
+) {
   return LiteRollingSwitch(
     value: deviceStatus != 'disconnected'
         ? (deviceStatus == 'ON' ? true : false)
@@ -158,10 +160,9 @@ getMonthlyConsumption(deviceID, selectedYearMonth) {
           var monthlyConsumption = values['monthlyConsumption'];
           monthlyConsumption.forEach((key, values) {
             if (key == selectedYearMonth) {
-               consum = values.toDouble();
+              consum = values.toDouble();
             }
           });
-          print(consum);
         }
       });
     }

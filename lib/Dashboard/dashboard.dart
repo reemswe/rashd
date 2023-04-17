@@ -176,8 +176,7 @@ class _dashboardState extends State<dashboard> {
 
             return Scaffold(
               body: FutureBuilder<Map<String, dynamic>>(
-                  future: readHouseData(widget.houseID,
-                      FirebaseAuth.instance.currentUser!.uid, widget.isShared),
+                  future: readHouseData(widget.houseID, widget.isShared),
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData) {
                       var houseData = snapshot.data as Map<String, dynamic>;
@@ -257,13 +256,25 @@ class _dashboardState extends State<dashboard> {
                                                   actions: <Widget>[
                                                     TextButton(
                                                       onPressed: () async {
-                                                        // Navigator.of(ctx).pop();
-                                                        Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        const welcomePage()));
+                                                        if (FirebaseAuth
+                                                                .instance
+                                                                .currentUser
+                                                                ?.uid ==
+                                                            null) {
+                                                          Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          const welcomePage()));
+                                                        } else {
+                                                          Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          const ListOfHouseAccounts()));
+                                                        }
                                                       },
                                                       child: Container(
                                                         padding:

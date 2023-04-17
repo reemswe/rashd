@@ -3,6 +3,7 @@ import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:rashd/Devices/addDevice.dart';
 import 'package:rashd/Devices/device.dart';
@@ -35,8 +36,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
     final double width = MediaQuery.of(context).size.width;
 
     return FutureBuilder<Map<String, dynamic>>(
-        future: readHouseData(
-            widget.houseID, FirebaseAuth.instance.currentUser!.uid, false),
+        future: readHouseData(widget.houseID, false),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
@@ -123,7 +123,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               const Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                                  padding: EdgeInsets.fromLTRB(0, 15, 20, 0),
                                   child: Text(
                                     "قائمة الأجهزة",
                                     style: TextStyle(
@@ -187,131 +187,146 @@ class ListOfDevicesState extends State<ListOfDevices> {
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasData) {
-          var devices = snapshot.data;
-          return Expanded(
-              child: GridView.builder(
-            physics: const BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics()),
-            shrinkWrap: true,
-            itemCount: devices!.size,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 1,
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 18),
-            itemBuilder: (BuildContext context, int index) {
-              var color =
-                  devices.docs[index]['color'].split('(0x')[1].split(')')[0];
-              int value = int.parse(color, radix: 16);
-              return FutureBuilder<Map<String, dynamic>>(
-                  future: getDeviceRealtimeData(
-                      widget.houseID, devices.docs[index].id),
-                  builder: (BuildContext context, AsyncSnapshot snapshot2) {
-                    if (snapshot2.connectionState == ConnectionState.done &&
-                        snapshot2.hasData) {
-                      var deviceData = snapshot2.data as Map<String, dynamic>;
-                      return Container(
-                          height: double.infinity,
-                          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              boxShadow: const [
-                                BoxShadow(
-                                    blurRadius: 30,
-                                    color: Colors.black45,
-                                    spreadRadius: -10)
-                              ],
-                              borderRadius: BorderRadius.circular(20)),
-                          child: GridTile(
-                            header: GridTileBar(
-                              // backgroundColor: Color(value),
-                              title: Container(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  deviceData['name'],
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
-                                    fontSize: 22,
+        } else {
+          if (snapshot.hasData && snapshot.data!.size > 0) {
+            var devices = snapshot.data;
+            return Expanded(
+                child: GridView.builder(
+              physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics()),
+              shrinkWrap: true,
+              itemCount: devices!.size,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1,
+                  crossAxisSpacing: 15,
+                  mainAxisSpacing: 18),
+              itemBuilder: (BuildContext context, int index) {
+                var color =
+                    devices.docs[index]['color'].split('(0x')[1].split(')')[0];
+                int value = int.parse(color, radix: 16);
+                return FutureBuilder<Map<String, dynamic>>(
+                    future: getDeviceRealtimeData(
+                        widget.houseID, devices.docs[index].id),
+                    builder: (BuildContext context, AsyncSnapshot snapshot2) {
+                      if (snapshot2.connectionState == ConnectionState.done &&
+                          snapshot2.hasData) {
+                        var deviceData = snapshot2.data as Map<String, dynamic>;
+                        return Container(
+                            height: double.infinity,
+                            margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: const [
+                                  BoxShadow(
+                                      blurRadius: 30,
+                                      color: Colors.black45,
+                                      spreadRadius: -10)
+                                ],
+                                borderRadius: BorderRadius.circular(20)),
+                            child: GridTile(
+                              header: GridTileBar(
+                                // backgroundColor: Color(value),
+                                title: Container(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    deviceData['name'],
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
+                                      fontSize: 22,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            child: InkWell(
-                                onTap: () {
-                                  showModalBottomSheet(
-                                      isScrollControlled: true,
-                                      isDismissible: false,
-                                      enableDrag: false,
-                                      backgroundColor: Colors.transparent,
-                                      context: context,
-                                      shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                        top: Radius.circular(105.0),
-                                      )),
-                                      builder: (context) => Device(
-                                          deviceID: devices.docs[index].id,
-                                          houseID: widget.houseID,
-                                          userType: widget.userType));
-                                },
-                                splashColor: Colors.transparent,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                      height: height * 0.05,
-                                      margin: const EdgeInsets.all(0),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: Color(value),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text(''),
-                                    ),
-                                    SizedBox(height: height * 0.02),
-                                    RichText(
-                                        text: TextSpan(
-                                      style:
-                                          const TextStyle(color: Colors.black),
-                                      children: <TextSpan>[
-                                        TextSpan(
-                                            text: '${deviceData["currCons"]}',
-                                            style: const TextStyle(
-                                                fontSize: 23,
-                                                fontWeight: FontWeight.w500)),
-                                        const TextSpan(
-                                          text: 'KWh',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.normal),
+                              child: InkWell(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                        isScrollControlled: true,
+                                        isDismissible: false,
+                                        enableDrag: false,
+                                        backgroundColor: Colors.transparent,
+                                        context: context,
+                                        shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(105.0),
+                                        )),
+                                        builder: (context) => Device(
+                                            deviceID: devices.docs[index].id,
+                                            houseID: widget.houseID,
+                                            userType: widget.userType));
+                                  },
+                                  splashColor: Colors.transparent,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            0, 0, 0, 0),
+                                        height: height * 0.05,
+                                        margin: const EdgeInsets.all(0),
+                                        decoration: BoxDecoration(
+                                          borderRadius: const BorderRadius.only(
+                                            topRight: Radius.circular(20),
+                                            topLeft: Radius.circular(20),
+                                          ),
+                                          color: Color(value),
                                         ),
-                                      ],
-                                    )),
-                                    // Text(deviceData['status'] == 'ON'
-                                    //     ? 'الاستهلاك الحالي'
-                                    //     : 'آخر استهلاك تم تسجيله'),
-                                    SizedBox(height: height * 0.02),
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 0.0),
-                                        child: controlDeviceStatus(
-                                            deviceData['status'],
-                                            deviceData['RealtimeID'])),
-                                  ],
-                                )),
-                          ));
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                  });
-            },
-          ));
-        } else {
-          return const Center(child: CircularProgressIndicator());
+                                        alignment: Alignment.center,
+                                        child: const Text(''),
+                                      ),
+                                      SizedBox(height: height * 0.02),
+                                      RichText(
+                                          text: TextSpan(
+                                        style: const TextStyle(
+                                            color: Colors.black),
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                              text: '${deviceData["currCons"]}',
+                                              style: const TextStyle(
+                                                  fontSize: 23,
+                                                  fontWeight: FontWeight.w500)),
+                                          const TextSpan(
+                                            text: 'KWh',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.normal),
+                                          ),
+                                        ],
+                                      )),
+                                      // Text(deviceData['status'] == 'ON'
+                                      //     ? 'الاستهلاك الحالي'
+                                      //     : 'آخر استهلاك تم تسجيله'),
+                                      SizedBox(height: height * 0.02),
+                                      Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 0.0),
+                                          child: controlDeviceStatus(
+                                              deviceData['status'],
+                                              deviceData['RealtimeID'])),
+                                    ],
+                                  )),
+                            ));
+                      } else {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                    });
+              },
+            ));
+          } else {
+            return Column(mainAxisSize: MainAxisSize.min, children: [
+              Padding(
+                  padding: EdgeInsets.fromLTRB(
+                      width * 0.2, height * 0.18, width * 0.2, 10),
+                  child: SvgPicture.asset('assets/images/noData.svg',
+                      width: width * 0.6, semanticsLabel: 'House')),
+              SizedBox(height: height * 0.02),
+              const Text("عذرا ، هذا المنزل ليس به أجهزة.",
+                  style: TextStyle(fontSize: 17))
+            ]);
+          }
         }
       },
     );

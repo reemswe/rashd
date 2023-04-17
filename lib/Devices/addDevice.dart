@@ -331,7 +331,7 @@ class AddDeviceState extends State<AddDevice> {
                 stops: [0.1, 1.0],
                 colors: [
                   Colors.blue.shade200,
-                  Colors.blue.shade400,
+                  Color(0xFF42A5F5),
                 ],
               ),
               borderRadius: BorderRadius.circular(30),

@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
+import '../Dashboard/accessSharedDashboard.dart';
 import '../Notification/FCM.dart';
 import '../Notification/localNotification.dart';
 import '../Registration/profile.dart';
@@ -142,6 +143,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
     final double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(children: [
         Positioned(
           bottom: height * 0,
@@ -166,21 +168,37 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
           FutureBuilder(
               future: getUsername(),
               builder: (context, snapshot) {
-                return Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: EdgeInsets.only(right: width * 0.05),
-                    child: Text(
-                        snapshot.connectionState == ConnectionState.done &&
-                                snapshot.hasData
-                            ? 'مرحبًا، ${snapshot.data}!'
-                            : 'مرحبًا',
-                        style: const TextStyle(
-                            fontSize: 28,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600)),
-                  ),
-                );
+                return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: EdgeInsets.only(right: width * 0.05),
+                          child: Text(
+                              snapshot.connectionState ==
+                                          ConnectionState.done &&
+                                      snapshot.hasData
+                                  ? 'مرحبًا، ${snapshot.data}!'
+                                  : 'مرحبًا',
+                              style: const TextStyle(
+                                  fontSize: 28,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600)),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: width * 0.04),
+                        child: Opacity(
+                          opacity: 0.8,
+                          child: (Image.asset(
+                            'assets/images/logo.jpg',
+                            height: height * 0.065,
+                            width: width * 0.12,
+                          )),
+                        ),
+                      ),
+                    ]);
               }),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Padding(
@@ -231,7 +249,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
             tabs: const <Tab>[
               Tab(text: 'منازلي'),
               Tab(text: 'اشتراكاتي'),
-              Tab(text: 'لوحة المنزل المشتركة')
+              Tab(text: 'اللوحة المشتركة')
             ],
             labelColor: Colors.blue,
             unselectedLabelColor: Colors.grey,
@@ -241,7 +259,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
               child: TabBarView(controller: tabController, children: [
             buildItems("O", height, width),
             buildItems("M", height, width),
-            Text("te")
+            sharedDashboard(height, width)
           ])),
         ]),
       ]),
@@ -250,6 +268,8 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
   }
 
   Widget buildItems(type, height, width) {
+    // clearForm();
+
     return FutureBuilder(
         future: type == "O" ? getOwner() : getMember(),
         builder: (context, snapshot) {
@@ -623,6 +643,169 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                   ]))
           ]);
         });
+  }
+
+  final _formKey = GlobalKey<FormState>();
+  bool invalidCode = false;
+  TextEditingController codeController = TextEditingController();
+  String codeErrorMessage = '';
+  bool inProgress = false;
+
+  Widget sharedDashboard(height, width) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Padding(
+        padding: EdgeInsets.only(top: height * 0.025, right: width * 0.08),
+        child: const Text(
+          "لوحة المعلومات المشتركة",
+          style: TextStyle(fontSize: 23.0, fontWeight: FontWeight.w600),
+        ),
+      ),
+      Form(
+        key: _formKey,
+        child: Padding(
+          padding: EdgeInsets.only(
+              top: 0, left: width * 0.08, right: width * 0.08, bottom: 0),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(height: height * 0.03),
+
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Text(
+                    "أدخل الرمز الذي تلقيته للوصول إلى لوحة المعلومات المشتركة",
+                    style: TextStyle(
+                        color: Colors.grey.shade800,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400),
+                  ),
+                ),
+                SizedBox(height: height * 0.045),
+
+                TextFormField(
+                  controller: codeController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'رمز لوحة المعلومات',
+                    suffixIcon: Icon(
+                      Icons.key,
+                      color: Color.fromRGBO(53, 152, 219, 1),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null ||
+                        value.isEmpty ||
+                        (value.trim()).isEmpty) {
+                      return 'الرجاء إدخال رمز لوحة المعلومات.';
+                    } else if (invalidCode) {
+                      return codeErrorMessage;
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: height * 0.05),
+
+                //button
+                Container(
+                    width: width * 0.5,
+                    decoration: BoxDecoration(
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 4),
+                            blurRadius: 5.0)
+                      ],
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        stops: [0.1, 1.0],
+                        colors: [
+                          Colors.blue.shade200,
+                          Color(0xFF42A5F5),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await isCodeValid();
+
+                        if (_formKey.currentState!.validate()) {
+                          var sharedDashboard = await FirebaseFirestore.instance
+                              .collectionGroup('sharedCode')
+                              .where('code',
+                                  isEqualTo: int.parse(codeController.text))
+                              .where('isExpired', isEqualTo: false)
+                              .get();
+
+                          await FirebaseFirestore.instance
+                              .collection('houseAccount')
+                              .doc(sharedDashboard.docs[0].data()["houseID"])
+                              .collection('sharedCode')
+                              .doc(sharedDashboard.docs[0].id)
+                              .update({'isExpired': true});
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => dashboard(
+                                  houseID:
+                                      sharedDashboard.docs[0].data()['houseID'],
+                                  isShared: true,
+                                ),
+                              ));
+                          clearForm();
+                        }
+                      },
+                      child: const Text('التالي'),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    )),
+                SizedBox(height: height * 0.02),
+              ]),
+        ),
+      )
+    ]);
+  }
+
+  //this function checks if dashboard exists and the code not expired (not used before)
+//Returns true if code satisfies the above.
+  Future<bool> isCodeValid() async {
+    QuerySnapshot codeExistQuery = await FirebaseFirestore.instance
+        .collectionGroup('sharedCode')
+        .where('code',
+            isEqualTo: int.parse(codeController
+                .text)) //parse the input string value to int and it will work correctly, then change the status of isExpired
+        .get();
+
+    if (codeExistQuery.docs.isNotEmpty) {
+      QuerySnapshot codeExpiredQuery = await FirebaseFirestore.instance
+          .collectionGroup('sharedCode')
+          .where('code', isEqualTo: int.parse(codeController.text))
+          .where('isExpired', isEqualTo: false)
+          .get();
+      if (codeExpiredQuery.docs.isNotEmpty) {
+        invalidCode = false;
+      } else {
+        invalidCode = true;
+        codeErrorMessage = 'رمز لوحة المعلومات تم استخدامه بالفعل.';
+      }
+    } else {
+      invalidCode = true;
+      codeErrorMessage = 'رمز لوحة المعلومات غير صالح.';
+    }
+
+    return invalidCode;
+  }
+
+  void clearForm() {
+    codeController.text = "";
+    inProgress = false;
+    codeErrorMessage = '';
   }
 
   int index = 0;

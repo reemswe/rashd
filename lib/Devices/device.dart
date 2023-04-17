@@ -655,13 +655,17 @@ class DeviceState extends State<Device> {
                                   horizontal: width * 0.02,
                                 ),
                                 children: [
-                                    SizedBox(height: height * 0.01),
-                                    Align(
-                                        alignment: Alignment.topRight,
-                                        child: controlDeviceStatus(
-                                            deviceData['status'],
-                                            deviceRealtimeID)),
-                                    SizedBox(height: height * 0.05),
+                                    SizedBox(height: height * 0.04),
+                                    Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.05,
+                                        ),
+                                        child: Align(
+                                            alignment: Alignment.topRight,
+                                            child: controlDeviceStatus(
+                                                deviceData['status'],
+                                                deviceRealtimeID))),
+                                    SizedBox(height: height * 0.06),
                                     Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
