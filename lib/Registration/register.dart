@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
+import '../functions.dart';
 import 'login.dart';
 
 class register extends StatefulWidget {
@@ -32,7 +33,6 @@ String phoneErrorMessage = '';
 
 void clearForm() {
   emailController.text = "";
-  usernameController.text = '';
   passwordController.text = '';
   cofirmPasswordController.text = '';
   fullNameController.text = '';
@@ -211,9 +211,8 @@ class registerFormState extends State<registerForm> {
       await saveUser();
 
       clearForm();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('مرحبًا بك لرشد')),
-      );
+      showToast('valid', 'مرحبًا بك في رشد');
+
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -221,20 +220,7 @@ class registerFormState extends State<registerForm> {
           ));
     } on FirebaseAuthException catch (e) {
       print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('error'),
-          backgroundColor: Colors.red.shade400,
-          margin: const EdgeInsets.fromLTRB(6, 0, 3, 0),
-          behavior: SnackBarBehavior.floating,
-          action: SnackBarAction(
-            label: 'Dismiss',
-            disabledTextColor: Colors.white,
-            textColor: Colors.white,
-            onPressed: () {},
-          ),
-        ),
-      );
+      showToast('invalid', 'error');
     }
   }
 

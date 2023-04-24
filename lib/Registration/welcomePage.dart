@@ -143,7 +143,7 @@ class _welcomePageState extends State<welcomePage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => accessSharedDashboard(),
+                              builder: (context) => AccessSharedDashboard(),
                             ));
                       },
                       child: Text('لوحة المنزل المشتركة',
@@ -185,8 +185,8 @@ class _welcomePageState extends State<welcomePage> {
               width: width * 0.9,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                      colors: [Color(0xFF81D4FA), Colors.blue]),
+                  gradient:
+                      LinearGradient(colors: [Color(0xFF81D4FA), Colors.blue]),
                   boxShadow: [
                     BoxShadow(
                         color: Colors.blue.shade100,

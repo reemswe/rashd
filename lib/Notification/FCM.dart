@@ -36,7 +36,7 @@ class PushNotification {
       GlobalContextService.navigatorKey.currentState!.context,
       PageRouteBuilder(
         pageBuilder: (context, animation1, animation2) => dashboard(
-          ID: message.data['id'],
+          houseID: message.data['id'],
         ),
         transitionDuration: const Duration(seconds: 1),
         reverseTransitionDuration: Duration.zero,

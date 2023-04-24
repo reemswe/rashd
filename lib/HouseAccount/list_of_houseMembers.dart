@@ -2,10 +2,11 @@ import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../Dashboard/sharedDashboard.dart';
-import '../Devices/listOfDevices.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
+import '../Dashboard/dashboard.dart';
+import '../Devices/listOfDevices.dart';
+import '../functions.dart';
 import 'add_house_member.dart';
 import 'list_of_houseAccounts.dart';
 
@@ -40,7 +41,11 @@ class _houseMembersState extends State<HouseMembers> {
         Map<String, dynamic> data = doc.data(); // <-- Retrieving the value.
         setState(() {
           membersList!.add([
-            {'nickName': data['nickName'], 'privilege': data['privilege']}
+            {
+              'docId': data['docId'],
+              'nickName': data['nickName'],
+              'privilege': data['privilege'],
+            }
           ]);
         });
       }
@@ -56,7 +61,7 @@ class _houseMembersState extends State<HouseMembers> {
     final double width = MediaQuery.of(context).size.width;
 
     return FutureBuilder<Map<String, dynamic>>(
-        future: readHouseData(widget.houseId),
+        future: readHouseData(widget.houseId, false),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
@@ -172,13 +177,24 @@ class _houseMembersState extends State<HouseMembers> {
                                           iconSize: 33,
                                           icon: const Icon(Icons.add),
                                           onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      add_house_member(
-                                                          ID: widget.houseId)),
-                                            );
+                                            showModalBottomSheet(
+                                                isScrollControlled: true,
+                                                isDismissible: false,
+                                                enableDrag: false,
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                                context: context,
+                                                shape:
+                                                    const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .vertical(
+                                                  top: Radius.circular(105.0),
+                                                )),
+                                                builder: (context) =>
+                                                    add_house_member(
+                                                        houseID:
+                                                            widget.houseId));
                                           },
                                         )),
                                   ]),
@@ -186,9 +202,6 @@ class _houseMembersState extends State<HouseMembers> {
                             ]);
                       }
                       return const Center(child: CircularProgressIndicator());
-                      // membersList.removeAt(0);
-                      // print(membersList);
-                      // return buildItems(membersList);
                     },
                   ),
                 ]),
@@ -249,7 +262,76 @@ class _houseMembersState extends State<HouseMembers> {
                             Icons.delete_forever_outlined,
                             color: Colors.red,
                           ),
-                          onPressed: () {},
+                          //delet house member
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text(
+                                  "حذف عضو من المنزل ",
+                                  textAlign: TextAlign.center,
+                                ),
+                                content: const Text(
+                                  "هل أنت متأكد من أنك تريد حذف العضو؟",
+                                  textAlign: TextAlign.left,
+                                ),
+                                actions: <Widget>[
+                                  //delet
+                                  TextButton(
+                                    onPressed: () async {
+                                      Navigator.of(ctx).pop();
+                                      print("inside delete");
+                                      await FirebaseFirestore.instance
+                                          .collection('houseAccount')
+                                          .doc(widget.houseId)
+                                          .collection('houseMember')
+                                          .get()
+                                          .then((snapshot) {
+                                        List<DocumentSnapshot> allDocs =
+                                            snapshot.docs;
+                                        List<DocumentSnapshot> filteredDocs =
+                                            allDocs
+                                                .where((document) =>
+                                                    (document.data() as Map<
+                                                        String,
+                                                        dynamic>)['docId'] ==
+                                                    dataList[index][0]
+                                                        ["docId"]) // member ID
+                                                .toList();
+                                        for (DocumentSnapshot ds
+                                            in filteredDocs) {
+                                          ds.reference.delete().then((_) {
+                                            print("member delete deleted");
+                                            showToast(
+                                                'valid', 'تم حذف العضو بنجاح ');
+                                          });
+                                        }
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(14),
+                                      child: const Text("حذف",
+                                          style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 164, 10, 10))),
+                                    ),
+                                  ),
+                                  //cancel button
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(ctx).pop();
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(14),
+                                      child: const Text(
+                                        "تراجع",
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ]),
                 ]));
@@ -315,15 +397,16 @@ class _houseMembersState extends State<HouseMembers> {
               context,
               MaterialPageRoute(
                   builder: (context) => dashboard(
-                        ID: widget.houseId,
+                        houseID: widget.houseId,
                       )),
             );
           } else if (index == 1) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => listOfDevices(
-                        ID: widget.houseId, //house ID
+                  builder: (context) => ListOfDevices(
+                        houseID: widget.houseId,
+                        userType: 'owner',
                       )),
             );
           } else if (index == 2) {}

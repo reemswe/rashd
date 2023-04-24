@@ -4,10 +4,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 import 'package:hive/hive.dart';
 
+import '../functions.dart';
 import 'listOfDevices.dart';
 
 const NetworkSecurity STA_DEFAULT_SECURITY = NetworkSecurity.WPA;
@@ -169,34 +169,13 @@ class AddDeviceState extends State<AddDevice> {
 
                                                       Navigator.of(context)
                                                           .pop();
-
-                                                      Fluttertoast.showToast(
-                                                          msg:
-                                                              "تم الاتصال بالشبكة بنجاح",
-                                                          toastLength: Toast
-                                                              .LENGTH_SHORT,
-                                                          gravity: ToastGravity
-                                                              .BOTTOM, // Also possible "TOP" and "CENTER"
-                                                          backgroundColor:
-                                                              Colors.green
-                                                                  .shade400,
-                                                          textColor:
-                                                              Colors.white);
+                                                      showToast('valid',
+                                                          "تم الاتصال بالشبكة بنجاح");
                                                     } else {
                                                       Navigator.of(context)
                                                           .pop();
-                                                      Fluttertoast.showToast(
-                                                          msg:
-                                                              "كلمة مرور غير صالحة ، الرجاء المحاولة مرة أخرى.",
-                                                          toastLength: Toast
-                                                              .LENGTH_SHORT,
-                                                          gravity: ToastGravity
-                                                              .BOTTOM,
-                                                          backgroundColor:
-                                                              Colors
-                                                                  .red.shade400,
-                                                          textColor:
-                                                              Colors.white);
+                                                      showToast('invalid',
+                                                          "كلمة مرور غير صالحة ، الرجاء المحاولة مرة أخرى.");
                                                     }
                                                   }
                                                 },
@@ -352,7 +331,7 @@ class AddDeviceState extends State<AddDevice> {
                 stops: [0.1, 1.0],
                 colors: [
                   Colors.blue.shade200,
-                  Colors.blue.shade400,
+                  Color(0xFF42A5F5),
                 ],
               ),
               borderRadius: BorderRadius.circular(30),
@@ -552,12 +531,8 @@ class AddDeviceState extends State<AddDevice> {
                             _index += 1;
                           });
                         } else {
-                          Fluttertoast.showToast(
-                              msg: "الرجاء الاتصال بالشبكة للمتابعة.",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              backgroundColor: Colors.red.shade400,
-                              textColor: Colors.white);
+                          showToast(
+                              'invalid', "الرجاء الاتصال بالشبكة للمتابعة.");
                         }
                       },
                       onStepTapped: (int index) {
@@ -566,12 +541,8 @@ class AddDeviceState extends State<AddDevice> {
                             _index = index;
                           });
                         } else {
-                          Fluttertoast.showToast(
-                              msg: "الرجاء الاتصال بالجهاز للمتابعة.",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              backgroundColor: Colors.red.shade400,
-                              textColor: Colors.white);
+                          showToast(
+                              "invalid", "الرجاء الاتصال بالجهاز للمتابعة.");
                         }
                       },
                       steps: <Step>[
@@ -679,7 +650,7 @@ class AddDeviceState extends State<AddDevice> {
                                           hasBorder: true,
                                           borderColor: Colors.grey.shade200,
                                           color: color,
-                                          pickersEnabled: {
+                                          pickersEnabled: const {
                                             ColorPickerType.accent: false,
                                             ColorPickerType.custom: true,
                                             ColorPickerType.primary: false
@@ -822,13 +793,17 @@ class AddDeviceState extends State<AddDevice> {
                                                         'color': '$color',
                                                         'status': false,
                                                       });
+
                                                       await UpdateRealtimeDB();
                                                       Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
                                                             builder: (context) =>
-                                                                listOfDevices(
-                                                                  ID: widget.ID,
+                                                                ListOfDevices(
+                                                                  houseID:
+                                                                      widget.ID,
+                                                                  userType:
+                                                                      'owner',
                                                                 )),
                                                       );
                                                     }
@@ -860,5 +835,6 @@ class AddDeviceState extends State<AddDevice> {
           (value) => print("value: "),
         )
         .onError((error, stackTrace) => print(error));
+    Navigator.of(context).pop();
   }
 }

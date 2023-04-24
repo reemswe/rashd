@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
+import '../functions.dart';
 import 'register.dart';
 
 class login extends StatefulWidget {
@@ -12,17 +12,12 @@ class login extends StatefulWidget {
   _loginPageState createState() => _loginPageState();
 }
 
-TextEditingController usernameController = TextEditingController();
-
 TextEditingController emailController = TextEditingController();
 TextEditingController passwordController = TextEditingController();
-bool inProgress = false;
 
 void clearForm() {
   emailController.text = "";
-  usernameController.text = '';
   passwordController.text = '';
-  inProgress = false;
 }
 
 class _loginPageState extends State<login> {
@@ -34,91 +29,83 @@ class _loginPageState extends State<login> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(children: [
-        /*inProgress*/ false
-            ? Center(child: CircularProgressIndicator())
-            : SizedBox(),
-        AnimatedOpacity(
-          duration: Duration(milliseconds: 500),
-          opacity: inProgress && false ? 0.2 : 1,
-          child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Column(children: [
-                Expanded(
-                  child: Column(children: [
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            height: height * 0.22,
-                            width: width * 0.75,
-                            child: Stack(children: [
-                              Positioned(
-                                bottom: height * 0,
-                                top: height * -0.22,
-                                left: width * 0.08,
-                                child: Container(
-                                  width: width * 0.8,
-                                  decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: LinearGradient(colors: [
-                                        Colors.lightBlue.shade200,
-                                        Colors.blue
-                                      ]),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: Colors.blue.shade100,
-                                            offset: const Offset(4.0, 4.0),
-                                            blurRadius: 10.0)
-                                      ]),
-                                ),
-                              ),
-                              Positioned(
-                                top: height * 0.08,
-                                right: width * 0.00,
-                                bottom: 0,
-                                child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(
-                                          color: Colors.white,
-                                          Icons.arrow_back_ios,
-                                        ),
-                                        onPressed: () {
-                                          clearForm();
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                      const Text(
-                                        "تسجيل الدخول",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 30.0,
-                                            fontWeight:
-                                                FontWeight.w800), // Textstyle
-                                      ),
+        Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Column(children: [
+              Expanded(
+                child: Column(children: [
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          height: height * 0.22,
+                          width: width * 0.75,
+                          child: Stack(children: [
+                            Positioned(
+                              bottom: height * 0,
+                              top: height * -0.22,
+                              left: width * 0.08,
+                              child: Container(
+                                width: width * 0.8,
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(colors: [
+                                      Colors.lightBlue.shade200,
+                                      Colors.blue
+                                    ]),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.blue.shade100,
+                                          offset: const Offset(4.0, 4.0),
+                                          blurRadius: 10.0)
                                     ]),
                               ),
-                            ]),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: width * 0.05),
-                            child: Opacity(
-                              opacity: 0.8,
-                              child: (Image.asset(
-                                'assets/images/logo.jpg',
-                                height: height * 0.09,
-                                width: width * 0.2,
-                              )),
                             ),
+                            Positioned(
+                              top: height * 0.08,
+                              right: width * 0.00,
+                              bottom: 0,
+                              child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        color: Colors.white,
+                                        Icons.arrow_back_ios,
+                                      ),
+                                      onPressed: () {
+                                        clearForm();
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    const Text(
+                                      "تسجيل الدخول",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 30.0,
+                                          fontWeight:
+                                              FontWeight.w800), // Textstyle
+                                    ),
+                                  ]),
+                            ),
+                          ]),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: width * 0.05),
+                          child: Opacity(
+                            opacity: 0.8,
+                            child: (Image.asset(
+                              'assets/images/logo.jpg',
+                              height: height * 0.09,
+                              width: width * 0.2,
+                            )),
                           ),
-                        ]),
-                    loginForm(),
-                  ]),
-                ),
-              ])),
-        ),
+                        ),
+                      ]),
+                  const loginForm(),
+                ]),
+              ),
+            ])),
       ]),
     );
   }
@@ -137,6 +124,8 @@ class loginFormState extends State<loginForm> {
   bool invalidData = false;
 
   final _formKey = GlobalKey<FormState>();
+  GlobalKey<FormState> get formKey => _formKey;
+
   bool _passwordVisible = false;
   ScrollController _scrollController = ScrollController();
 
@@ -266,19 +255,12 @@ class loginFormState extends State<loginForm> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         try {
-                          setState(() {
-                            inProgress = true;
-                          });
                           final newUser = await FirebaseAuth.instance
                               .signInWithEmailAndPassword(
                                 email: emailController.text.trim(),
                                 password: passwordController.text.trim(),
                               )
-                              .then((value) => {
-                                    setState(() {
-                                      inProgress = false;
-                                    })
-                                  });
+                              .then((value) => {});
                           clearForm();
 
                           Navigator.push(
@@ -287,13 +269,7 @@ class loginFormState extends State<loginForm> {
                                 builder: (context) =>
                                     const ListOfHouseAccounts(),
                               ));
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(
-                                  content: Text(
-                                    'تم تسجيل دخولك بنجاح',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  backgroundColor: Colors.green));
+                          showToast('valid', 'تم تسجيل دخولك بنجاح');
                         } on FirebaseAuthException catch (e) {
                           if (emailController.text.isNotEmpty &&
                               passwordController.text.isNotEmpty) {
