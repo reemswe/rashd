@@ -97,7 +97,7 @@ class _dashboardState extends State<dashboard> {
       '*الفاتورة تشمل ضريبة القيمة المضافة',
       Colors.lightBlue.shade500,
       Colors.white,
-      Color(0xff81D4FA),
+      const Color(0xff81D4FA),
     ],
     [
       'إجمالي استهلاك الطاقة',
@@ -110,7 +110,7 @@ class _dashboardState extends State<dashboard> {
   ];
   List<ChartData> chartData = [];
   int i = 0;
-  var testreal;
+
   var month = '';
   TextEditingController goalController = TextEditingController();
   double electricityBill = 0;
@@ -928,36 +928,6 @@ class _dashboardState extends State<dashboard> {
   }
 
   Future getData() async {
-    //new
-    // DatabaseReference ref =
-    //     FirebaseDatabase.instance.ref('testrealtime/h1/deviceList');
-    // DatabaseReference newPostRef = ref.push();
-
-    // DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
-    // var snapshot = await _dbRef.child('testrealtime').get();
-    // snapshot.children.forEach((childSnapshot) {
-    //   var props = childSnapshot as Map;
-    //   print(props["cons"]);
-    // });
-    // print('================lee==============================');
-    // // print(newPostRef);
-    // print('================lee==============================');
-
-    DatabaseReference database =
-        FirebaseDatabase.instance.ref('testAurduino/Sensor/');
-    database.onValue.listen((DatabaseEvent event) {
-      final data = event.snapshot.value;
-      print('================lee1==============================');
-      print(data);
-      print('================lee==============================');
-      setState(() {
-        testreal = event.snapshot.value.toString();
-      });
-    });
-    print('================lee2==============================');
-    print(testreal);
-    print('================lee==============================');
-    //old
     var collection = await FirebaseFirestore.instance
         .collection('houseAccount')
         .doc(widget.houseID)
