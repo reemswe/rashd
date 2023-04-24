@@ -146,7 +146,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
       SizedBox(height: height * 0.03),
       SizedBox(
           child: ToggleSwitch(
-        icons: [Icons.edit_note_outlined, PhosphorIcons.binoculars],
+        icons: const [Icons.edit_note_outlined, PhosphorIcons.binoculars],
         minWidth: width * 0.436,
         minHeight: height * 0.055,
         borderWidth: 1,
@@ -257,23 +257,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
         });
       }
     }
-  }
-
-  Future<bool> exists(String number) async {
-    bool validPhone = false;
-    QuerySnapshot query = await FirebaseFirestore.instance
-        .collection('userAccount')
-        .where('phone_number', isEqualTo: number)
-        .get();
-
-    if (query.docs.isNotEmpty &&
-        query.docs[0]['userId'] != FirebaseAuth.instance.currentUser!.uid) {
-      validPhone = true;
-    } else {
-      validPhone = false;
-    }
-
-    return validPhone;
   }
 
   @override
@@ -474,7 +457,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                           decoration: const InputDecoration(
                                             filled: true,
                                             fillColor: Colors.white,
-                                            hintText: ' رقم الجوال ',
+                                            hintText: 'رقم الهاتف',
                                             suffixIcon: Icon(
                                               Icons.phone,
                                               color: Color.fromRGBO(
@@ -497,7 +480,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                         SizedBox(
                                             width: width * 0.8,
                                             child: ToggleSwitch(
-                                              icons: [
+                                              icons: const [
                                                 Icons.edit_note_outlined,
                                                 PhosphorIcons.binoculars
                                               ],
@@ -553,7 +536,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                         ListView.builder(
                                             physics:
                                                 const ClampingScrollPhysics(),
-                                            // controller: list,
                                             shrinkWrap: true,
                                             itemCount: addMembers.length,
                                             itemBuilder: (context, index) {
@@ -568,18 +550,8 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                               ),
                                               onPressed: () {
                                                 if (addMembers.length > 3) {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                        content: Text(
-                                                          'يمكنك إضافة المزيد لاحقًا من لوحة المعلومات',
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        ),
-                                                        backgroundColor:
-                                                            Color.fromARGB(255,
-                                                                241, 63, 63)),
-                                                  );
+                                                  showToast('invalid',
+                                                      'يمكنك إضافة المزيد لاحقًا من لوحة المعلومات');
                                                 } else {
                                                   createList();
                                                   addMemberWidget(
@@ -611,7 +583,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                               gradient: LinearGradient(
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
-                                                stops: [0.1, 1.0],
+                                                stops: const [0.1, 1.0],
                                                 colors: [
                                                   Colors.blue.shade200,
                                                   Colors.blue.shade400,

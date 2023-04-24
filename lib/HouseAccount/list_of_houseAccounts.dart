@@ -134,7 +134,6 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
       getOwner();
       getMember();
     });
-    print('page reloaded !');
   }
 
   @override
@@ -583,8 +582,6 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                             style: const TextStyle(fontSize: 18),
                           ),
                           onTap: () {
-                            print('houseID');
-                            print(dataList[index][0]["houseID"]);
                             Navigator.push(
                               context,
                               MaterialPageRoute(

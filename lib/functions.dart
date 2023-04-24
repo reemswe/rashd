@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -24,6 +25,23 @@ void showToast(type, message) {
       backgroundColor:
           type == 'valid' ? Colors.green.shade400 : Colors.red.shade400,
       textColor: Colors.white);
+}
+
+Future<bool> exists(String number) async {
+  bool validPhone = false;
+  QuerySnapshot query = await FirebaseFirestore.instance
+      .collection('userAccount')
+      .where('phone_number', isEqualTo: number)
+      .get();
+
+  if (query.docs.isNotEmpty &&
+      query.docs[0]['userId'] != FirebaseAuth.instance.currentUser!.uid) {
+    validPhone = true;
+  } else {
+    validPhone = false;
+  }
+
+  return validPhone;
 }
 
 //! Device functions

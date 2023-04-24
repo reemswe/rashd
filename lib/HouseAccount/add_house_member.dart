@@ -1,5 +1,6 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
 import 'package:rashd/functions.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -7,12 +8,12 @@ import '../Devices/listOfDevices.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'list_of_houseAccounts.dart';
+import 'list_of_houseMembers.dart';
 
 class add_house_member extends StatefulWidget {
-  final ID;
-  const add_house_member({super.key, required this.ID});
+  final houseID;
+  const add_house_member({super.key, required this.houseID});
   @override
   add_house_memberState createState() => add_house_memberState();
 }
@@ -56,286 +57,292 @@ class add_house_memberState extends State<add_house_member> {
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
-    // final _formKey = GlobalKey<FormState>();
     return FutureBuilder<Map<String, dynamic>>(
-        future: readHouseData(widget.ID),
+        future: readHouseData(widget.houseID),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
-            return Scaffold(
-              appBar: AppBar(
-                toolbarHeight: height * 0.085,
-                title: Wrap(
-                    direction: Axis.vertical,
-                    spacing: 1, // to apply margin in the main axis of the wrap
-                    children: <Widget>[
-                      SizedBox(height: height * 0.01),
-                      // Text(
-                      //   houseData['houseName'],
-                      //   style: TextStyle(
-                      //     color: Colors.black,
-                      //     fontWeight: FontWeight.bold,
-                      //     fontSize: 25,
-                      //     height: 1,
-                      //   ),
-                      // ),
-                      // Text(
-                      //   houseData['OwnerID'] ==
-                      //           FirebaseAuth.instance.currentUser!.uid
-                      //       ? 'مالك المنزل'
-                      //       : "عضو في المنزل",
-                      //   style: TextStyle(
-                      //     color: Colors.grey.shade900,
-                      //     fontWeight: FontWeight.w400,
-                      //     fontSize: 16,
-                      //     height: 1,
-                      //   ),
-                      // )
-                    ]),
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ListOfHouseAccounts(),
-                        ));
-                  },
-                ),
-                elevation: 1.5,
-              ),
-              body: Form(
-                  key: _formKey,
-                  child: SingleChildScrollView(
-                    controller: list,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const SizedBox(
-                          height: 35,
-                        ),
-                        const Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            'إضافة أعضاء للمنزل',
-                            style: TextStyle(
-                                fontSize: 25, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 60,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
-                          child: TextFormField(
-                            controller: membersNames1,
-                            textAlign: TextAlign.right,
-                            maxLength: 20,
-
-                            decoration: InputDecoration(
-                              hintText: 'الاسم',
-                              contentPadding:
-                                  const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      const BorderSide(color: Colors.grey)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      BorderSide(color: Colors.grey.shade400)),
-                              errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                              focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                            ),
-                            // The validator receives the text that the user has entered.
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'رجاء ادخل اسم العضو ';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          height: height * 0.001,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
-                          child: TextFormField(
-                            controller: membersPhoneNumber1,
-                            maxLength: 10,
-                            textAlign: TextAlign.right,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: <TextInputFormatter>[
-                              LengthLimitingTextInputFormatter(10),
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
-                            decoration: InputDecoration(
-                              hintText: 'رقم الهاتف',
-                              contentPadding:
-                                  const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      const BorderSide(color: Colors.grey)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide:
-                                      BorderSide(color: Colors.grey.shade400)),
-                              errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                              focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 2.0)),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return '  رجاء ادخل رقم هاتف';
-                              }
-                              if (value.length < 10) {
-                                return '  رجاء ادخل رقم هاتف صحيح';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          height: height * 0.001,
-                        ),
-                        Center(
-                            child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-                          child: ToggleSwitch(
-                            minWidth: width * 0.8,
-                            minHeight: 50.0,
-                            borderWidth: 1,
-                            borderColor: const [
-                              Colors.lightBlue,
-                              Colors.lightBlue,
-                            ],
-                            customTextStyles: const [
-                              TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                              TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              )
-                            ],
-                            initialLabelIndex: privilege_index,
-                            cornerRadius: 100.0,
-                            activeFgColor:
-                                const Color.fromARGB(255, 255, 255, 255),
-                            inactiveBgColor: Colors.white,
-                            inactiveFgColor: Colors.black,
-                            totalSwitches: 2,
-                            labels: const ['محرر', 'مشاهد'],
-                            activeBgColors: const [
-                              [Colors.lightBlue],
-                              [Colors.lightBlue]
-                            ],
-                            onToggle: (index) {
-                              if (index == 0) {
-                                privilege_index = 0;
-                                privilege_edit = 'editor';
-                                setState(() {
-                                  privilege = 'editor';
-                                });
-                                print('switched to: editor');
-                                print(privilege);
-                              } else {
-                                privilege_index = 1;
-                                privilege_edit = 'viewer';
-                                setState(() {
-                                  privilege = 'viewer';
-                                });
-                                print('switched to: viewer');
-                                print(privilege);
-                              }
-                            },
-                          ),
-                        )),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                            width: width * 0.5,
+            return DraggableScrollableSheet(
+                maxChildSize: 0.9,
+                minChildSize: 0.9,
+                initialChildSize: 0.9,
+                builder: (_, controller) => Container(
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(30))),
+                      child: Stack(children: [
+                        Positioned(
+                          bottom: height * -1.3,
+                          top: height * 0,
+                          left: width * 0.01,
+                          child: Container(
+                            width: width * 1.5,
                             decoration: BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                    color: Colors.black26,
-                                    offset: Offset(0, 4),
-                                    blurRadius: 5.0)
-                              ],
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                stops: [0.1, 1.0],
-                                colors: [
-                                  Colors.blue.shade200,
-                                  Colors.blue.shade400,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                bool flag = true;
-                                if (!_formKey.currentState!.validate()) {
-                                } else {
-                                  if (await exixts(membersPhoneNumber1.text) ==
-                                      false) {
-                                    flag = false;
-                                  }
-                                  if (flag) {
-                                    setData();
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(const SnackBar(
-                                            content: Text(
-                                              '  تم الاضافة بنجاح',
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            backgroundColor: Colors.green));
-                                  } else {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                            content: Text(
-                                              "العضو غير موجود بالنظام ",
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            backgroundColor: Colors.redAccent));
-                                  }
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
-                              child: const Text('إضافة'),
-                            )),
-                        SizedBox(
-                          height: 15,
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(colors: [
+                                  Colors.lightBlue.shade100,
+                                  Colors.lightBlue.shade200
+                                ]),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.blue.shade100,
+                                      offset: const Offset(4.0, 4.0),
+                                      blurRadius: 10.0)
+                                ]),
+                          ),
                         ),
-                      ],
-                    ),
-                  )),
-              bottomNavigationBar: buildBottomNavigation(height),
-            );
+                        Positioned(
+                          bottom: height * -1.5,
+                          top: height * 0,
+                          left: width * 0.01,
+                          child: Container(
+                            width: width * 1.5,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(colors: [
+                                  Colors.lightBlue.shade200,
+                                  Colors.blue
+                                ]),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.blue.shade100,
+                                      offset: const Offset(4.0, 4.0),
+                                      blurRadius: 10.0)
+                                ]),
+                          ),
+                        ),
+                        Positioned(
+                            width: 50,
+                            height: 50,
+                            top: height * 0.01,
+                            right: width * 0.05,
+                            child: IconButton(
+                              iconSize: 30,
+                              icon: const Icon(Icons.keyboard_arrow_down,
+                                  size: 60),
+                              onPressed: () {
+                                clearText();
+                                Navigator.of(context).pop();
+                              },
+                            )),
+                        Positioned(
+                            width: width,
+                            height: 50,
+                            top: height * 0.03,
+                            right: width * 0.15,
+                            child: const Text(
+                              'إضافة عضو للمنزل',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 24,
+                              ),
+                            )),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              top: height * 0.08,
+                              left: width * 0.06,
+                              right: width * 0.06),
+                          child: Form(
+                              key: _formKey,
+                              child: SingleChildScrollView(
+                                controller: list,
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    SizedBox(
+                                      height: height * 0.035,
+                                    ),
+                                    const Text(
+                                      'اسم العضو',
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                    SizedBox(height: height * 0.005),
+                                    TextFormField(
+                                      controller: membersNames1,
+                                      textAlign: TextAlign.right,
+                                      maxLength: 20,
+                                      decoration: const InputDecoration(
+                                        hintText: 'الاسم',
+                                      ),
+                                      validator: (value) {
+                                        if (value == null ||
+                                            value.isEmpty ||
+                                            value.trim().isEmpty) {
+                                          return 'الرجاء ادخال اسم للعضو ';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    SizedBox(height: height * 0.01),
+                                    const Text(
+                                      'رقم الهاتف',
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                    SizedBox(height: height * 0.005),
+                                    TextFormField(
+                                      controller: membersPhoneNumber1,
+                                      maxLength: 10,
+                                      textAlign: TextAlign.right,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: <TextInputFormatter>[
+                                        LengthLimitingTextInputFormatter(10),
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      decoration: const InputDecoration(
+                                        hintText: 'رقم الهاتف',
+                                        contentPadding:
+                                            EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null ||
+                                            value.isEmpty ||
+                                            value.trim().isEmpty) {
+                                          return 'الرجاء ادخال رقم للهاتف';
+                                        }
+                                        if (value.length < 10) {
+                                          return 'ادخل رقمًا صحيحًا مكونًا من ١٠ أرقام';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    SizedBox(height: height * 0.01),
+                                    const Text(
+                                      'الصلاحية',
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                    SizedBox(height: height * 0.005),
+                                    Center(
+                                        child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          0, 0, 0, 15),
+                                      child: ToggleSwitch(
+                                        icons: const [
+                                          Icons.edit_note_outlined,
+                                          PhosphorIcons.binoculars
+                                        ],
+                                        minWidth: width * 0.436,
+                                        minHeight: height * 0.055,
+                                        borderWidth: 1,
+                                        borderColor: [
+                                          Colors.blue.shade400,
+                                          Colors.blue.shade400
+                                        ],
+                                        iconSize: 25,
+                                        customTextStyles: const [
+                                          TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 17,
+                                          ),
+                                          TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 17,
+                                          )
+                                        ],
+                                        initialLabelIndex: privilege_index,
+                                        cornerRadius: 20.0,
+                                        inactiveBgColor: Colors.white,
+                                        totalSwitches: 2,
+                                        labels: const ['   محرر', '   مشاهد'],
+                                        activeBgColors: [
+                                          [Colors.blue.shade400],
+                                          [Colors.blue.shade400],
+                                        ],
+                                        onToggle: (index) {
+                                          if (index == 0) {
+                                            privilege_index = 0;
+                                            privilege_edit = 'editor';
+                                            setState(() {
+                                              privilege = 'editor';
+                                            });
+                                          } else {
+                                            privilege_index = 1;
+                                            privilege_edit = 'viewer';
+                                            setState(() {
+                                              privilege = 'viewer';
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    )),
+                                    SizedBox(height: height * 0.04),
+                                    Container(
+                                        width: width * 0.5,
+                                        decoration: BoxDecoration(
+                                          boxShadow: const [
+                                            BoxShadow(
+                                                color: Colors.black26,
+                                                offset: Offset(0, 4),
+                                                blurRadius: 5.0)
+                                          ],
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            stops: [0.1, 1.0],
+                                            colors: [
+                                              Colors.blue.shade200,
+                                              Colors.blue.shade400,
+                                            ],
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                        ),
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            bool flag = true;
+                                            if (!_formKey.currentState!
+                                                .validate()) {
+                                            } else {
+                                              if (await exists(
+                                                      membersPhoneNumber1
+                                                          .text) ==
+                                                  false) {
+                                                flag = false;
+                                              }
+                                              if (flag) {
+                                                setData();
+                                                showToast('valid',
+                                                    'تم الإضافة بنجاح');
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          HouseMembers(
+                                                              houseId: widget
+                                                                  .houseID),
+                                                    ));
+                                              } else {
+                                                showToast('invalid',
+                                                    'العضو غير موجود بالنطام');
+                                              }
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                          ),
+                                          child: const Text('إضافة'),
+                                        )),
+                                  ],
+                                ),
+                              )),
+                        ),
+                      ]),
+                    ));
           } else {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
         });
   }
@@ -343,11 +350,17 @@ class add_house_memberState extends State<add_house_member> {
   Future<void> setData() async {
     CollectionReference houses = FirebaseFirestore.instance
         .collection('houseAccount')
-        .doc(widget.ID)
+        .doc(widget.houseID)
         .collection('houseMember');
 
+    QuerySnapshot query = await FirebaseFirestore.instance
+        .collection('userAccount')
+        .where('phone_number', isEqualTo: membersPhoneNumber1.text)
+        .get();
+    var userID = query.docs[0]['userId'];
+
     DocumentReference docReference = await houses.add({
-      "memberID": FirebaseAuth.instance.currentUser!.uid,
+      "memberID": userID,
       'memberPhoneNumber': membersPhoneNumber1.text,
       'nickName': membersNames1.text,
       'privilege': privilege,
@@ -375,27 +388,19 @@ class add_house_memberState extends State<add_house_member> {
             context,
             MaterialPageRoute(
                 builder: (context) => dashboard(
-                      houseID: widget.ID,
+                      houseID: widget.houseID,
                     )),
           );
-        }
-        //need to get userType
-        else if (index == 1) {
+        } else if (index == 1) {
           Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => ListOfDevices(
-                      houseID: widget.ID,
+                      houseID: widget.houseID,
                       userType: 'owner',
                     )),
           );
-        } else if (index == 2) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => add_house_member(ID: widget.ID)),
-          );
-        }
+        } else if (index == 2) {}
       },
       items: <BottomNavyBarItem>[
         BottomNavyBarItem(
@@ -424,19 +429,4 @@ class add_house_memberState extends State<add_house_member> {
       ],
     );
   }
-}
-
-Future<bool> exixts(String number) async {
-  bool invalidPhone = false;
-  QuerySnapshot query = await FirebaseFirestore.instance
-      .collection('userAccount')
-      .where('phone_number', isEqualTo: number)
-      .get();
-  if (query.docs.isNotEmpty) {
-    invalidPhone = true;
-  } else {
-    invalidPhone = false;
-  }
-
-  return invalidPhone;
 }

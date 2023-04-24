@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
+import '../Dashboard/dashboard.dart';
+import '../Devices/listOfDevices.dart';
 import '../functions.dart';
 import 'add_house_member.dart';
 import 'list_of_houseAccounts.dart';
@@ -175,13 +177,24 @@ class _houseMembersState extends State<HouseMembers> {
                                           iconSize: 33,
                                           icon: const Icon(Icons.add),
                                           onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      add_house_member(
-                                                          ID: widget.houseId)),
-                                            );
+                                            showModalBottomSheet(
+                                                isScrollControlled: true,
+                                                isDismissible: false,
+                                                enableDrag: false,
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                                context: context,
+                                                shape:
+                                                    const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .vertical(
+                                                  top: Radius.circular(105.0),
+                                                )),
+                                                builder: (context) =>
+                                                    add_house_member(
+                                                        houseID:
+                                                            widget.houseId));
                                           },
                                         )),
                                   ]),
@@ -189,9 +202,6 @@ class _houseMembersState extends State<HouseMembers> {
                             ]);
                       }
                       return const Center(child: CircularProgressIndicator());
-                      // membersList.removeAt(0);
-                      // print(membersList);
-                      // return buildItems(membersList);
                     },
                   ),
                 ]),
@@ -292,11 +302,8 @@ class _houseMembersState extends State<HouseMembers> {
                                             in filteredDocs) {
                                           ds.reference.delete().then((_) {
                                             print("member delete deleted");
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(const SnackBar(
-                                              content:
-                                                  Text('تم حذف العضو بنجاح '),
-                                            ));
+                                            showToast(
+                                                'valid', 'تم حذف العضو بنجاح ');
                                           });
                                         }
                                       });
@@ -386,24 +393,24 @@ class _houseMembersState extends State<HouseMembers> {
             () => index = index,
           );
           if (index == 0) {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //       builder: (context) => dashboard(
-            //             ID: widget.houseId,
-            //           )),
-            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => dashboard(
+                        houseID: widget.houseId,
+                      )),
+            );
           } else if (index == 1) {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //       builder: (context) => ListOfDevices(
-            //             houseID: widget.houseId, //house ID
-            //           )),
-            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ListOfDevices(
+                        houseID: widget.houseId,
+                        userType: 'owner',
+                      )),
+            );
           } else if (index == 2) {}
         },
         items: items);
   }
-
 }

@@ -377,8 +377,6 @@ class _dashboardState extends State<dashboard> {
                                           onTap: (() {
                                             _onPressed(
                                                 context: context, locale: 'ar');
-
-                                            // ubdateChart('march');
                                           }),
                                           child: Text(month,
                                               style: const TextStyle(
@@ -458,16 +456,6 @@ class _dashboardState extends State<dashboard> {
                                   buildCard(energyData[1], width, height),
                                   SizedBox(width: width * 0.025),
                                 ]),
-
-                            // FloatingActionButton(
-                            //   backgroundColor: Colors.amberAccent,
-                            //   onPressed: () {},
-                            //   child: Icon(
-                            //     Icons.calendar_month_outlined,
-                            //     size: 35,
-                            //     color: Colors.black,
-                            //   ),
-                            // ),
 
                             Container(
                                 margin: EdgeInsets.fromLTRB(
@@ -799,27 +787,10 @@ class _dashboardState extends State<dashboard> {
       lastDate: DateTime(3000),
       locale: localeObj,
     );
-    // final selected = await showDatePicker(
-    //   context: context,
-    //   initialDate: _selected ?? DateTime.now(),
-    //   firstDate: DateTime(2019),
-    //   lastDate: DateTime(2022),
-    //   locale: localeObj,
-    // );
+
     if (selected != null) {
       setState(() {
         _selected = selected;
-        //DateFormat d = print('month');
-        //print(DateFormat.yMMMMd('en_US'));
-        //   DateTime d = DateTime().now();
-
-        // print(DateFormat.yMMMMd('ar').format(selected));
-        // String d = DateFormat.yMMMMd().format(selected);
-        // print(_selected?.year);
-        // print((d.substring(0, d.indexOf(' '))).toLowerCase());
-        // print(_selected?.month);
-        // //  String y = selected?.year.toString();
-        // print('_selected?.year');
         print((DateFormat('yyyy-MMMM').format(selected)).toLowerCase());
         String selectedYearMonth =
             (DateFormat('yyyy-MMMM').format(selected)).toLowerCase();
@@ -873,30 +844,6 @@ class _dashboardState extends State<dashboard> {
     });
   }
 
-  // Future<void> totalConsumption() async {
-  //   String percentageStr = '';
-  //   var collection = await FirebaseFirestore.instance
-  //       .collection('houseAccount')
-  //       .doc(widget.houseID)
-  //       .collection('houseDevices');
-  //   collection.snapshots().listen((querySnapshot) {
-  //     for (var doc in querySnapshot.docs) {
-  //       Map<String, dynamic> data = doc.data();
-  //       var deviceID = data['ID']; // <-- Retrieving the value.
-  //       setState(() {
-  //         total += int.parse('100');
-  //       });
-  //     }
-  //     total = total - i;
-  //     setState(() {
-  //       percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
-  //       energyData[1][1] = '${total}kWh';
-  //       percentage = (total / int.parse('100')) * 100;
-  //       // i = total;
-  //     });
-  //   });
-  // }
-
   Future ubdateChart(String selectedYearMonth, String monthar) async {
     double total = 0;
 
@@ -936,27 +883,15 @@ class _dashboardState extends State<dashboard> {
           print(doc.id);
           deviceID = data['ID'];
           monthlyConsId = data['monthlyConsId'];
-          // monthlyCons =
-          //     await getMontlyConsum(docID, selectedYearMonth, monthlyConsId);
-          // print(' print(monthlyCons);');
-          // print(monthlyCons);
 
           monthlyCons = await getMonthlyConsumption(
             deviceID,
             selectedYearMonth,
           );
 
-          // print('////////////////////////////////');
-          // print('name $name');
-          // print('comonthlyCons $monthlyCons');
-          // print('value $value');
-          //update chart
-          // totalM += monthlyCons.toInt();
           setState(() {
             total += monthlyCons;
             chartData.add(ChartData(name, monthlyCons, Color(value)));
-            // energyData[1][1] = '${total}kWh';
-            // print('total $total ${energyData[1][1]}');
           });
         }
         setState(() {
@@ -970,30 +905,6 @@ class _dashboardState extends State<dashboard> {
       }));
     } //end of else
   }
-
-  // Future<double> getMontlyConsum(
-  //     String docID, String selectedYearMonth, String monthlyConsId) async {
-  //   double monthlyCons = 0;
-  //   await FirebaseFirestore.instance
-  //       .collection('houseAccount')
-  //       .doc(widget.houseID)
-  //       .collection('houseDevices')
-  //       .doc(docID)
-  //       .collection('monthlyConsumption')
-  //       .doc(monthlyConsId)
-  //       .get()
-  //       .then((DocumentSnapshot doc) {
-  //     if (doc.exists) {
-  //       print(doc.data());
-  //       Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
-  //       print('====================m===================');
-  //       print(data[selectedYearMonth]);
-  //       monthlyCons = double.parse(data[selectedYearMonth].toString());
-  //     }
-  //   });
-
-  //   return monthlyCons;
-  // }
 
   Future<double> getGoal() async {
     double goal = 0;
@@ -1033,10 +944,8 @@ class _dashboardState extends State<dashboard> {
         String name = data['name'];
         int value = int.parse(color, radix: 16);
         double consum = 0;
-        //   String usergoaldb = data['goal'].toString();
 
         consum = await getCurrentConsumption(deviceID);
-        //total = total - i;
         setState(() {
           total += consum;
           //    usergoal = usergoaldb;

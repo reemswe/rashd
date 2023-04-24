@@ -72,6 +72,7 @@ dependencies:
   flutter_svg: ^1.1.6
   month_year_picker: ^0.2.0+3
   flutter_cupertino_date_picker: ^1.0.26+2
+  coverage: ^1.6.2
 
 dev_dependencies:
   flutter_test:
