@@ -154,7 +154,7 @@ class registerFormState extends State<registerForm> {
     if (query.docs.isNotEmpty) {
       invalidPhone = true;
       phoneErrorMessage =
-          'رقم الهاتف تم التسجيل به سابقًا، الرجاء إدخال رقم آخر.';
+          'رقم الهاتف تم التسجيل به سابقًا، \n الرجاء إدخال رقم آخر.';
     } else
       invalidPhone = false;
 
@@ -220,7 +220,7 @@ class registerFormState extends State<registerForm> {
           ));
     } on FirebaseAuthException catch (e) {
       print(e);
-      showToast('invalid', 'error');
+      showToast('invalid', 'الرجاء ادخال بريد إلكتروني صالح ');
     }
   }
 
@@ -327,7 +327,7 @@ class registerFormState extends State<registerForm> {
                   RegExp digit = RegExp(r"(?=.*[0-9])");
                   if (value == null || value.isEmpty) {
                     return "الرجاء إدخال كلمة المرور.";
-                  } else if (value.length < 7) {
+                  } else if (value.length < 8) {
                     return "كلمة المرور يجب أن تكون من ٨ خانات على الاقل."; //ود موجودة ؟
                   } else if (!Upper.hasMatch(value)) {
                     return "حرف كبير باللغة الانجليزية.";
@@ -398,6 +398,7 @@ class registerFormState extends State<registerForm> {
           ),
           SizedBox(height: height * 0.02),
           TextFormField(
+            maxLength: 20,
             controller: fullNameController,
             decoration: const InputDecoration(
                 labelText: 'الاسم الكامل',

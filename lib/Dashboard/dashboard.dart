@@ -700,16 +700,17 @@ class _dashboardState extends State<dashboard> {
                             prefixText: 'kWh',
                             prefixStyle: TextStyle(color: Colors.black)),
                         validator: (value) {
-                          var validCharacters = RegExp(r"(?=.*[0-9])");
+                          var regExp = RegExp(
+                              r'[\^$*.\[\]{}()?\-"!@#%&/\,><:;_~`+=' // <-- Notice the escaped symbols
+                              "'" // <-- ' is added to the expression
+                              ']');
                           if (value!.isEmpty) {
                             return 'الرجاء تحديد الهدف';
                           } else if (value.length < 3) {
                             return ' الحد الأدنى للهدف هو 100kWh';
-                          }
-                          // else if (!validCharacters.hasMatch(value)) {
-                          //   return 'الرجاءادخال رقم صحيح';
-                          // }
-                          else {
+                          } else if (regExp.hasMatch(value)) {
+                            return 'الرجاءادخال رقم صحيح';
+                          } else {
                             return null;
                           }
                         },
