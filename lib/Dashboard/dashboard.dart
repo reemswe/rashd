@@ -93,7 +93,7 @@ class _dashboardState extends State<dashboard> {
   List energyData = [
     [
       'فاتورة الكهرباء',
-      '500.25SR',
+      '0SR',
       '*الفاتورة تشمل ضريبة القيمة المضافة',
       Colors.lightBlue.shade500,
       Colors.white,
@@ -101,7 +101,7 @@ class _dashboardState extends State<dashboard> {
     ],
     [
       'إجمالي استهلاك الطاقة',
-      '150kWh',
+      '0kWh',
       'تم بلوغ % من هدف الشهر',
       Colors.lightBlue.shade200,
       Colors.white,
@@ -700,9 +700,16 @@ class _dashboardState extends State<dashboard> {
                             prefixText: 'kWh',
                             prefixStyle: TextStyle(color: Colors.black)),
                         validator: (value) {
+                          var validCharacters = RegExp(r"(?=.*[0-9])");
                           if (value!.isEmpty) {
                             return 'الرجاء تحديد الهدف';
-                          } else {
+                          } else if (value.length < 3) {
+                            return ' الحد الأدنى للهدف هو 100kWh';
+                          }
+                          // else if (!validCharacters.hasMatch(value)) {
+                          //   return 'الرجاءادخال رقم صحيح';
+                          // }
+                          else {
                             return null;
                           }
                         },
@@ -950,6 +957,8 @@ class _dashboardState extends State<dashboard> {
           total += consum;
           //    usergoal = usergoaldb;
           chartData.add(ChartData(name, consum, Color(value)));
+          print('================precentage==================');
+          print((total / usergoal) * 100);
         });
       }
       print('usergoal');
