@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -465,6 +466,10 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                             ),
                                           ),
                                           keyboardType: TextInputType.number,
+                                          inputFormatters: <TextInputFormatter>[
+                                            FilteringTextInputFormatter
+                                                .digitsOnly
+                                          ],
                                           validator: (value) {
                                             if (membersNames[0].text != '' &&
                                                 (value == null ||
