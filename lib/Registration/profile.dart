@@ -256,6 +256,7 @@ class profileState extends State<profile> {
                           SizedBox(
                               height: Editing ? height * 0.02 : height * 0.04),
                           TextFormField(
+                            maxLength: 20,
                             enabled: Editing,
                             textAlign: TextAlign.right,
                             controller: nameController,
