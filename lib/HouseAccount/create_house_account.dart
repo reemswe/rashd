@@ -1,15 +1,19 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import '../functions.dart';
 import 'list_of_houseAccounts.dart';
 
 class CreateHouseAccount extends StatefulWidget {
-  const CreateHouseAccount({super.key});
+  var firestore, auth;
+
+  CreateHouseAccount({super.key, this.firestore = null, this.auth = null});
 
   @override
   State<CreateHouseAccount> createState() => _CreateHouseAccountState();
@@ -46,6 +50,28 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
   List roles = ['viewer', 'viewer', 'viewer', 'viewer', 'viewer'];
 
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+      widget.firestore = FirebaseFirestore.instance;
+      widget.auth = FirebaseAuth.instance;
+    }
+    addMembers = [];
+    setState(() {
+      createList();
+      clearText();
+      //toggle switch
+      privilege_index = 1;
+      privilege_edit = 'viewer';
+      privilege = 'viewer';
+      privilege_index2 = 1;
+      privilege_edit2 = 'viewer';
+      privilege2 = 'viewer';
+      //toggle switch
+    });
+    super.initState();
+  }
 
   void addMemberWidget(height, width) {
     setState(() {
@@ -206,31 +232,12 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
     membersNames5.clear();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    addMembers = [];
-    setState(() {
-      createList();
-      clearText();
-      //toggle switch
-      privilege_index = 1;
-      privilege_edit = 'viewer';
-      privilege = 'viewer';
-      privilege_index2 = 1;
-      privilege_edit2 = 'viewer';
-      privilege2 = 'viewer';
-      //toggle switch
-    });
-  }
-
   Future<void> setData() async {
-    CollectionReference houses =
-        FirebaseFirestore.instance.collection('houseAccount');
+    CollectionReference houses = widget.firestore.collection('houseAccount');
 
-    String houseId = '', dashId = '';
+    String houseId = '';
     DocumentReference docReference = await houses.add({
-      'OwnerID': FirebaseAuth.instance.currentUser!.uid,
+      'OwnerID': widget.auth.currentUser!.uid,
       'houseID': '',
       'houseName': houseName.text,
       'isNotificationSent': false,
@@ -244,7 +251,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
 
     for (int i = 0; i <= num; i++) {
       if (membersPhones[i].text != '') {
-        QuerySnapshot query = await FirebaseFirestore.instance
+        QuerySnapshot query = await widget.firestore
             .collection('userAccount')
             .where('phone_number', isEqualTo: membersPhones[i].text)
             .get();
@@ -269,7 +276,8 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
         maxChildSize: 0.9,
         minChildSize: 0.9,
         initialChildSize: 0.9,
-        builder: (_, controller) => Container(
+        builder: (_, controller) => Scaffold(
+                body: Container(
               decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius:
@@ -347,8 +355,8 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                           key: _formKey,
                           child: Scrollbar(
                             thumbVisibility: true,
-                            // controller: list,
                             child: ListView(
+                              key: const Key("formScroll"),
                                 physics: const NeverScrollableScrollPhysics(),
                                 scrollDirection: Axis.vertical,
                                 shrinkWrap: true,
@@ -567,9 +575,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                                         .underline),
                                               ),
                                             )),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
+                                        const SizedBox(height: 10),
                                         Container(
                                             margin: const EdgeInsets.fromLTRB(
                                                 10, 30, 10, 0),
@@ -597,10 +603,8 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                                   onPressed: () async {
                                                     int singular = 0;
                                                     existing = '';
-                                                    if (!_formKey.currentState!
+                                                    if (_formKey.currentState!
                                                         .validate()) {
-                                                    } else {
-                                                      bool flag = true;
                                                       for (int i = 0;
                                                           i <= num;
                                                           i++) {
@@ -609,16 +613,13 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                                                 .isNotEmpty &&
                                                             await exists(
                                                                 membersPhones[i]
-                                                                    .text)) {
+                                                                    .text,
+                                                                widget
+                                                                    .firestore,
+                                                                widget.auth)) {
                                                           duplicates[i] = true;
-                                                          print('true-->' +
-                                                              membersPhones[i]
-                                                                  .text);
                                                         } else {
                                                           duplicates[i] = false;
-                                                          print('false-->' +
-                                                              membersPhones[i]
-                                                                  .text);
                                                         }
                                                       }
                                                       for (int i = 0;
@@ -636,7 +637,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                                         }
                                                       }
                                                       if (singular == 0) {
-                                                        setData();
+                                                        await setData();
                                                         showToast('valid',
                                                             "تم إضافة المنزل بنجاح");
 
@@ -645,7 +646,12 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                                             context,
                                                             MaterialPageRoute(
                                                               builder: (context) =>
-                                                                  const ListOfHouseAccounts(),
+                                                                  ListOfHouseAccounts(
+                                                                      firestore:
+                                                                          widget
+                                                                              .firestore,
+                                                                      auth: widget
+                                                                          .auth),
                                                             ));
                                                       } else {
                                                         if (singular > 1) {
@@ -701,6 +707,6 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                           ),
                         )))
               ]),
-            ));
+            )));
   }
 }

@@ -59,9 +59,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       routes: {
         '/welcomePage': (ctx) => const welcomePage(),
-        '/homePage': (ctx) => const ListOfHouseAccounts(),
+        '/homePage': (ctx) => ListOfHouseAccounts(),
         "/register": (ctx) => const register(),
-        "/login": (ctx) => const login(),
+        "/login": (ctx) => const Login(),
       },
       home: auth ? ListOfHouseAccounts() : welcomePage(),
       title: 'رشد',

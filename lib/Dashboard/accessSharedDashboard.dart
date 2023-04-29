@@ -1,5 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
-
+import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,8 @@ import 'package:rashd/Dashboard/dashboard.dart';
 import '../Registration/register.dart';
 
 class AccessSharedDashboard extends StatefulWidget {
-  const AccessSharedDashboard({Key? key}) : super(key: key);
+  var firestore;
+  AccessSharedDashboard({Key? key, this.firestore = null}) : super(key: key);
 
   @override
   Satisfies createState() => Satisfies();
@@ -19,6 +20,16 @@ class Satisfies extends State<AccessSharedDashboard> {
   TextEditingController codeController = TextEditingController();
   String codeErrorMessage = '';
   bool inProgress = false;
+
+  @override
+  void initState() {
+    clearForm();
+
+    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+      widget.firestore = FirebaseFirestore.instance;
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,45 +192,54 @@ class Satisfies extends State<AccessSharedDashboard> {
                                     setState(() {
                                       inProgress = true;
                                     });
-                                    await isCodeValid();
+                                    if (_formKey.currentState!.validate()) {
+                                      await isCodeValid(widget.firestore);
+                                    }
 
                                     if (_formKey.currentState!.validate()) {
                                       setState(() {
                                         inProgress = false;
                                       });
 
-                                      var sharedDashboard =
-                                          await FirebaseFirestore
-                                              .instance
-                                              .collectionGroup('sharedCode')
-                                              .where(
-                                                  'code',
-                                                  isEqualTo:
-                                                      int.parse(
-                                                          codeController.text))
-                                              .where('isExpired',
-                                                  isEqualTo: false)
-                                              .get();
+                                      var collection = widget.firestore
+                                          .collectionGroup('sharedCode');
+                                      if (TestWidgetsFlutterBinding
+                                              .ensureInitialized()
+                                          .inTest) {
+                                        collection = widget.firestore
+                                            .collection('houseAccount')
+                                            .doc('testHouseId')
+                                            .collection('sharedCode');
+                                      }
 
-                                      await FirebaseFirestore.instance
+                                      var sharedDashboard = await collection
+                                          .where('code',
+                                              isEqualTo: int.parse(
+                                                  codeController.text))
+                                          .where('isExpired', isEqualTo: false)
+                                          .get();
+
+                                      await widget.firestore
                                           .collection('houseAccount')
                                           .doc(sharedDashboard.docs[0]
-                                              .data()["houseID"])
+                                              ['houseID'])
                                           .collection('sharedCode')
                                           .doc(sharedDashboard.docs[0].id)
                                           .update({'isExpired': true});
 
-                                      clearForm();
-
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => dashboard(
-                                              houseID: sharedDashboard.docs[0]
-                                                  .data()['houseID'],
-                                              isShared: true,
-                                            ),
-                                          ));
+                                      if (!TestWidgetsFlutterBinding
+                                              .ensureInitialized()
+                                          .inTest) {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => dashboard(
+                                                houseID:
+                                                    sharedDashboard.docs[0].id,
+                                                isShared: true,
+                                              ),
+                                            ));
+                                      }
                                     }
                                   },
                                   child: const Text('التالي'),
@@ -268,17 +288,23 @@ class Satisfies extends State<AccessSharedDashboard> {
 
 //this function checks if dashboard exists and the code not expired (not used before)
 //Returns true if code satisfies the above.
-  Future<bool> isCodeValid() async {
-    QuerySnapshot codeExistQuery = await FirebaseFirestore.instance
-        .collectionGroup('sharedCode')
+  Future<bool> isCodeValid(firestore) async {
+    var collection = firestore.collectionGroup('sharedCode');
+    if (TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+      collection = firestore
+          .collection('houseAccount')
+          .doc('testHouseId')
+          .collection('sharedCode');
+    }
+
+    QuerySnapshot codeExistQuery = await collection
         .where('code',
             isEqualTo: int.parse(codeController
                 .text)) //parse the input string value to int and it will work correctly, then change the status of isExpired
         .get();
 
     if (codeExistQuery.docs.isNotEmpty) {
-      QuerySnapshot codeExpiredQuery = await FirebaseFirestore.instance
-          .collectionGroup('sharedCode')
+      QuerySnapshot codeExpiredQuery = await collection
           .where('code', isEqualTo: int.parse(codeController.text))
           .where('isExpired', isEqualTo: false)
           .get();

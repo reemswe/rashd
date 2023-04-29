@@ -1,12 +1,10 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
-
 import 'Dashboard/dashboard.dart';
 import 'main.dart';
 
@@ -27,21 +25,24 @@ void showToast(type, message) {
       textColor: Colors.white);
 }
 
-Future<bool> exists(String number) async {
-  bool validPhone = false;
-  QuerySnapshot query = await FirebaseFirestore.instance
+Future<bool> exists(
+    String number, FirebaseFirestore firestore, FirebaseAuth auth) async {
+  QuerySnapshot query = await firestore
       .collection('userAccount')
       .where('phone_number', isEqualTo: number)
       .get();
 
   if (query.docs.isNotEmpty &&
-      query.docs[0]['userId'] != FirebaseAuth.instance.currentUser!.uid) {
-    validPhone = true;
+      query.docs[0]['userId'] != auth.currentUser!.uid) {
+    return true;
+  } else if (query.docs.isNotEmpty &&
+      query.docs[0]['userId'] == auth.currentUser!.uid) {
+    showToast('invalid', 'العضو هو مالك المنزل');
+    return false;
   } else {
-    validPhone = false;
+    showToast('invalid', 'العضو غير موجود بالنطام');
+    return false;
   }
-
-  return validPhone;
 }
 
 //! Device functions
@@ -205,3 +206,10 @@ void listenToNotificationStream(notificationService) =>
         );
       }
     });
+
+//! Form validate
+dynamic validate(String value, message) {
+  return (value == null || value.isEmpty || (value.trim()).isEmpty)
+      ? message
+      : null;
+}

@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-
+import 'package:flutter_test/flutter_test.dart';
 import '../Dashboard/dashboard.dart';
 import '../Devices/listOfDevices.dart';
 import '../functions.dart';
@@ -11,8 +11,14 @@ import 'add_house_member.dart';
 import 'list_of_houseAccounts.dart';
 
 class HouseMembers extends StatefulWidget {
+  var firestore, auth;
+
   final String houseId;
-  const HouseMembers({super.key, required this.houseId});
+  HouseMembers(
+      {super.key,
+      required this.houseId,
+      this.firestore = null,
+      this.auth = null});
 
   @override
   State<HouseMembers> createState() => _houseMembersState();
@@ -23,13 +29,17 @@ class _houseMembersState extends State<HouseMembers> {
   List? membersList = [];
   @override
   void initState() {
+    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+      widget.firestore = FirebaseFirestore.instance;
+      widget.auth = FirebaseAuth.instance;
+    }
     data = getData();
     membersList!.clear();
     super.initState();
   }
 
   Future getData() async {
-    var collection = await FirebaseFirestore.instance
+    var collection = await widget.firestore
         .collection('houseAccount')
         .doc(widget.houseId)
         .collection('houseMember');
@@ -50,7 +60,6 @@ class _houseMembersState extends State<HouseMembers> {
         });
       }
     });
-    // print(membersList);
     return membersList;
   }
 
@@ -120,7 +129,7 @@ class _houseMembersState extends State<HouseMembers> {
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) =>
-                                                        const ListOfHouseAccounts(),
+                                                        ListOfHouseAccounts(),
                                                   ));
                                             },
                                           ),
@@ -140,7 +149,7 @@ class _houseMembersState extends State<HouseMembers> {
                                                 ),
                                                 Text(
                                                   (houseData['OwnerID'] ==
-                                                          FirebaseAuth.instance
+                                                          widget.auth
                                                               .currentUser!.uid
                                                       ? 'مالك المنزل'
                                                       : "عضو في المنزل"),
@@ -207,9 +216,7 @@ class _houseMembersState extends State<HouseMembers> {
                 ]),
               ),
               bottomNavigationBar: buildBottomNavigation(
-                  height,
-                  houseData['OwnerID'] ==
-                      FirebaseAuth.instance.currentUser!.uid),
+                  height, houseData['OwnerID'] == widget.auth.currentUser!.uid),
             );
           } else {
             return Center(child: CircularProgressIndicator());
@@ -281,7 +288,7 @@ class _houseMembersState extends State<HouseMembers> {
                                     onPressed: () async {
                                       Navigator.of(ctx).pop();
                                       print("inside delete");
-                                      await FirebaseFirestore.instance
+                                      await widget.firestore
                                           .collection('houseAccount')
                                           .doc(widget.houseId)
                                           .collection('houseMember')

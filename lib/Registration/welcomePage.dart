@@ -61,11 +61,11 @@ class _welcomePageState extends State<welcomePage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => login(),
+                              builder: (context) => Login(),
                             ));
                       },
                       child: Text(
-                        ' تسجيل الدخول',
+                        'تسجيل الدخول',
                         style: TextStyle(fontSize: 25),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -106,8 +106,7 @@ class _welcomePageState extends State<welcomePage> {
                               builder: (context) => register(),
                             ));
                       },
-                      child:
-                          Text(' تسجيل جديد', style: TextStyle(fontSize: 25)),
+                      child: Text('تسجيل جديد', style: TextStyle(fontSize: 25)),
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),

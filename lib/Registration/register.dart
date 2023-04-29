@@ -3,10 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
+import 'package:rashd/Mocks.dart';
 import '../functions.dart';
 import 'login.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 class register extends StatefulWidget {
   const register({
@@ -26,23 +27,9 @@ TextEditingController PhoneNumController = TextEditingController();
 String password = "";
 String confirm_password = "";
 
-bool invalidEmail = false;
 String emailErrorMessage = '';
 bool invalidPhone = false;
 String phoneErrorMessage = '';
-
-void clearForm() {
-  emailController.text = "";
-  passwordController.text = '';
-  cofirmPasswordController.text = '';
-  fullNameController.text = '';
-  PhoneNumController.text = '';
-
-  invalidEmail = false;
-  emailErrorMessage = '';
-  bool invalidPhone = false;
-  String phoneErrorMessage = '';
-}
 
 class _registerState extends State<register> {
   @override
@@ -134,108 +121,126 @@ class registerForm extends StatefulWidget {
 String bDay = "";
 
 class registerFormState extends State<registerForm> {
-  //save to db
-  FirebaseFirestore db = FirebaseFirestore.instance;
-
+  bool invalidEmail = false;
+  bool _isMounted = false;
   DateTime selectedDate = DateTime.now();
   bool showDate = false;
 
   final _formKey = GlobalKey<FormState>();
   bool _passwordVisible = false;
-  ScrollController _scrollController = ScrollController();
+
+  @override
+  initState() {
+    super.initState();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
+  }
+
+  void clearForm() {
+    emailController.text = "";
+    passwordController.text = '';
+    cofirmPasswordController.text = '';
+    fullNameController.text = '';
+    PhoneNumController.text = '';
+    invalidEmail = false;
+    emailErrorMessage = '';
+    invalidPhone = false;
+    phoneErrorMessage = '';
+  }
 
 //this function checks if phone number already exists
 //Returns true if phone number is not in use.
-  Future<bool> isDuplicatePhoneNum() async {
-    QuerySnapshot query = await FirebaseFirestore.instance
-        .collection('userAccount')
-        .where('phone_number', isEqualTo: PhoneNumController.text)
-        .get();
-    if (query.docs.isNotEmpty) {
+  Future<bool> isDuplicatePhoneNum(
+      FirebaseFirestore firestore, phoneNum) async {
+    try {
+      QuerySnapshot query = await firestore
+          .collection('userAccount')
+          .where('phone_number', isEqualTo: phoneNum)
+          .get();
+      if (query.docs.isNotEmpty) {
+        invalidPhone = true;
+        phoneErrorMessage =
+            'رقم الهاتف تم التسجيل به سابقًا، الرجاء إدخال رقم آخر.';
+      } else {
+        invalidPhone = false;
+      }
+
+      return query.docs.isEmpty;
+    } catch (e) {
       invalidPhone = true;
       phoneErrorMessage =
           'رقم الهاتف تم التسجيل به سابقًا، الرجاء إدخال رقم آخر.';
-    } else
-      invalidPhone = false;
-
-    return query.docs.isEmpty;
+      return false;
+    }
   }
 
 // Returns false if email address is in use.
-  Future<bool> checkEmail() async {
+  Future<bool> checkEmail(email, auth) async {
     try {
-      print("try");
-
-      final list = await FirebaseAuth.instance
-          .fetchSignInMethodsForEmail(emailController.text.trim());
+      final list = await auth.fetchSignInMethodsForEmail(email);
 
       if (list.isNotEmpty) {
-        setState(() {
-          invalidEmail = true;
-          emailErrorMessage =
-              ' البريد الإلكتروني مستخدم ، يرجى محاولة تسجيل الدخول.';
-        });
-        print("empty");
+        if (_isMounted) {
+          setState(() {
+            invalidEmail = true;
+            emailErrorMessage =
+                ' البريد الإلكتروني مستخدم ، يرجى محاولة تسجيل الدخول.';
+          });
+        }
         return false;
       } else {
-        setState(() {
-          invalidEmail = false;
-        });
-        print("else");
+        if (_isMounted) {
+          setState(() {
+            invalidEmail = false;
+          });
+        }
 
-        // Return true because email adress is not in use
+        // Return true because email address is not in use
         return true;
       }
     } catch (error) {
-      setState(() {
-        invalidEmail = true;
-        emailErrorMessage = 'الرجاء إدخال بريد إلكتروني صالح.';
-      });
-      // Handle error
-      print('Handle error');
-
       print(error);
-      // ...
+      if (_isMounted) {
+        setState(() {
+          invalidEmail = true;
+          emailErrorMessage = 'الرجاء إدخال بريد إلكتروني صالح.';
+        });
+      }
+
       return false;
     }
   }
 
 //check phone num
 //create user
-  Future signUp() async {
+  Future<bool> signUp(email, password, auth) async {
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+      await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-      await saveUser();
-
-      clearForm();
-      showToast('valid', 'مرحبًا بك في رشد');
-
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ListOfHouseAccounts(),
-          ));
+      return true;
     } on FirebaseAuthException catch (e) {
-      print(e);
       showToast('invalid', 'error');
+      return false;
     }
   }
 
-  saveUser() async {
+  saveUser(FirebaseFirestore DB, FirebaseAuth auth) async {
     String email = emailController.text;
     String fullname = fullNameController.text;
     String number = PhoneNumController.text;
 
-    final user = FirebaseAuth.instance.currentUser!;
-    String userId = user.uid;
-    final userRef = db.collection("userAccount").doc(user.uid);
+    final userRef = DB.collection("userAccount").doc(auth.currentUser!.uid);
     if (!((await userRef.get()).exists)) {
       await userRef.set({
         "email": email,
-        "userId": userId,
+        "userId": auth.currentUser!.uid,
         "full_name": fullname,
         "phone_number": number,
         "token": ""
@@ -249,7 +254,6 @@ class registerFormState extends State<registerForm> {
     final double height = MediaQuery.of(context).size.height;
 
     final key = GlobalKey();
-    final key2 = GlobalKey();
 
     TextStyle defaultStyle =
         const TextStyle(color: Colors.grey, fontSize: 17.0);
@@ -258,110 +262,98 @@ class registerFormState extends State<registerForm> {
         fontSize: 17.0,
         decoration: TextDecoration.underline);
 
-    return Form(
-      key: _formKey,
-      child: Padding(
-        padding: EdgeInsets.only(
-            top: 0, left: width * 0.08, right: width * 0.08, bottom: 0),
-        child: Column(children: [
-          SizedBox(height: height * 0.02),
-          //Email
-          TextFormField(
-            controller: emailController,
-            decoration: const InputDecoration(
-                labelText: 'البريد الإلكتروني',
-                suffixIcon: Icon(
-                  Icons.mail,
-                  color: Color.fromRGBO(53, 152, 219, 1),
-                )),
-            validator: (email) {
-              if (email != null && (email.trim()).isEmpty) {
-                return "الرجاء إدخال البريد الإلكتروني.";
-              } else if (invalidEmail) {
-                return emailErrorMessage;
-              }
-            },
-          ),
-          SizedBox(height: height * 0.02),
-          //Password
-          Stack(
-            children: [
-              Positioned(
-                right: width * 0.450,
-                top: height * 0.035,
-                child: Tooltip(
-                  key: key,
-                  message:
-                      'كلمة المرور يجب أن تكون من ٨ خانات على الاقل، وتحتوي على:\n- حرف صغير باللغة الانجليزية.\n- حرف كبير باللغة الانجليزية.\n- رقم.',
-                  triggerMode: TooltipTriggerMode.manual,
-                ),
-              ),
+    return SizedBox(
+        key: const Key('registerForm'),
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: EdgeInsets.only(
+                top: 0, left: width * 0.08, right: width * 0.08, bottom: 0),
+            child: Column(children: [
+              SizedBox(height: height * 0.02),
+              //Email
               TextFormField(
-                onTap: () {
-                  final dynamic tooltip = key.currentState;
-                  tooltip.ensureTooltipVisible();
-                },
-                controller: passwordController,
-                obscureText: !_passwordVisible,
-                decoration: InputDecoration(
-                  labelText: 'كلمة المرور',
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _passwordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: const Color.fromRGBO(53, 152, 219, 1),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _passwordVisible = !_passwordVisible;
-                      });
-                    },
-                  ),
-                ),
-                // autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) {
-                  password = value.toString();
-                  RegExp Upper = RegExp(r"(?=.*[A-Z])");
-                  RegExp Lower = RegExp(r"(?=.*[a-z])");
-                  RegExp digit = RegExp(r"(?=.*[0-9])");
-                  if (value == null || value.isEmpty) {
-                    return "الرجاء إدخال كلمة المرور.";
-                  } else if (value.length < 7) {
-                    return "كلمة المرور يجب أن تكون من ٨ خانات على الاقل."; //ود موجودة ؟
-                  } else if (!Upper.hasMatch(value)) {
-                    return "حرف كبير باللغة الانجليزية.";
-                  } else if (!Lower.hasMatch(value)) {
-                    return "حرف صغير باللغة الانجليزية.";
-                  } else if (!digit.hasMatch(value)) {
-                    return "كلمة المرور يجب أن تحتوي على رقم.";
-                  } else {
-                    return null;
+                controller: emailController,
+                decoration: const InputDecoration(
+                    labelText: 'البريد الإلكتروني',
+                    suffixIcon: Icon(
+                      Icons.mail,
+                      color: Color.fromRGBO(53, 152, 219, 1),
+                    )),
+                validator: (email) {
+                  if (invalidEmail) {
+                    return emailErrorMessage;
+                  } else if (email == null ||
+                      email.isEmpty ||
+                      (email.trim()).isEmpty) {
+                    return ("الرجاء إدخال البريد الإلكتروني.");
                   }
                 },
               ),
-            ],
-          ),
-          SizedBox(height: height * 0.02),
-
-          //Confirm Password
-          Stack(
-            children: [
-              Positioned(
-                right: width * 0.450,
-                top: height * 0.55,
-                child: Tooltip(
-                  key: key2,
-                  message:
-                      'كلمة المرور يجب أن تكون من ٨ خانات على الاقل، وتحتوي على:\n- حرف صغير باللغة الانجليزية.\n- حرف كبير باللغة الانجليزية.\n- رقم.',
-                  triggerMode: TooltipTriggerMode.manual,
-                ),
+              SizedBox(height: height * 0.02),
+              //Password
+              Stack(
+                children: [
+                  Positioned(
+                    right: width * 0.450,
+                    top: height * 0.035,
+                    child: Tooltip(
+                      key: key,
+                      message:
+                          'كلمة المرور يجب أن تكون من ٨ خانات على الاقل، وتحتوي على:\n- حرف صغير باللغة الانجليزية.\n- حرف كبير باللغة الانجليزية.\n- رقم.',
+                      triggerMode: TooltipTriggerMode.manual,
+                    ),
+                  ),
+                  TextFormField(
+                    onTap: () {
+                      final dynamic tooltip = key.currentState;
+                      tooltip.ensureTooltipVisible();
+                    },
+                    controller: passwordController,
+                    obscureText: !_passwordVisible,
+                    decoration: InputDecoration(
+                      labelText: 'كلمة المرور',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _passwordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: const Color.fromRGBO(53, 152, 219, 1),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _passwordVisible = !_passwordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                    validator: (value) {
+                      password = value.toString();
+                      RegExp Upper = RegExp(r"(?=.*[A-Z])");
+                      RegExp Lower = RegExp(r"(?=.*[a-z])");
+                      RegExp digit = RegExp(r"(?=.*[0-9])");
+                      if (value == null ||
+                          value.isEmpty ||
+                          (value.trim()).isEmpty) {
+                        return "الرجاء إدخال كلمة المرور.";
+                      } else if (value.length < 8) {
+                        return "كلمة المرور يجب أن تكون من ٨ خانات على الاقل.";
+                      } else if (!Upper.hasMatch(value)) {
+                        return "كلمة المرور يجب أن تحتوي على حرف كبير باللغة الانجليزية.";
+                      } else if (!Lower.hasMatch(value)) {
+                        return "كلمة المرور يجب أن تحتوي على حرف صغير باللغة الانجليزية.";
+                      } else if (!digit.hasMatch(value)) {
+                        return "كلمة المرور يجب أن تحتوي على رقم.";
+                      } else {
+                        return null;
+                      }
+                    },
+                  ),
+                ],
               ),
+              SizedBox(height: height * 0.02),
+              //Confirm Password
               TextFormField(
-                onTap: () {
-                  final dynamic tooltip = key.currentState;
-                  tooltip.ensureTooltipVisible();
-                },
                 controller: cofirmPasswordController,
                 obscureText: !_passwordVisible,
                 decoration: InputDecoration(
@@ -380,12 +372,13 @@ class registerFormState extends State<registerForm> {
                     },
                   ),
                 ),
-                // autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
                   confirm_password = value.toString();
                   RegExp Upper = RegExp(r"(?=.*[A-Z])");
 
-                  if (value == null || value.isEmpty) {
+                  if (value == null ||
+                      value.isEmpty ||
+                      (value.trim()).isEmpty) {
                     return "الرجاء تأكيد كلمة المرور";
                   } else if (confirm_password != password) {
                     return "كلمة المرور غير متطابقة";
@@ -394,117 +387,158 @@ class registerFormState extends State<registerForm> {
                   }
                 },
               ),
-            ],
-          ),
-          SizedBox(height: height * 0.02),
-          TextFormField(
-            controller: fullNameController,
-            decoration: const InputDecoration(
-                labelText: 'الاسم الكامل',
-                suffixIcon: Icon(
-                  Icons.person,
-                  color: Color.fromRGBO(53, 152, 219, 1),
-                )),
-            validator: (value) {
-              if (value == null || value.isEmpty || (value.trim()).isEmpty) {
-                return 'الرجاء إدخال الاسم الكامل.';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: height * 0.02),
-
-          SizedBox(height: height * 0.02),
-          TextFormField(
-            keyboardType: TextInputType.number,
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly
-            ],
-            maxLength: 10,
-            controller: PhoneNumController,
-            decoration: const InputDecoration(
-              labelText: 'رقم الهاتف',
-              hintText: '05XXXXXXXX',
-              suffixIcon: Icon(
-                Icons.phone_android,
-                color: Color.fromRGBO(53, 152, 219, 1),
-              ),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty || (value.trim()).isEmpty) {
-                return 'الرجاء إدخال رقم الهاتف.';
-              } else {
-                if (value.length != 10) {
-                  return 'الرجاء إدخال رقم هاتف صالح.';
-                }
-                if (invalidPhone) return phoneErrorMessage;
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: height * 0.05),
-          //button
-          Container(
-              width: width * 0.5,
-              decoration: BoxDecoration(
-                boxShadow: const [
-                  BoxShadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 4),
-                      blurRadius: 5.0)
-                ],
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  stops: [0.1, 1.0],
-                  colors: [
-                    Colors.blue.shade200,
-                    Colors.blue.shade400,
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: ElevatedButton(
-                onPressed: () async {
-                  await checkEmail();
-                  //  await checkPhoneNum();
-                  await isDuplicatePhoneNum();
-                  if ((_formKey.currentState!.validate())) {
-                    if (await checkEmail() && await isDuplicatePhoneNum()) {
-                      await signUp();
-                    }
+              SizedBox(height: height * 0.02),
+              TextFormField(
+                controller: fullNameController,
+                decoration: const InputDecoration(
+                    labelText: 'الاسم الكامل',
+                    suffixIcon: Icon(
+                      Icons.person,
+                      color: Color.fromRGBO(53, 152, 219, 1),
+                    )),
+                validator: (value) {
+                  if (value == null ||
+                      value.isEmpty ||
+                      (value.trim()).isEmpty) {
+                    return 'الرجاء إدخال الاسم الكامل.';
                   }
+                  return null;
                 },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+              ),
+              SizedBox(height: height * 0.04),
+              TextFormField(
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                maxLength: 10,
+                controller: PhoneNumController,
+                decoration: const InputDecoration(
+                  labelText: 'رقم الهاتف',
+                  hintText: '05XXXXXXXX',
+                  suffixIcon: Icon(
+                    Icons.phone_android,
+                    color: Color.fromRGBO(53, 152, 219, 1),
                   ),
                 ),
-                child: const Text('تسجيل'),
-              )),
-          SizedBox(height: height * 0.02),
-          Center(
-              child: RichText(
-            text: TextSpan(
-              style: defaultStyle,
-              children: <TextSpan>[
-                const TextSpan(text: ' لديك حساب بالفعل؟ '),
-                TextSpan(
-                    text: 'تسجيل الدخول',
-                    style: linkStyle,
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
+                validator: (value) {
+                  if (value == null ||
+                      value.isEmpty ||
+                      (value.trim()).isEmpty) {
+                    return 'الرجاء إدخال رقم الهاتف.';
+                  } else {
+                    if (value.length != 10) {
+                      return 'الرجاء إدخال رقم هاتف صالح.';
+                    }
+                    if (invalidPhone) return phoneErrorMessage;
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: height * 0.05),
+              //button
+              Container(
+                  width: width * 0.5,
+                  decoration: BoxDecoration(
+                    boxShadow: const [
+                      BoxShadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 4),
+                          blurRadius: 5.0)
+                    ],
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      stops: [0.1, 1.0],
+                      colors: [
+                        Colors.blue.shade200,
+                        Colors.blue.shade400,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if ((_formKey.currentState!.validate())) {
+                        if (TestWidgetsFlutterBinding.ensureInitialized()
+                            .inTest) {
+                          await checkEmail(
+                              emailController.text, MockFirebaseAuth());
+                          await isDuplicatePhoneNum(
+                              MockFirebaseFirestore(), PhoneNumController.text);
+                        } else {
+                          await checkEmail(
+                              emailController.text, FirebaseAuth.instance);
+                          await isDuplicatePhoneNum(FirebaseFirestore.instance,
+                              PhoneNumController.text);
+                        }
+                      }
+                      if ((_formKey.currentState!.validate())) {
+                        if (TestWidgetsFlutterBinding.ensureInitialized()
+                            .inTest) {
+                          if (await checkEmail(
+                                  emailController.text, MockFirebaseAuth) &&
+                              await isDuplicatePhoneNum(MockFirebaseFirestore(),
+                                  PhoneNumController.text)) {
+                            await signUp(emailController.text,
+                                passwordController.text, MockFirebaseAuth());
+                            await saveUser(
+                                MockFirebaseFirestore(), MockFirebaseAuth());
+                          }
+                        } else {
+                          if (await checkEmail(emailController.text,
+                                  FirebaseAuth.instance) &&
+                              await isDuplicatePhoneNum(
+                                  FirebaseFirestore.instance,
+                                  PhoneNumController.text)) {
+                            await signUp(emailController.text,
+                                passwordController.text, FirebaseAuth.instance);
+                            await saveUser(FirebaseFirestore.instance,
+                                FirebaseAuth.instance);
+                          }
+                        }
+
+                        clearForm();
+                        showToast('valid', 'مرحبًا بك في رشد');
+
+                        // ignore: use_build_context_synchronously
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const login(),
+                              builder: (context) => ListOfHouseAccounts(),
                             ));
-                      }),
-              ],
-            ),
-          )),
-        ]),
-      ),
-    );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: const Text('تسجيل'),
+                  )),
+              SizedBox(height: height * 0.02),
+              Center(
+                  child: RichText(
+                text: TextSpan(
+                  style: defaultStyle,
+                  children: <TextSpan>[
+                    const TextSpan(text: ' لديك حساب بالفعل؟ '),
+                    TextSpan(
+                        text: 'تسجيل الدخول',
+                        style: linkStyle,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const Login(),
+                                ));
+                          }),
+                  ],
+                ),
+              )),
+            ]),
+          ),
+        ));
   }
 }

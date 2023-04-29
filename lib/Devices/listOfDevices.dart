@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:rashd/Devices/addDevice.dart';
 import 'package:rashd/Devices/device.dart';
 import '../Dashboard/dashboard.dart';
@@ -83,7 +82,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
-                                                  const ListOfHouseAccounts(),
+                                                   ListOfHouseAccounts(),
                                             ));
                                       },
                                     ),

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_typing_uninitialized_variables
+
 import 'dart:core';
 import 'dart:math';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
@@ -17,16 +19,16 @@ import '../functions.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 
 class dashboard extends StatefulWidget {
-  final houseID; //house id
+  final houseID;
   final isShared;
 
   const dashboard({super.key, required this.houseID, this.isShared = false});
 
   @override
-  State<dashboard> createState() => _dashboardState();
+  State<dashboard> createState() => DashboardState();
 }
 
-class _dashboardState extends State<dashboard> {
+class DashboardState extends State<dashboard> {
   var deviceRealtimeID = '';
   Future<void> share() async {
     var uuid = const Uuid();
@@ -117,11 +119,10 @@ class _dashboardState extends State<dashboard> {
   double percentage = 0;
   double energyFromBill = 0;
   DateTime? _selected;
-  var devicesID;
+
   @override
   void initState() {
     super.initState();
-    // devicesID = [];
     getGoal();
     month = months[DateTime.now().month];
     getData();
@@ -132,7 +133,7 @@ class _dashboardState extends State<dashboard> {
 
   Future<String> getUserType() async {
     var userType = '';
-    var query;
+    QuerySnapshot<Map<String, dynamic>> query;
 
     if (!widget.isShared) {
       await FirebaseFirestore.instance
@@ -275,7 +276,7 @@ class _dashboardState extends State<dashboard> {
                                                               MaterialPageRoute(
                                                                   builder:
                                                                       (context) =>
-                                                                          const ListOfHouseAccounts()));
+                                                                           ListOfHouseAccounts()));
                                                         }
                                                       },
                                                       child: Container(
@@ -313,7 +314,7 @@ class _dashboardState extends State<dashboard> {
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) =>
-                                                        const ListOfHouseAccounts(),
+                                                         ListOfHouseAccounts(),
                                                   ));
                                             }
                                           },
@@ -619,8 +620,6 @@ class _dashboardState extends State<dashboard> {
                   color: Colors.black26, offset: Offset(0, 4), blurRadius: 8.0)
             ],
             borderRadius: BorderRadius.circular(20)),
-        //width: width * 0.44,
-        // height: height * 0.15,
         padding: EdgeInsets.fromLTRB(
             width * 0.02, height * 0.01, width * 0.02, height * 0.01),
         margin: const EdgeInsets.fromLTRB(0, 20, 0, 10),
@@ -817,33 +816,6 @@ class _dashboardState extends State<dashboard> {
     goalController.clear();
   }
 
-  Future<void> totalEnergy() async {
-    String percentageStr = '';
-    var collection = await FirebaseFirestore.instance
-        .collection('dashboard')
-        .doc(widget.houseID)
-        .collection('dashboard_readings');
-    collection.snapshots().listen((querySnapshot) {
-      for (var doc in querySnapshot.docs) {
-        Map<String, dynamic> data = doc.data();
-        var fooValue = data['energy_consumption']; // <-- Retrieving the value.
-        setState(() {
-          total += int.parse(fooValue);
-        });
-      }
-      total = total - i;
-      setState(() {
-        percentageStr = ((total / int.parse('100')) * 100).toStringAsFixed(1);
-        energyData[1][1] = '${total}kWh';
-        percentage = (total / int.parse('100')) * 100;
-        //  i = total;
-        calculateBill(total.toDouble());
-        String e = electricityBill.toStringAsFixed(2);
-        energyData[0][1] = '${e}SR';
-      });
-    });
-  }
-
   Future ubdateChart(String selectedYearMonth, String monthar) async {
     double total = 0;
 
@@ -858,10 +830,7 @@ class _dashboardState extends State<dashboard> {
       int value = 0;
       String name = '';
       double monthlyCons = 0;
-      String docID = '';
       String deviceID = '';
-      String monthlyConsId = '';
-      int totalM = 0;
       chartData.clear();
 
       //get devices name,color,id
@@ -879,10 +848,8 @@ class _dashboardState extends State<dashboard> {
           name = data['name'];
           var color = data['color'].split('(0x')[1].split(')')[0];
           value = int.parse(color, radix: 16);
-          docID = doc.id;
           print(doc.id);
           deviceID = data['ID'];
-          monthlyConsId = data['monthlyConsId'];
 
           monthlyCons = await getMonthlyConsumption(
             deviceID,
@@ -948,7 +915,6 @@ class _dashboardState extends State<dashboard> {
         consum = await getCurrentConsumption(deviceID);
         setState(() {
           total += consum;
-          //    usergoal = usergoaldb;
           chartData.add(ChartData(name, consum, Color(value)));
         });
       }

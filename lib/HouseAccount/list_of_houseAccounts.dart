@@ -5,15 +5,17 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:rashd/Dashboard/dashboard.dart';
-import '../Dashboard/accessSharedDashboard.dart';
 import '../Notification/FCM.dart';
 import '../Notification/localNotification.dart';
 import '../Registration/profile.dart';
 import '../functions.dart';
 import 'create_house_account.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 class ListOfHouseAccounts extends StatefulWidget {
-  const ListOfHouseAccounts({super.key});
+  var firestore, auth;
+
+  ListOfHouseAccounts({super.key, this.firestore = null, this.auth = null});
 
   @override
   State<ListOfHouseAccounts> createState() => _ListOfHouseAccountsState();
@@ -31,7 +33,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
       });
       await FirebaseFirestore.instance
           .collection('userAccount')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .doc(widget.auth.currentUser!.uid)
           .set({'token': token}, SetOptions(merge: true));
     });
 
@@ -39,7 +41,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
       print("New token: $token");
       await FirebaseFirestore.instance
           .collection('userAccount')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .doc(widget.auth.currentUser!.uid)
           .set({'token': token}, SetOptions(merge: true));
     });
   }
@@ -51,23 +53,27 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
   @override
   void initState() {
-    warningNotification.initApp();
+    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+      warningNotification.initApp();
 
-    notificationService = NotificationService();
-    listenToNotificationStream(notificationService);
-    notificationService.initializePlatformNotifications();
-    tabController = TabController(
-      length: 3,
-      vsync: this,
-    );
+      notificationService = NotificationService();
+      listenToNotificationStream(notificationService);
+      notificationService.initializePlatformNotifications();
+      tabController = TabController(
+        length: 3,
+        vsync: this,
+      );
 
-    getToken();
+      getToken();
+      widget.firestore = FirebaseFirestore.instance;
+      widget.auth = FirebaseAuth.instance;
+    }
     super.initState();
   }
 
-  Future<String> getUsername() async => await FirebaseFirestore.instance
+  Future<String> getUsername() async => await widget.firestore
           .collection("userAccount")
-          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .doc(widget.auth.currentUser!.uid)
           .get()
           .then((value) {
         return value.data()!["full_name"];
@@ -75,11 +81,11 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
   Future<bool> exists(String id) async {
     bool exists = false;
-    QuerySnapshot query = await FirebaseFirestore.instance
+    QuerySnapshot query = await widget.firestore
         .collection('houseAccount')
         .doc(id)
         .collection('houseMember')
-        .where('memberID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .where('memberID', isEqualTo: widget.auth.currentUser!.uid)
         .get();
     if (query.docs.isNotEmpty) {
       exists = true;
@@ -92,15 +98,15 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
   Future<List> getOwner() async {
     List houseOwner = [];
-    FirebaseFirestore.instance
+    widget.firestore
         .collection('houseAccount')
-        .where('OwnerID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .where('OwnerID', isEqualTo: widget.auth.currentUser!.uid)
         .snapshots()
         .listen((querySnapshot) {
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> data = doc.data(); // <-- Retrieving the value.
         houseOwner.add([
-          {'houseName': data['houseName'], 'houseID': data['houseID']}
+          {'houseName': data['houseName'], 'houseID': doc.id}
         ]);
       }
     });
@@ -110,15 +116,15 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
   Future<List> getMember() async {
     List houseMember = [];
-    FirebaseFirestore.instance
+    widget.firestore
         .collection('houseAccount')
         .snapshots()
         .listen((querySnapshot) async {
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> data = doc.data(); // house account info
-        if (await exists(data['houseID'])) {
+        if (await exists(doc.id)) {
           houseMember.add([
-            {'houseName': data['houseName'], 'houseID': data['houseID']}
+            {'houseName': data['houseName'], 'houseID': doc.id}
           ]);
         }
       }
@@ -143,125 +149,129 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Stack(children: [
-        Positioned(
-          bottom: height * 0,
-          top: height * -1.25,
-          left: width * 0.1,
-          child: Container(
-            width: width * 1.5,
-            decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                    colors: [Colors.lightBlue.shade200, Colors.blue]),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.blue.shade100,
-                      offset: const Offset(4.0, 4.0),
-                      blurRadius: 10.0)
-                ]),
-          ),
-        ),
-        Column(children: [
-          SizedBox(height: height * 0.05),
-          FutureBuilder(
-              future: getUsername(),
-              builder: (context, snapshot) {
-                return Row(
+      body: (TestWidgetsFlutterBinding.ensureInitialized().inTest)
+          ? Text('test mode')
+          : Stack(children: [
+              Positioned(
+                bottom: height * 0,
+                top: height * -1.25,
+                left: width * 0.1,
+                child: Container(
+                  width: width * 1.5,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                          colors: [Colors.lightBlue.shade200, Colors.blue]),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.blue.shade100,
+                            offset: const Offset(4.0, 4.0),
+                            blurRadius: 10.0)
+                      ]),
+                ),
+              ),
+              Column(children: [
+                SizedBox(height: height * 0.05),
+                FutureBuilder(
+                    future: getUsername(),
+                    builder: (context, snapshot) {
+                      return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Padding(
+                                padding: EdgeInsets.only(right: width * 0.05),
+                                child: Text(
+                                    snapshot.connectionState ==
+                                                ConnectionState.done &&
+                                            snapshot.hasData
+                                        ? 'مرحبًا، ${snapshot.data}!'
+                                        : 'مرحبًا',
+                                    style: const TextStyle(
+                                        fontSize: 28,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600)),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: width * 0.04),
+                              child: Opacity(
+                                opacity: 0.8,
+                                child: (Image.asset(
+                                  'assets/images/logo.jpg',
+                                  height: height * 0.065,
+                                  width: width * 0.12,
+                                )),
+                              ),
+                            ),
+                          ]);
+                    }),
+                Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Padding(
-                          padding: EdgeInsets.only(right: width * 0.05),
-                          child: Text(
-                              snapshot.connectionState ==
-                                          ConnectionState.done &&
-                                      snapshot.hasData
-                                  ? 'مرحبًا، ${snapshot.data}!'
-                                  : 'مرحبًا',
-                              style: const TextStyle(
-                                  fontSize: 28,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600)),
-                        ),
-                      ),
                       Padding(
-                        padding: EdgeInsets.only(left: width * 0.04),
-                        child: Opacity(
-                          opacity: 0.8,
-                          child: (Image.asset(
-                            'assets/images/logo.jpg',
-                            height: height * 0.065,
-                            width: width * 0.12,
+                          padding: EdgeInsets.only(right: width * 0.05),
+                          child: const Text('قائمة المنازل',
+                              style: TextStyle(
+                                  fontSize: 22,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600))),
+                      Padding(
+                          padding: EdgeInsets.only(left: width * 0.02),
+                          child: IconButton(
+                            color: const Color(0xFF64B5F6),
+                            iconSize: 40,
+                            icon: const Icon(Icons.add_circle),
+                            onPressed: () {
+                              showModalBottomSheet(
+                                  isScrollControlled: true,
+                                  isDismissible: false,
+                                  enableDrag: false,
+                                  backgroundColor: Colors.transparent,
+                                  context: context,
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(105.0),
+                                  )),
+                                  builder: (context) => CreateHouseAccount());
+                            },
                           )),
-                        ),
-                      ),
-                    ]);
-              }),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Padding(
-                padding: EdgeInsets.only(right: width * 0.05),
-                child: const Text('قائمة المنازل',
-                    style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600))),
-            Padding(
-                padding: EdgeInsets.only(left: width * 0.02),
-                child: IconButton(
-                  color: const Color(0xFF64B5F6),
-                  iconSize: 40,
-                  icon: const Icon(Icons.add_circle),
-                  onPressed: () {
-                    showModalBottomSheet(
-                        isScrollControlled: true,
-                        isDismissible: false,
-                        enableDrag: false,
-                        backgroundColor: Colors.transparent,
-                        context: context,
-                        shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(105.0),
-                        )),
-                        builder: (context) => const CreateHouseAccount());
-                  },
-                )),
-          ]),
-          SizedBox(height: height * 0.03),
-          TabBar(
-            controller: tabController,
-            labelPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
-            indicator: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                stops: const [0.0, 1.0],
-                colors: [Colors.lightBlue.shade200, Colors.blue],
-              ),
-              borderRadius: const BorderRadius.all(
-                Radius.circular(5),
-              ),
-            ),
-            indicatorWeight: 5,
-            indicatorPadding: const EdgeInsets.only(top: 47),
-            tabs: const <Tab>[
-              Tab(text: 'منازلي'),
-              Tab(text: 'اشتراكاتي'),
-              Tab(text: 'اللوحة المشتركة')
-            ],
-            labelColor: Colors.blue,
-            unselectedLabelColor: Colors.grey,
-            labelStyle: const TextStyle(fontSize: 16),
-          ),
-          Expanded(
-              child: TabBarView(controller: tabController, children: [
-            buildItems("O", height, width),
-            buildItems("M", height, width),
-            sharedDashboard(height, width)
-          ])),
-        ]),
-      ]),
+                    ]),
+                SizedBox(height: height * 0.03),
+                TabBar(
+                  controller: tabController,
+                  labelPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
+                  indicator: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      stops: const [0.0, 1.0],
+                      colors: [Colors.lightBlue.shade200, Colors.blue],
+                    ),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(5),
+                    ),
+                  ),
+                  indicatorWeight: 5,
+                  indicatorPadding: const EdgeInsets.only(top: 47),
+                  tabs: const <Tab>[
+                    Tab(text: 'منازلي'),
+                    Tab(text: 'اشتراكاتي'),
+                    Tab(text: 'اللوحة المشتركة')
+                  ],
+                  labelColor: Colors.blue,
+                  unselectedLabelColor: Colors.grey,
+                  labelStyle: const TextStyle(fontSize: 16),
+                ),
+                Expanded(
+                    child: TabBarView(controller: tabController, children: [
+                  buildItems("O", height, width),
+                  buildItems("M", height, width),
+                  sharedDashboard(height, width)
+                ])),
+              ]),
+            ]),
       bottomNavigationBar: buildBottomNavigation(height),
     );
   }
@@ -332,7 +342,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                             TextButton(
                                               onPressed: () async {
                                                 Navigator.of(ctx).pop();
-                                                await FirebaseFirestore.instance
+                                                await widget.firestore
                                                     .collection('houseAccount')
                                                     .doc(dataList[index][0]
                                                         ["houseID"])
@@ -349,8 +359,8 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                                           String,
                                                                           dynamic>)[
                                                                   'memberID'] ==
-                                                              FirebaseAuth
-                                                                  .instance
+                                                              widget
+                                                                  .auth
                                                                   .currentUser!
                                                                   .uid)
                                                           .toList();
@@ -399,7 +409,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                 //if user is owner !
                                                 print("inside Owner");
                                                 //Delete house account
-                                                await FirebaseFirestore.instance
+                                                await widget.firestore
                                                     .collection('houseAccount')
                                                     .get()
                                                     .then((snapshot) async {
@@ -422,8 +432,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                       in filteredDocs) {
                                                     //**********************************************************************
                                                     //delete dashboard
-                                                    await FirebaseFirestore
-                                                        .instance
+                                                    await widget.firestore
                                                         .collection('dashboard')
                                                         .get()
                                                         .then((snapshot) async {
@@ -445,8 +454,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                       for (DocumentSnapshot dash_ds
                                                           in dash_filteredDocs) {
                                                         //delete dashboard_readings
-                                                        await FirebaseFirestore
-                                                            .instance
+                                                        await widget.firestore
                                                             .collection(
                                                                 'dashboard')
                                                             .doc(dash_ds[
@@ -466,8 +474,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                             "dashboard_readings deleted");
 
                                                         //delete sharedCode
-                                                        await FirebaseFirestore
-                                                            .instance
+                                                        await widget.firestore
                                                             .collection(
                                                                 'houseAccount')
                                                             .doc(dataList[index]
@@ -496,8 +503,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                     });
                                                     //**********************************************************************
                                                     //delete house account devices
-                                                    await FirebaseFirestore
-                                                        .instance
+                                                    await widget.firestore
                                                         .collection(
                                                             'houseAccount')
                                                         .doc(ds['houseID'])
@@ -514,8 +520,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                         "house account devices deleted");
 
                                                     //delete house account members
-                                                    await FirebaseFirestore
-                                                        .instance
+                                                    await widget.firestore
                                                         .collection(
                                                             'houseAccount')
                                                         .doc(ds['houseID'])
@@ -619,8 +624,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                       borderRadius: BorderRadius.vertical(
                                     top: Radius.circular(105.0),
                                   )),
-                                  builder: (context) =>
-                                      const CreateHouseAccount());
+                                  builder: (context) => CreateHouseAccount());
                             },
                             child: const Text("بإنشاء حساب منزل",
                                 style: TextStyle(
@@ -659,7 +663,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                   borderRadius: BorderRadius.vertical(
                                 top: Radius.circular(105.0),
                               )),
-                              builder: (context) => const CreateHouseAccount());
+                              builder: (context) => CreateHouseAccount());
                         },
                         child: const Text("بإنشاء حساب منزل",
                             style: TextStyle(
@@ -760,14 +764,14 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                         await isCodeValid();
 
                         if (_formKey.currentState!.validate()) {
-                          var sharedDashboard = await FirebaseFirestore.instance
+                          var sharedDashboard = await widget.firestore
                               .collectionGroup('sharedCode')
                               .where('code',
                                   isEqualTo: int.parse(codeController.text))
                               .where('isExpired', isEqualTo: false)
                               .get();
 
-                          await FirebaseFirestore.instance
+                          await widget.firestore
                               .collection('houseAccount')
                               .doc(sharedDashboard.docs[0].data()["houseID"])
                               .collection('sharedCode')
@@ -803,7 +807,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
   //this function checks if dashboard exists and the code not expired (not used before)
 //Returns true if code satisfies the above.
   Future<bool> isCodeValid() async {
-    QuerySnapshot codeExistQuery = await FirebaseFirestore.instance
+    QuerySnapshot codeExistQuery = await widget.firestore
         .collectionGroup('sharedCode')
         .where('code',
             isEqualTo: int.parse(codeController
@@ -811,7 +815,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
         .get();
 
     if (codeExistQuery.docs.isNotEmpty) {
-      QuerySnapshot codeExpiredQuery = await FirebaseFirestore.instance
+      QuerySnapshot codeExpiredQuery = await widget.firestore
           .collectionGroup('sharedCode')
           .where('code', isEqualTo: int.parse(codeController.text))
           .where('isExpired', isEqualTo: false)
@@ -855,8 +859,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
         } else if (index == 0) {
           Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) => const ListOfHouseAccounts()),
+            MaterialPageRoute(builder: (context) => ListOfHouseAccounts()),
           );
         }
       },

@@ -1,26 +1,22 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
+import '../Mocks.dart';
 import '../functions.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'register.dart';
 
-class login extends StatefulWidget {
-  const login({Key? key}) : super(key: key);
+class Login extends StatefulWidget {
+  const Login({Key? key}) : super(key: key);
 
   @override
   _loginPageState createState() => _loginPageState();
 }
 
-TextEditingController emailController = TextEditingController();
-TextEditingController passwordController = TextEditingController();
-
-void clearForm() {
-  emailController.text = "";
-  passwordController.text = '';
-}
-
-class _loginPageState extends State<login> {
+class _loginPageState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
@@ -102,7 +98,7 @@ class _loginPageState extends State<login> {
                           ),
                         ),
                       ]),
-                  const loginForm(),
+                  LoginForm(),
                 ]),
               ),
             ])),
@@ -111,23 +107,39 @@ class _loginPageState extends State<login> {
   }
 }
 
-class loginForm extends StatefulWidget {
-  const loginForm({super.key});
-
-  @override
-  loginFormState createState() {
-    return loginFormState();
-  }
+void clearForm() {
+  emailController.text = "";
+  passwordController.text = '';
 }
 
-class loginFormState extends State<loginForm> {
-  bool invalidData = false;
+class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
 
+  @override
+  LoginFormState createState() => LoginFormState();
+}
+
+class LoginFormState extends State<LoginForm> {
+  bool _isMounted = false;
+
+  bool invalidData = false;
   final _formKey = GlobalKey<FormState>();
   GlobalKey<FormState> get formKey => _formKey;
-
   bool _passwordVisible = false;
-  ScrollController _scrollController = ScrollController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  @override
+  initState() {
+    super.initState();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +161,6 @@ class loginFormState extends State<loginForm> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(height: height * 0.03),
-
               Align(
                 alignment: Alignment.topRight,
                 child: Text(
@@ -161,7 +172,6 @@ class loginFormState extends State<loginForm> {
                 ),
               ),
               SizedBox(height: height * 0.045),
-
               TextFormField(
                 controller: emailController,
                 decoration: const InputDecoration(
@@ -171,14 +181,13 @@ class loginFormState extends State<loginForm> {
                     color: Color.fromRGBO(53, 152, 219, 1),
                   ),
                 ),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
-                  if (value == null ||
+                  if (invalidData) {
+                    return '';
+                  } else if (value == null ||
                       value.isEmpty ||
                       (value.trim()).isEmpty) {
                     return 'الرجاء ادخال البريد الإلكتروني';
-                  } else if (invalidData) {
-                    return '';
                   }
                   return null;
                 },
@@ -187,7 +196,6 @@ class loginFormState extends State<loginForm> {
               TextFormField(
                 controller: passwordController,
                 obscureText: !_passwordVisible,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
                 decoration: InputDecoration(
                   labelText: 'كلمة المرور',
                   suffixIcon: IconButton(
@@ -205,18 +213,17 @@ class loginFormState extends State<loginForm> {
                   ),
                 ),
                 validator: (value) {
-                  if (value == null ||
+                  if (invalidData) {
+                    return '';
+                  } else if (value == null ||
                       value.isEmpty ||
                       (value.trim()).isEmpty) {
                     return 'الرجاء إدخال كلمة المرور.';
-                  } else if (invalidData) {
-                    return '';
                   }
                   return null;
                 },
               ),
               SizedBox(height: height * 0.02),
-
               Visibility(
                   visible: invalidData,
                   child: const Align(
@@ -229,8 +236,6 @@ class loginFormState extends State<loginForm> {
                             fontWeight: FontWeight.normal)),
                   )),
               SizedBox(height: height * 0.03),
-
-              //button
               Container(
                   width: width * 0.5,
                   decoration: BoxDecoration(
@@ -243,7 +248,7 @@ class loginFormState extends State<loginForm> {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      stops: [0.1, 1.0],
+                      stops: const [0.1, 1.0],
                       colors: [
                         Colors.blue.shade200,
                         Colors.blue.shade400,
@@ -254,30 +259,22 @@ class loginFormState extends State<loginForm> {
                   child: ElevatedButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        try {
-                          final newUser = await FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                                email: emailController.text.trim(),
-                                password: passwordController.text.trim(),
-                              )
-                              .then((value) => {});
-                          clearForm();
-
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const ListOfHouseAccounts(),
-                              ));
-                          showToast('valid', 'تم تسجيل دخولك بنجاح');
-                        } on FirebaseAuthException catch (e) {
-                          if (emailController.text.isNotEmpty &&
-                              passwordController.text.isNotEmpty) {
-                            setState(() {
-                              invalidData = true;
-                            });
-                          }
+                        if (TestWidgetsFlutterBinding.ensureInitialized()
+                            .inTest) {
+                          await login(emailController.text,
+                              passwordController.text, MockFirebaseAuth());
+                        } else {
+                          await login(emailController.text,
+                              passwordController.text, FirebaseAuth.instance);
                         }
+                        showToast('valid', 'تم تسجيل دخولك بنجاح');
+
+                        clearForm();
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>  ListOfHouseAccounts(),
+                            ));
                       }
                     },
                     child: const Text('تسجيل الدخول'),
@@ -288,7 +285,6 @@ class loginFormState extends State<loginForm> {
                     ),
                   )),
               SizedBox(height: height * 0.02),
-
               Center(
                   child: RichText(
                 text: TextSpan(
@@ -316,5 +312,21 @@ class loginFormState extends State<loginForm> {
             ]),
       ),
     );
+  }
+
+  Future<void> login(String email, String password, auth) async {
+    try {
+      await auth.signInWithEmailAndPassword(email: email, password: password);
+    } catch (e) {
+      if (!_isMounted) {
+        invalidData = true;
+      } else {
+        if (email.isNotEmpty && password.isNotEmpty) {
+          setState(() {
+            invalidData = true;
+          });
+        }
+      }
+    }
   }
 }
