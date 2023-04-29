@@ -20,10 +20,6 @@ class add_house_member extends StatefulWidget {
 
 class add_house_memberState extends State<add_house_member> {
   TextEditingController houseName = TextEditingController();
-  //changed
-  String owener_phoneNumber = ''; 
-  late Map<String, dynamic> userData;
-
   TextEditingController membersPhoneNumber1 = TextEditingController();
   TextEditingController membersNames1 = TextEditingController();
   ScrollController list = ScrollController();
@@ -37,21 +33,12 @@ class add_house_memberState extends State<add_house_member> {
     privilege_edit = 'viewer';
     privilege = '';
     privilege_index = 1;
-    owener_phoneNumber = ''; //changed
   }
 
   @override
   void initState() {
     setState(() {
       clearText();
-      FirebaseFirestore.instance //changed
-        .collection("userAccount")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get()
-        .then((DocumentSnapshot value) {
-      userData = value.data() as Map<String, dynamic>;
-      owener_phoneNumber = userData["phone_number"]; //changed
-    });
       privilege_index = 1;
       privilege_edit = 'viewer';
       privilege = 'viewer';
@@ -314,6 +301,7 @@ class add_house_memberState extends State<add_house_member> {
                                           onPressed: () async {
                                             bool flag_exists = true;
                                             bool flag_owner = true;
+                                            bool flag_notMember = true;
                                             if (!_formKey.currentState!
                                                 .validate()) {
                                             } else {
@@ -323,10 +311,29 @@ class add_house_memberState extends State<add_house_member> {
                                                   false) {
                                                 flag_exists = false;
                                               }
-                                              if(owener_phoneNumber == membersPhoneNumber1.text){
-                                                flag_owner = false ;
+                                              if (await notMember(
+                                                      membersPhoneNumber1
+                                                          .text) ==
+                                                  false) {
+                                                flag_notMember = false;
                                               }
-                                              if (flag_exists && flag_owner) {
+                                              if (await notOwner(
+                                                      membersPhoneNumber1
+                                                          .text) ==
+                                                  false) {
+                                                flag_owner = false;
+                                              }
+                                              if (flag_exists == false) {
+                                                showToast('invalid',
+                                                    'العضو غير موجود بالنطام');
+                                              } else if (flag_owner == false) {
+                                                showToast('invalid',
+                                                    'لا يمكن اضافة مالك المنزل كعضو');
+                                              } else if (flag_notMember ==
+                                                  false) {
+                                                showToast('invalid',
+                                                    'العضو مضاف بالفعل الى المنزل');
+                                              } else {
                                                 setData();
                                                 showToast('valid',
                                                     'تم الإضافة بنجاح');
@@ -338,12 +345,6 @@ class add_house_memberState extends State<add_house_member> {
                                                               houseId: widget
                                                                   .houseID),
                                                     ));
-                                              } else if(flag_exists == false){
-                                                showToast('invalid',
-                                                    'العضو غير موجود بالنطام');
-                                              } else if (flag_owner == false) {
-                                                showToast('invalid',
-                                                    'لا يمكن اضافة مالك المنزل كعضو');
                                               }
                                             }
                                           },
@@ -390,6 +391,38 @@ class add_house_memberState extends State<add_house_member> {
     setState(() {
       clearText();
     });
+  }
+  Future<bool> notMember(String number) async {
+    bool validPhone = false;
+    QuerySnapshot query = await FirebaseFirestore.instance
+        .collection('houseAccount')
+        .doc(widget.houseID)
+        .collection('houseMember')
+        .where('memberPhoneNumber', isEqualTo: number)
+        .get();
+    if (query.docs.isNotEmpty) {
+      print('member exist!!');
+      validPhone = false;
+    } else {
+      validPhone = true;
+    }
+    return validPhone;
+  }
+  Future<bool> notOwner(String number) async {
+    bool validPhone = false;
+    QuerySnapshot query = await FirebaseFirestore.instance
+        .collection('userAccount')
+        .where('phone_number', isEqualTo: number)
+        .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    if (query.docs.isNotEmpty) {
+      validPhone = false;
+      print('is owner');
+    } else {
+      validPhone = true;
+    }
+    print(validPhone);
+    return validPhone;
   }
 
   int index = 2;
