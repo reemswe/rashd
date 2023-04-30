@@ -464,164 +464,7 @@ class profileState extends State<profile> {
                                           TextButton(
                                             onPressed: () async {
                                               Navigator.of(ctx).pop();
-                                              //Delete house account
-                                              await FirebaseFirestore.instance
-                                                  .collection('houseAccount')
-                                                  .get()
-                                                  .then((snapshot) async {
-                                                List<DocumentSnapshot> allDocs =
-                                                    snapshot.docs;
-                                                List<DocumentSnapshot>
-                                                    filteredDocs = allDocs
-                                                        .where((document) =>
-                                                            (document.data()
-                                                                    as Map<
-                                                                        String,
-                                                                        dynamic>)[
-                                                                'OwnerID'] ==
-                                                            FirebaseAuth
-                                                                .instance
-                                                                .currentUser!
-                                                                .uid) //current user id
-                                                        .toList();
-                                                for (DocumentSnapshot ds
-                                                    in filteredDocs) {
-                                                  //delete dashboard
-                                                  await FirebaseFirestore
-                                                      .instance
-                                                      .collection('dashboard')
-                                                      .get()
-                                                      .then((snapshot) async {
-                                                    List<DocumentSnapshot>
-                                                        dash_allDocs =
-                                                        snapshot.docs;
-                                                    List<DocumentSnapshot>
-                                                        dash_filteredDocs =
-                                                        dash_allDocs
-                                                            .where((document) =>
-                                                                (document.data()
-                                                                        as Map<
-                                                                            String,
-                                                                            dynamic>)[
-                                                                    'dashboardID'] ==
-                                                                ds['dashboardID'])
-                                                            .toList();
-                                                    for (DocumentSnapshot dash_ds
-                                                        in dash_filteredDocs) {
-                                                      //delete dashboard_readings
-                                                      await FirebaseFirestore
-                                                          .instance
-                                                          .collection(
-                                                              'dashboard')
-                                                          .doc(dash_ds[
-                                                              'dashboardID'])
-                                                          .collection(
-                                                              'dashboard_readings')
-                                                          .get()
-                                                          .then((snapshot) {
-                                                        for (DocumentSnapshot dash_ds
-                                                            in snapshot.docs) {
-                                                          dash_ds.reference
-                                                              .delete();
-                                                        }
-                                                      });
-                                                      print(
-                                                          "dashboard_readings deleted");
-
-                                                      //delete sharedCode
-                                                      await FirebaseFirestore
-                                                          .instance
-                                                          .collection(
-                                                              'dashboard')
-                                                          .doc(dash_ds[
-                                                              'dashboardID'])
-                                                          .collection(
-                                                              'sharedCode')
-                                                          .get()
-                                                          .then((snapshot) {
-                                                        for (DocumentSnapshot dash_ds
-                                                            in snapshot.docs) {
-                                                          dash_ds.reference
-                                                              .delete();
-                                                        }
-                                                      });
-                                                      print(
-                                                          "dashboard sharecode deleted");
-
-                                                      dash_ds.reference
-                                                          .delete()
-                                                          .then((_) {
-                                                        print(
-                                                            "dashboard deleted");
-                                                      });
-                                                    }
-                                                  });
-                                                  //delete house account devices
-                                                  await FirebaseFirestore
-                                                      .instance
-                                                      .collection(
-                                                          'houseAccount')
-                                                      .doc(ds['houseID'])
-                                                      .collection(
-                                                          'houseDevices')
-                                                      .get()
-                                                      .then((snapshot) {
-                                                    for (DocumentSnapshot ds
-                                                        in snapshot.docs) {
-                                                      ds.reference.delete();
-                                                    }
-                                                  });
-                                                  print(
-                                                      "house account devices deleted");
-
-                                                  //delete house account members
-                                                  await FirebaseFirestore
-                                                      .instance
-                                                      .collection(
-                                                          'houseAccount')
-                                                      .doc(ds['houseID'])
-                                                      .collection('houseMember')
-                                                      .get()
-                                                      .then((snapshot) {
-                                                    for (DocumentSnapshot ds
-                                                        in snapshot.docs) {
-                                                      ds.reference.delete();
-                                                    }
-                                                  });
-                                                  print(
-                                                      "house account members deleted");
-
-                                                  ds.reference
-                                                      .delete()
-                                                      .then((_) {
-                                                    print(
-                                                        "house account deleted");
-                                                  });
-                                                }
-                                              });
-
-                                              //delete user from user account
-                                              await FirebaseFirestore.instance
-                                                  .collection("userAccount")
-                                                  .doc(FirebaseAuth
-                                                      .instance
-                                                      .currentUser!
-                                                      .uid) //current user id
-                                                  .delete()
-                                                  .then((_) {
-                                                print("success!, user deleted");
-                                              });
-
-                                              //delete user login info
-                                              FirebaseAuth.instance.currentUser!
-                                                  .delete()
-                                                  .then((value) {
-                                                showToast('valid',
-                                                    'تم حذف حسابك بنجاح');
-
-                                                Navigator.pushNamed(
-                                                    context, '/login');
-                                              });
+                                              await deleteUser(ctx);
                                             },
                                             child: Container(
                                               padding: const EdgeInsets.all(14),
@@ -921,8 +764,7 @@ class profileState extends State<profile> {
         } else if (index == 0) {
           Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) =>  ListOfHouseAccounts()),
+            MaterialPageRoute(builder: (context) => ListOfHouseAccounts()),
           );
         }
       },
@@ -945,6 +787,111 @@ class profileState extends State<profile> {
       ],
     );
   }
+}
+
+Future<void> deleteUser(context) async {
+  //Delete house account
+  await FirebaseFirestore.instance
+      .collection('houseAccount')
+      .get()
+      .then((snapshot) async {
+    List<DocumentSnapshot> allDocs = snapshot.docs;
+    List<DocumentSnapshot> filteredDocs = allDocs
+        .where((document) =>
+            (document.data() as Map<String, dynamic>)['OwnerID'] ==
+            FirebaseAuth.instance.currentUser!.uid) //current user id
+        .toList();
+    for (DocumentSnapshot ds in filteredDocs) {
+      //delete dashboard
+      await FirebaseFirestore.instance
+          .collection('dashboard')
+          .get()
+          .then((snapshot) async {
+        List<DocumentSnapshot> dash_allDocs = snapshot.docs;
+        List<DocumentSnapshot> dash_filteredDocs = dash_allDocs
+            .where((document) =>
+                (document.data() as Map<String, dynamic>)['dashboardID'] ==
+                ds['dashboardID'])
+            .toList();
+        for (DocumentSnapshot dash_ds in dash_filteredDocs) {
+          //delete dashboard_readings
+          await FirebaseFirestore.instance
+              .collection('dashboard')
+              .doc(dash_ds['dashboardID'])
+              .collection('dashboard_readings')
+              .get()
+              .then((snapshot) {
+            for (DocumentSnapshot dash_ds in snapshot.docs) {
+              dash_ds.reference.delete();
+            }
+          });
+          print("dashboard_readings deleted");
+
+          //delete sharedCode
+          await FirebaseFirestore.instance
+              .collection('dashboard')
+              .doc(dash_ds['dashboardID'])
+              .collection('sharedCode')
+              .get()
+              .then((snapshot) {
+            for (DocumentSnapshot dash_ds in snapshot.docs) {
+              dash_ds.reference.delete();
+            }
+          });
+          print("dashboard sharecode deleted");
+
+          dash_ds.reference.delete().then((_) {
+            print("dashboard deleted");
+          });
+        }
+      });
+      //delete house account devices
+      await FirebaseFirestore.instance
+          .collection('houseAccount')
+          .doc(ds['houseID'])
+          .collection('houseDevices')
+          .get()
+          .then((snapshot) {
+        for (DocumentSnapshot ds in snapshot.docs) {
+          ds.reference.delete();
+        }
+      });
+      print("house account devices deleted");
+
+      //delete house account members
+      await FirebaseFirestore.instance
+          .collection('houseAccount')
+          .doc(ds['houseID'])
+          .collection('houseMember')
+          .get()
+          .then((snapshot) {
+        for (DocumentSnapshot ds in snapshot.docs) {
+          ds.reference.delete();
+        }
+      });
+      print("house account members deleted");
+
+      ds.reference.delete().then((_) {
+        print("house account deleted");
+      });
+    }
+  });
+
+  //delete user from user account
+  await FirebaseFirestore.instance
+      .collection("userAccount")
+      .doc(FirebaseAuth.instance.currentUser!.uid) //current user id
+      .delete()
+      .then((_) {
+    print("success!, user deleted");
+  });
+
+  //delete user login info
+  FirebaseAuth.instance.currentUser!.delete().then((value) {
+    showToast('valid', 'تم حذف حسابك بنجاح');
+
+    Navigator.pushNamed(context, '/login');
+  });
 }
 
 Future<void> UpdateDB() async {

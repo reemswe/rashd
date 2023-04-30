@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rashd/HouseAccount/add_house_member.dart';
 import 'package:rashd/HouseAccount/create_house_account.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
+import 'package:rashd/HouseAccount/list_of_houseMembers.dart';
 
 void main() {
   late MockUser user; //Data of the Current User
@@ -335,6 +337,12 @@ void main() {
       expect(subSnapshot.docs[0].data(), testMemberData);
       expect(snapshot.docs[0].data(), testHouseData);
     });
+
+    testWidgets('List of House Account Page', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: ListOfHouseAccounts(auth: firebaseAuth, firestore: firestore),
+      ));
+    });
   });
 
   group('Add Member tests', () {
@@ -524,6 +532,43 @@ void main() {
               .controller!
               .text,
           'ريم ابراهيم موسى الم');
+    });
+
+    testWidgets('TC_31 Exist Member Phone Number', (WidgetTester tester) async {
+      await firestore
+          .collection('houseAccount')
+          .doc('testHouseID')
+          .collection('houseMember')
+          .add({'memberPhoneNumber': '0511345678'});
+      await tester.pumpWidget(MaterialApp(
+        home: add_house_member(
+            houseID: 'testHouseID', firestore: firestore, auth: firebaseAuth),
+      ));
+
+      var form = tester.state(find.byType(Form)) as FormState;
+      form.reset();
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'الاسم'), memberName);
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'رقم الهاتف'), '0511345678');
+      //The default value of privilege is 'Viewer'
+      await tester.tap(find.widgetWithText(ElevatedButton, 'إضافة'));
+      await tester.pumpAndSettle();
+      expect(form.validate(), isTrue);
+
+      final snapshot = await firestore
+          .collection('houseAccount')
+          .doc('testHouseID')
+          .collection('houseMember')
+          .get();
+
+      expect(snapshot.docs.length, 1); //should be 2 if the new member is added
+    });
+    testWidgets('List of House Mmber Page', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: HouseMembers(
+            houseId: 'testHouseId', auth: firebaseAuth, firestore: firestore),
+      ));
     });
   });
 }

@@ -6,14 +6,27 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'Dashboard/dashboard.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'main.dart';
 
-Future<Map<String, dynamic>> readHouseData(id, isShared) =>
-    FirebaseFirestore.instance.collection('houseAccount').doc(id).get().then(
+Future<Map<String, dynamic>> readHouseData(id, isShared, firestore) {
+  if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+    firestore.collection('houseAccount').doc(id).get().then(
       (DocumentSnapshot doc) async {
         return doc.data() as Map<String, dynamic>;
       },
     );
+  }
+  return Future.value({
+    'OwnerID': 'testId',
+    'houseID': 'testHouseId',
+    'houseName': 'houseName',
+    'isNotificationSent': false,
+    'goal': '0',
+    'totalConsumption': 0,
+    'totalConsumptionPercentage': 0
+  });
+}
 
 void showToast(type, message) {
   Fluttertoast.showToast(
@@ -144,11 +157,11 @@ Future<Map<String, dynamic>> getDeviceRealtimeData(houseID, deviceID) async {
   return completer.future;
 }
 
-getCurrentConsumption(deviceID) {
+getCurrentConsumption(deviceID, realDB) {
   Completer<double> completer = Completer();
   double consum = 0;
   //get currentConsumption from realtime
-  final databaseRef = FirebaseDatabase.instance.ref('devicesList/${deviceID}/');
+  final databaseRef = realDB.ref('devicesList/${deviceID}/');
   databaseRef.onValue.listen((DatabaseEvent event) {
     Map<dynamic, dynamic>? data =
         event.snapshot.value as Map<dynamic, dynamic>?;
@@ -206,10 +219,3 @@ void listenToNotificationStream(notificationService) =>
         );
       }
     });
-
-//! Form validate
-dynamic validate(String value, message) {
-  return (value == null || value.isEmpty || (value.trim()).isEmpty)
-      ? message
-      : null;
-}

@@ -70,7 +70,7 @@ class _houseMembersState extends State<HouseMembers> {
     final double width = MediaQuery.of(context).size.width;
 
     return FutureBuilder<Map<String, dynamic>>(
-        future: readHouseData(widget.houseId, false),
+        future: readHouseData(widget.houseId, false, widget.firestore),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;

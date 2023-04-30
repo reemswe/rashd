@@ -10,7 +10,10 @@ import 'login.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class register extends StatefulWidget {
-  const register({
+  var auth, firestore;
+  register({
+    this.firestore = null,
+    this.auth = null,
     Key? key,
   }) : super(key: key);
 
@@ -103,14 +106,16 @@ class _registerState extends State<register> {
             ),
           ),
         ]),
-        const registerForm(),
+        registerForm(auth: widget.auth, firestore: widget.firestore),
       ]),
     );
   }
 }
 
 class registerForm extends StatefulWidget {
-  const registerForm({super.key});
+  var auth, firestore;
+
+  registerForm({this.firestore = null, this.auth = null, super.key});
 
   @override
   registerFormState createState() {
@@ -131,6 +136,11 @@ class registerFormState extends State<registerForm> {
 
   @override
   initState() {
+    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+      widget.firestore = FirebaseFirestore.instance;
+      widget.auth = FirebaseAuth.instance;
+    }
+    clearForm();
     super.initState();
     _isMounted = true;
   }
@@ -155,12 +165,11 @@ class registerFormState extends State<registerForm> {
 
 //this function checks if phone number already exists
 //Returns true if phone number is not in use.
-  Future<bool> isDuplicatePhoneNum(
-      FirebaseFirestore firestore, phoneNum) async {
+  Future<bool> isDuplicatePhoneNum() async {
     try {
-      QuerySnapshot query = await firestore
+      QuerySnapshot query = await widget.firestore
           .collection('userAccount')
-          .where('phone_number', isEqualTo: phoneNum)
+          .where('phone_number', isEqualTo: PhoneNumController.text)
           .get();
       if (query.docs.isNotEmpty) {
         invalidPhone = true;
@@ -180,37 +189,28 @@ class registerFormState extends State<registerForm> {
   }
 
 // Returns false if email address is in use.
-  Future<bool> checkEmail(email, auth) async {
+  Future<bool> checkEmail() async {
     try {
-      final list = await auth.fetchSignInMethodsForEmail(email);
+      final list =
+          await widget.auth.fetchSignInMethodsForEmail(emailController.text);
 
       if (list.isNotEmpty) {
-        if (_isMounted) {
-          setState(() {
-            invalidEmail = true;
-            emailErrorMessage =
-                ' البريد الإلكتروني مستخدم ، يرجى محاولة تسجيل الدخول.';
-          });
-        }
+        invalidEmail = true;
+        emailErrorMessage =
+            ' البريد الإلكتروني مستخدم ، يرجى محاولة تسجيل الدخول.';
+
         return false;
       } else {
-        if (_isMounted) {
-          setState(() {
-            invalidEmail = false;
-          });
-        }
+        invalidEmail = false;
 
         // Return true because email address is not in use
         return true;
       }
     } catch (error) {
       print(error);
-      if (_isMounted) {
-        setState(() {
-          invalidEmail = true;
-          emailErrorMessage = 'الرجاء إدخال بريد إلكتروني صالح.';
-        });
-      }
+
+      invalidEmail = true;
+      emailErrorMessage = 'الرجاء إدخال بريد إلكتروني صالح.';
 
       return false;
     }
@@ -218,12 +218,13 @@ class registerFormState extends State<registerForm> {
 
 //check phone num
 //create user
-  Future<bool> signUp(email, password, auth) async {
+  Future<bool> signUp(email, password) async {
     try {
-      await auth.createUserWithEmailAndPassword(
+      await widget.auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      await saveUser();
       return true;
     } on FirebaseAuthException catch (e) {
       showToast('invalid', 'error');
@@ -231,16 +232,18 @@ class registerFormState extends State<registerForm> {
     }
   }
 
-  saveUser(FirebaseFirestore DB, FirebaseAuth auth) async {
+  saveUser() async {
     String email = emailController.text;
     String fullname = fullNameController.text;
     String number = PhoneNumController.text;
 
-    final userRef = DB.collection("userAccount").doc(auth.currentUser!.uid);
+    final userRef = widget.firestore
+        .collection("userAccount")
+        .doc(widget.auth.currentUser!.uid);
     if (!((await userRef.get()).exists)) {
       await userRef.set({
         "email": email,
-        "userId": auth.currentUser!.uid,
+        "userId": widget.auth.currentUser!.uid,
         "full_name": fullname,
         "phone_number": number,
         "token": ""
@@ -459,46 +462,18 @@ class registerFormState extends State<registerForm> {
                   ),
                   child: ElevatedButton(
                     onPressed: () async {
-                      if ((_formKey.currentState!.validate())) {
-                        if (TestWidgetsFlutterBinding.ensureInitialized()
-                            .inTest) {
-                          await checkEmail(
-                              emailController.text, MockFirebaseAuth());
-                          await isDuplicatePhoneNum(
-                              MockFirebaseFirestore(), PhoneNumController.text);
-                        } else {
-                          await checkEmail(
-                              emailController.text, FirebaseAuth.instance);
-                          await isDuplicatePhoneNum(FirebaseFirestore.instance,
-                              PhoneNumController.text);
-                        }
+                      if (emailController != null ||
+                          emailController.text.isNotEmpty ||
+                          (emailController.text.trim()).isNotEmpty) {
+                        await checkEmail();
+                        await isDuplicatePhoneNum();
                       }
-                      if ((_formKey.currentState!.validate())) {
-                        if (TestWidgetsFlutterBinding.ensureInitialized()
-                            .inTest) {
-                          if (await checkEmail(
-                                  emailController.text, MockFirebaseAuth) &&
-                              await isDuplicatePhoneNum(MockFirebaseFirestore(),
-                                  PhoneNumController.text)) {
-                            await signUp(emailController.text,
-                                passwordController.text, MockFirebaseAuth());
-                            await saveUser(
-                                MockFirebaseFirestore(), MockFirebaseAuth());
-                          }
-                        } else {
-                          if (await checkEmail(emailController.text,
-                                  FirebaseAuth.instance) &&
-                              await isDuplicatePhoneNum(
-                                  FirebaseFirestore.instance,
-                                  PhoneNumController.text)) {
-                            await signUp(emailController.text,
-                                passwordController.text, FirebaseAuth.instance);
-                            await saveUser(FirebaseFirestore.instance,
-                                FirebaseAuth.instance);
-                          }
-                        }
+                      var form = _formKey.currentState!.validate();
+                      if (form) {
+                        await signUp(
+                            emailController.text, passwordController.text);
+                        // await saveUser();
 
-                        clearForm();
                         showToast('valid', 'مرحبًا بك في رشد');
 
                         // ignore: use_build_context_synchronously
@@ -531,7 +506,7 @@ class registerFormState extends State<registerForm> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const Login(),
+                                  builder: (context) => Login(),
                                 ));
                           }),
                   ],

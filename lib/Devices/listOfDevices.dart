@@ -10,11 +10,17 @@ import '../Dashboard/dashboard.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../HouseAccount/list_of_houseMembers.dart';
 import '../functions.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 class ListOfDevices extends StatefulWidget {
   final houseID, userType;
-  const ListOfDevices(
-      {super.key, required this.houseID, required this.userType});
+  var firestore, auth;
+  ListOfDevices(
+      {super.key,
+      required this.houseID,
+      this.firestore = null,
+      this.auth = null,
+      required this.userType});
 
   @override
   State<ListOfDevices> createState() => ListOfDevicesState();
@@ -23,7 +29,10 @@ class ListOfDevices extends StatefulWidget {
 class ListOfDevicesState extends State<ListOfDevices> {
   @override
   void initState() {
-    print(widget.userType);
+    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+      widget.firestore = FirebaseFirestore.instance;
+      widget.auth = FirebaseAuth.instance;
+    }
     super.initState();
   }
 
@@ -35,7 +44,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
     final double width = MediaQuery.of(context).size.width;
 
     return FutureBuilder<Map<String, dynamic>>(
-        future: readHouseData(widget.houseID, false),
+        future: readHouseData(widget.houseID, false, widget.firestore),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             var houseData = snapshot.data as Map<String, dynamic>;
@@ -82,7 +91,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
-                                                   ListOfHouseAccounts(),
+                                                  ListOfHouseAccounts(),
                                             ));
                                       },
                                     ),
@@ -163,9 +172,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
                 ]),
               ),
               bottomNavigationBar: buildBottomNavigation(
-                  height,
-                  houseData['OwnerID'] ==
-                      FirebaseAuth.instance.currentUser!.uid),
+                  height, houseData['OwnerID'] == widget.auth.currentUser!.uid),
             );
           } else {
             return const Center(child: CircularProgressIndicator());
@@ -175,7 +182,7 @@ class ListOfDevicesState extends State<ListOfDevices> {
 
   Widget buildDevicesList(height, width) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
+      stream: widget.firestore
           .collection("houseAccount")
           .doc(widget.houseID)
           .collection('houseDevices')

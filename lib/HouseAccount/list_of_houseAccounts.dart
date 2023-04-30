@@ -149,129 +149,125 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: (TestWidgetsFlutterBinding.ensureInitialized().inTest)
-          ? Text('test mode')
-          : Stack(children: [
-              Positioned(
-                bottom: height * 0,
-                top: height * -1.25,
-                left: width * 0.1,
-                child: Container(
-                  width: width * 1.5,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                          colors: [Colors.lightBlue.shade200, Colors.blue]),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.blue.shade100,
-                            offset: const Offset(4.0, 4.0),
-                            blurRadius: 10.0)
-                      ]),
-                ),
-              ),
-              Column(children: [
-                SizedBox(height: height * 0.05),
-                FutureBuilder(
-                    future: getUsername(),
-                    builder: (context, snapshot) {
-                      return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: Padding(
-                                padding: EdgeInsets.only(right: width * 0.05),
-                                child: Text(
-                                    snapshot.connectionState ==
-                                                ConnectionState.done &&
-                                            snapshot.hasData
-                                        ? 'مرحبًا، ${snapshot.data}!'
-                                        : 'مرحبًا',
-                                    style: const TextStyle(
-                                        fontSize: 28,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600)),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: width * 0.04),
-                              child: Opacity(
-                                opacity: 0.8,
-                                child: (Image.asset(
-                                  'assets/images/logo.jpg',
-                                  height: height * 0.065,
-                                  width: width * 0.12,
-                                )),
-                              ),
-                            ),
-                          ]);
-                    }),
-                Row(
+      body: Stack(children: [
+        Positioned(
+          bottom: height * 0,
+          top: height * -1.25,
+          left: width * 0.1,
+          child: Container(
+            width: width * 1.5,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                    colors: [Colors.lightBlue.shade200, Colors.blue]),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.blue.shade100,
+                      offset: const Offset(4.0, 4.0),
+                      blurRadius: 10.0)
+                ]),
+          ),
+        ),
+        Column(children: [
+          SizedBox(height: height * 0.05),
+          FutureBuilder(
+              future: getUsername(),
+              builder: (context, snapshot) {
+                return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Padding(
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
                           padding: EdgeInsets.only(right: width * 0.05),
-                          child: const Text('قائمة المنازل',
-                              style: TextStyle(
-                                  fontSize: 22,
+                          child: Text(
+                              snapshot.connectionState ==
+                                          ConnectionState.done &&
+                                      snapshot.hasData
+                                  ? 'مرحبًا، ${snapshot.data}!'
+                                  : 'مرحبًا',
+                              style: const TextStyle(
+                                  fontSize: 28,
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w600))),
+                                  fontWeight: FontWeight.w600)),
+                        ),
+                      ),
                       Padding(
-                          padding: EdgeInsets.only(left: width * 0.02),
-                          child: IconButton(
-                            color: const Color(0xFF64B5F6),
-                            iconSize: 40,
-                            icon: const Icon(Icons.add_circle),
-                            onPressed: () {
-                              showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  isDismissible: false,
-                                  enableDrag: false,
-                                  backgroundColor: Colors.transparent,
-                                  context: context,
-                                  shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(105.0),
-                                  )),
-                                  builder: (context) => CreateHouseAccount());
-                            },
+                        padding: EdgeInsets.only(left: width * 0.04),
+                        child: Opacity(
+                          opacity: 0.8,
+                          child: (Image.asset(
+                            'assets/images/logo.jpg',
+                            height: height * 0.065,
+                            width: width * 0.12,
                           )),
-                    ]),
-                SizedBox(height: height * 0.03),
-                TabBar(
-                  controller: tabController,
-                  labelPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
-                  indicator: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      stops: const [0.0, 1.0],
-                      colors: [Colors.lightBlue.shade200, Colors.blue],
-                    ),
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(5),
-                    ),
-                  ),
-                  indicatorWeight: 5,
-                  indicatorPadding: const EdgeInsets.only(top: 47),
-                  tabs: const <Tab>[
-                    Tab(text: 'منازلي'),
-                    Tab(text: 'اشتراكاتي'),
-                    Tab(text: 'اللوحة المشتركة')
-                  ],
-                  labelColor: Colors.blue,
-                  unselectedLabelColor: Colors.grey,
-                  labelStyle: const TextStyle(fontSize: 16),
-                ),
-                Expanded(
-                    child: TabBarView(controller: tabController, children: [
-                  buildItems("O", height, width),
-                  buildItems("M", height, width),
-                  sharedDashboard(height, width)
-                ])),
-              ]),
-            ]),
+                        ),
+                      ),
+                    ]);
+              }),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Padding(
+                padding: EdgeInsets.only(right: width * 0.05),
+                child: const Text('قائمة المنازل',
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600))),
+            Padding(
+                padding: EdgeInsets.only(left: width * 0.02),
+                child: IconButton(
+                  color: const Color(0xFF64B5F6),
+                  iconSize: 40,
+                  icon: const Icon(Icons.add_circle),
+                  onPressed: () {
+                    showModalBottomSheet(
+                        isScrollControlled: true,
+                        isDismissible: false,
+                        enableDrag: false,
+                        backgroundColor: Colors.transparent,
+                        context: context,
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(105.0),
+                        )),
+                        builder: (context) => CreateHouseAccount());
+                  },
+                )),
+          ]),
+          SizedBox(height: height * 0.03),
+          TabBar(
+            controller: tabController,
+            labelPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
+            indicator: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                stops: const [0.0, 1.0],
+                colors: [Colors.lightBlue.shade200, Colors.blue],
+              ),
+              borderRadius: const BorderRadius.all(
+                Radius.circular(5),
+              ),
+            ),
+            indicatorWeight: 5,
+            indicatorPadding: const EdgeInsets.only(top: 47),
+            tabs: const <Tab>[
+              Tab(text: 'منازلي'),
+              Tab(text: 'اشتراكاتي'),
+              Tab(text: 'اللوحة المشتركة')
+            ],
+            labelColor: Colors.blue,
+            unselectedLabelColor: Colors.grey,
+            labelStyle: const TextStyle(fontSize: 16),
+          ),
+          Expanded(
+              child: TabBarView(controller: tabController, children: [
+            buildItems("O", height, width),
+            buildItems("M", height, width),
+            sharedDashboard(height, width)
+          ])),
+        ]),
+      ]),
       bottomNavigationBar: buildBottomNavigation(height),
     );
   }

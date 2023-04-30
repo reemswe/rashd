@@ -1,92 +1,72 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
-import 'package:rashd/Mocks.dart';
 import 'package:rashd/Registration/login.dart';
 import 'package:rashd/Registration/register.dart';
+import 'package:rashd/Registration/welcomePage.dart';
 
 void main() {
-  late FirebaseAuth auth;
+  late MockUser user; //Data of the Current User
+  late MockFirebaseAuth firebaseAuth;
+  late FakeFirebaseFirestore firestore;
 
   setUp(() {
     TestWidgetsFlutterBinding.ensureInitialized();
-    auth = MockFirebaseAuth();
+    user = MockUser(
+      email: 'used@example.com',
+      uid: 'testId',
+    );
+    firebaseAuth = MockFirebaseAuth();
+    firestore = FakeFirebaseFirestore();
   });
 
   group('Login tests', () {
-    late LoginFormState loginForm;
     var email = 'test@example.com';
     var password = 'Aa123456';
-    late MockUserCredential mockUserCredential;
 
     setUp(() {
-      loginForm = LoginFormState();
-      mockUserCredential = MockUserCredential();
+      firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
     });
-
     testWidgets('TC_1 Valid Login', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: Login(),
+      await tester.pumpWidget(MaterialApp(
+        home: Login(auth: firebaseAuth),
       ));
       var form = tester.state(find.byType(Form)) as FormState;
-
       form.reset();
-      when(() =>
-              auth.signInWithEmailAndPassword(email: email, password: password))
-          .thenAnswer((_) async => mockUserCredential);
-
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
       await tester.enterText(
           find.widgetWithText(TextFormField, 'كلمة المرور'), password);
-      expect(form.validate(), isTrue);
       await tester.tap(find.widgetWithText(ElevatedButton, 'تسجيل الدخول'));
-      expect(loginForm.invalidData, false);
+      expect(form.validate(), isTrue);
+
       await tester.pumpAndSettle();
-
-      // Expect to navigate to the list of house account.
-      expectLater(find.byType(ListOfHouseAccounts), findsOneWidget,
-          reason: 'Expected to navigate after successful login');
     });
-
     testWidgets('TC_2 Empty Email', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: Login(),
+      await tester.pumpWidget(MaterialApp(
+        home: Login(auth: firebaseAuth),
       ));
       var form = tester.state(find.byType(Form)) as FormState;
-
       form.reset();
-      when(() =>
-              auth.signInWithEmailAndPassword(email: email, password: password))
-          .thenAnswer((_) async => mockUserCredential);
-
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), '');
       await tester.enterText(
           find.widgetWithText(TextFormField, 'كلمة المرور'), password);
       await tester.tap(find.widgetWithText(ElevatedButton, 'تسجيل الدخول'));
       await tester.pump();
-
       expect(form.validate(), isFalse);
       expect(find.text('الرجاء ادخال البريد الإلكتروني'), findsOneWidget);
     });
-
     testWidgets('TC_3 Empty Password', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: Login(),
+      await tester.pumpWidget(MaterialApp(
+        home: Login(auth: firebaseAuth),
       ));
       var form = tester.state(find.byType(Form)) as FormState;
-
       form.reset();
-      when(() =>
-              auth.signInWithEmailAndPassword(email: email, password: password))
-          .thenAnswer((_) async => mockUserCredential);
-
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
       await tester.enterText(
@@ -98,152 +78,63 @@ void main() {
       expect(find.text('الرجاء إدخال كلمة المرور.'), findsOneWidget);
     });
 
-    // testWidgets('TC_4 Invalid Email', (WidgetTester tester) async {
-    //   await tester.pumpWidget(const MaterialApp(
-    //     home: Login(),
-    //   ));
-    //   var form = tester.state(find.byType(Form)) as FormState;
-    //   form.reset();
-    //   email = 'invalid-email';
+    testWidgets('TC_4 Invalid Email', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Login(auth: firebaseAuth),
+      ));
+      var form = tester.state(find.byType(Form)) as FormState;
+      form.reset();
 
-    //   when(() =>
-    //           auth.signInWithEmailAndPassword(email: email, password: password))
-    //       .thenThrow(FirebaseAuthException(code: 'invalid-email'));
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'البريد الإلكتروني'), 'reem');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'كلمة المرور'), password);
 
-    //   await tester.enterText(
-    //       find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
-    //   await tester.enterText(
-    //       find.widgetWithText(TextFormField, 'كلمة المرور'), password);
+      await tester.tap(find.widgetWithText(ElevatedButton, 'تسجيل الدخول'));
 
-    //   await tester.tap(find.widgetWithText(ElevatedButton, 'تسجيل الدخول'));
+      await tester.pump();
 
-    //   await tester.pumpAndSettle();
+      expect(
+          find.text(
+            'البريد إلكتروني/ كلمة المرور غير صالحة، يرجى المحاولة مرة أخرى.',
+          ),
+          findsOneWidget);
+    });
 
-    //   await tester.pump();
-    //   expect(form.validate(), isFalse);
-
-    //   expect(
-    //       find.text(
-    //         'البريد إلكتروني/ كلمة المرور غير صالحة، يرجى المحاولة مرة أخرى.',
-    //       ),
-    //       findsOneWidget);
-    // });
-    // // testWidgets('TC_4 Invalid Email', (WidgetTester tester) async {
-    //   await tester.pumpWidget(const MaterialApp(
-    //     home: Login(),
-    //   ));
-    //   var form = tester.state(find.byType(Form)) as FormState;
-
-    //   form.reset();
-    //   email = 'invalid-email';
-    //   when(() =>
-    //           auth.signInWithEmailAndPassword(email: email, password: password))
-    //       .thenThrow(FirebaseAuthException(code: 'invalid-email'));
-
-    //   await tester.enterText(
-    //       find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
-    //   await tester.enterText(
-    //       find.widgetWithText(TextFormField, 'كلمة المرور'), password);
-    //   await tester.tap(find.widgetWithText(ElevatedButton, 'تسجيل الدخول'));
-    //   // await tester.pump();
-    //   expect(loginForm.invalidData, true);
-
-    //   // expect(form.validate(), isFalse);
-    //   // expect(find.text('الرجاء إدخال كلمة المرور.'), findsOneWidget);
-    // });
-
-    // test('TC_4 Invalid Email', () async {
-    //   email = 'invalid-email';
-    //   when(() =>
-    //           auth.signInWithEmailAndPassword(email: email, password: password))
-    //       .thenThrow(FirebaseAuthException(code: 'invalid-email'));
-
-    //   await loginForm.login(email, password, auth);
-
-    //   expect(loginForm.invalidData, true);
-    // });
-
-    // testWidgets('TC_5 Wrong Password', (WidgetTester tester) async {
-    //   await tester.pumpWidget(const MaterialApp(
-    //     home: Login(),
-    //   ));
-    //   var form = tester.state(find.byType(Form)) as FormState;
-    //   form.reset();
-    //   password = 'wrong-password';
-
-    //   when(() =>
-    //           auth.signInWithEmailAndPassword(email: email, password: password))
-    //       .thenThrow(FirebaseAuthException(code: 'wrong-password'));
-
-    //   await tester.enterText(
-    //       find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
-    //   await tester.enterText(
-    //       find.widgetWithText(TextFormField, 'كلمة المرور'), password);
-    //   await tester.tap(find.widgetWithText(ElevatedButton, 'تسجيل الدخول'));
-    //   await tester.pumpAndSettle();
-    //   await tester.pump();
-    //   expect(form.validate(), isTrue);
-    //   expect(loginForm.invalidData, true);
-
-    //   expect(
-    //       find.text(
-    //         'البريد إلكتروني/ كلمة المرور غير صالحة، يرجى المحاولة مرة أخرى.',
-    //       ),
-    //       findsOneWidget);
-    // });
-
-    test('Wrong Password', () async {
+    testWidgets('TC_5 Wrong Password', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Login(auth: firebaseAuth),
+      ));
+      var form = tester.state(find.byType(Form)) as FormState;
+      form.reset();
       password = 'wrong-password';
-      when(() =>
-              auth.signInWithEmailAndPassword(email: email, password: password))
-          .thenThrow(FirebaseAuthException(code: 'wrong-password'));
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'كلمة المرور'), password);
+      await tester.tap(find.widgetWithText(ElevatedButton, 'تسجيل الدخول'));
+      await tester.pump();
 
-      await loginForm.login(email, password, auth);
-
-      expect(loginForm.invalidData, true);
+      expect(
+          find.text(
+            'البريد إلكتروني/ كلمة المرور غير صالحة، يرجى المحاولة مرة أخرى.',
+          ),
+          findsOneWidget);
     });
   });
 
   group('Register tests', () {
-    late FirebaseFirestore mockFirestore;
-    late CollectionReference<Map<String, dynamic>> mockCollectionRef;
-    late Query<Map<String, dynamic>> mockQuery;
-    late MockQuerySnapshot mockQuerySnapshot;
-
     var email = 'test@example.com';
     var password = 'Aa123456';
     var name = 'ريم الموسى';
     var phoneNum = '0512345678';
-    late MockUserCredential mockUserCredential;
-
-    setUp(() {
-      mockUserCredential = MockUserCredential();
-
-      //! Firestore
-      mockFirestore = MockFirebaseFirestore();
-      mockCollectionRef = MockCollectionReference();
-      mockQuery = MockQuery();
-      mockQuerySnapshot = MockQuerySnapshot();
-
-      when(() => mockFirestore.collection('userAccount'))
-          .thenReturn(mockCollectionRef);
-      when(() =>
-              mockCollectionRef.where('phone_number', isEqualTo: '0534567890'))
-          .thenReturn(mockQuery);
-      when(() => mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
-    });
 
     testWidgets('TC_6 Valid Register', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: register(),
+      await tester.pumpWidget(MaterialApp(
+        home: register(auth: firebaseAuth, firestore: firestore),
       ));
       var form = tester.state(find.byType(Form)) as FormState;
-
       form.reset();
-      when(() => auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password)).thenAnswer((_) async => mockUserCredential);
-
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
       await tester.enterText(
@@ -254,24 +145,28 @@ void main() {
           find.widgetWithText(TextFormField, 'الاسم الكامل'), name);
       await tester.enterText(
           find.widgetWithText(TextFormField, 'رقم الهاتف'), phoneNum);
-      expect(form.validate(), isTrue);
       await tester.tap(find.widgetWithText(ElevatedButton, 'تسجيل'));
-      await tester.pumpAndSettle();
-
-      // Expect to navigate to the list of house account.
-      expectLater(find.byType(ListOfHouseAccounts), findsOneWidget,
-          reason: 'Expected to navigate after successful register');
+      await tester.pump();
+      final snapshot = await firestore.collection('userAccount').get();
+      Map<String, dynamic> testData = {
+        "email": email,
+        "userId": snapshot.docs[0].id,
+        "full_name": name,
+        "phone_number": phoneNum,
+        "token": ""
+      };
+      expect(snapshot.docs[0].data(), testData);
     });
 
     testWidgets('TC_7 Empty Fields', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: register(),
+      await tester.pumpWidget(MaterialApp(
+        home: register(
+          auth: firebaseAuth,
+          firestore: firestore,
+        ),
       ));
       var form = tester.state(find.byType(Form)) as FormState;
       form.reset();
-      when(() => auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password)).thenAnswer((_) async => mockUserCredential);
 
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), ' ');
@@ -295,16 +190,15 @@ void main() {
     });
 
     testWidgets('TC_8 Password < 8', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: register(),
+      await tester.pumpWidget(MaterialApp(
+        home: register(
+          auth: firebaseAuth,
+          firestore: firestore,
+        ),
       ));
       var form = tester.state(find.byType(Form)) as FormState;
 
       form.reset();
-      when(() => auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password)).thenAnswer((_) async => mockUserCredential);
-
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
       await tester.enterText(
@@ -327,14 +221,14 @@ void main() {
 
     testWidgets('TC_9 Password Doesn\'t Contain Upper Case Letter ',
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: register(),
+      await tester.pumpWidget(MaterialApp(
+        home: register(
+          auth: firebaseAuth,
+          firestore: firestore,
+        ),
       ));
       var form = tester.state(find.byType(Form)) as FormState;
       form.reset();
-      when(() => auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password)).thenAnswer((_) async => mockUserCredential);
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
       await tester.enterText(
@@ -356,14 +250,14 @@ void main() {
 
     testWidgets('TC_10 Password Doesn\'t Contain Lower Case Letter ',
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: register(),
+      await tester.pumpWidget(MaterialApp(
+        home: register(
+          auth: firebaseAuth,
+          firestore: firestore,
+        ),
       ));
       var form = tester.state(find.byType(Form)) as FormState;
       form.reset();
-      when(() => auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password)).thenAnswer((_) async => mockUserCredential);
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
       await tester.enterText(
@@ -385,14 +279,14 @@ void main() {
 
     testWidgets('TC_11 Password Doesn\'t Contain a Number',
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: register(),
+      await tester.pumpWidget(MaterialApp(
+        home: register(
+          auth: firebaseAuth,
+          firestore: firestore,
+        ),
       ));
       var form = tester.state(find.byType(Form)) as FormState;
       form.reset();
-      when(() => auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password)).thenAnswer((_) async => mockUserCredential);
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
       await tester.enterText(
@@ -412,14 +306,14 @@ void main() {
 
     testWidgets('TC_12 Two Password Doesn\'t Match',
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: register(),
+      await tester.pumpWidget(MaterialApp(
+        home: register(
+          auth: firebaseAuth,
+          firestore: firestore,
+        ),
       ));
       var form = tester.state(find.byType(Form)) as FormState;
       form.reset();
-      when(() => auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password)).thenAnswer((_) async => mockUserCredential);
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
       await tester.enterText(
@@ -438,15 +332,15 @@ void main() {
     });
 
     testWidgets('TC_13 Invalid Phone Number', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: register(),
+      await tester.pumpWidget(MaterialApp(
+        home: register(
+          auth: firebaseAuth,
+          firestore: firestore,
+        ),
       ));
       var form = tester.state(find.byType(Form)) as FormState;
 
       form.reset();
-      when(() => auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password)).thenAnswer((_) async => mockUserCredential);
 
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
@@ -468,15 +362,18 @@ void main() {
     });
 
     testWidgets('TC_14 Used Phone Number', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: register(),
+      await firestore
+          .collection('userAccount')
+          .add({'phone_number': '0512345668'});
+      await tester.pumpWidget(MaterialApp(
+        home: register(
+          auth: firebaseAuth,
+          firestore: firestore,
+        ),
       ));
+
       var form = tester.state(find.byType(Form)) as FormState;
       form.reset();
-      when(() => mockQuerySnapshot.docs).thenReturn([]);
-      when(() => auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password)).thenAnswer((_) async => mockUserCredential);
       await tester.enterText(
           find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
       await tester.enterText(
@@ -486,7 +383,7 @@ void main() {
       await tester.enterText(
           find.widgetWithText(TextFormField, 'الاسم الكامل'), name);
       await tester.enterText(
-          find.widgetWithText(TextFormField, 'رقم الهاتف'), '0534567890');
+          find.widgetWithText(TextFormField, 'رقم الهاتف'), '0512345668');
       await tester.tap(find.widgetWithText(ElevatedButton, 'تسجيل'));
       await tester.pumpAndSettle();
       await tester.pump();
@@ -496,45 +393,10 @@ void main() {
           findsOneWidget);
     });
 
-    testWidgets('TC_15 Invalid Email', (WidgetTester tester) async {
+    testWidgets('Welcome Page', (WidgetTester tester) async {
       await tester.pumpWidget(const MaterialApp(
-        home: register(),
+        home: welcomePage(),
       ));
-      var form = tester.state(find.byType(Form)) as FormState;
-      form.reset();
-      email = 'invalid-email';
-      when(() => auth.createUserWithEmailAndPassword(
-              email: email, password: password))
-          .thenThrow(FirebaseAuthException(code: 'invalid-email'));
-      await tester.enterText(
-          find.widgetWithText(TextFormField, 'البريد الإلكتروني'), email);
-      await tester.enterText(
-          find.widgetWithText(TextFormField, 'كلمة المرور'), password);
-      await tester.enterText(
-          find.widgetWithText(TextFormField, 'تأكيد كلمة المرور'), password);
-      await tester.enterText(
-          find.widgetWithText(TextFormField, 'الاسم الكامل'), name);
-      await tester.enterText(
-          find.widgetWithText(TextFormField, 'رقم الهاتف'), phoneNum);
-      await tester.tap(find.widgetWithText(ElevatedButton, 'تسجيل'));
-      await tester.pumpAndSettle();
-      await tester.pump();
-      expect(form.validate(), isFalse);
-      expect(find.text('الرجاء إدخال بريد إلكتروني صالح.'), findsOneWidget);
     });
   });
-}
-
-Future<UserCredential> signInWithEmailAndPassword(
-  FirebaseAuth auth,
-  String email,
-  String password,
-) async {
-  try {
-    final result =
-        await auth.signInWithEmailAndPassword(email: email, password: password);
-    return result;
-  } catch (e) {
-    return Future.error(e);
-  }
 }

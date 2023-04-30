@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
@@ -78,8 +78,8 @@ class AddDeviceState extends State<AddDevice> {
                 for (int i = 0; i < _htResultNetwork!.length; i++) {
                   var oNetwork = _htResultNetwork![i];
                   var condition = type == 'wifi'
-                      ? !(oNetwork!.ssid!).contains("R")
-                      : (oNetwork!.ssid!).contains("Abo");
+                      ? !(oNetwork!.ssid!).contains("Rashd")
+                      : (oNetwork!.ssid!).contains("Rashd");
                   if (condition) {
                     htNetworks.add(InkWell(
                       onTap: () {
@@ -611,14 +611,14 @@ class AddDeviceState extends State<AddDevice> {
                                             MainAxisAlignment.start,
                                         children: [
                                           const Align(
-                                            alignment: Alignment.topRight,
-                                            child: Text(
-                                              "معلومات الجهاز",
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                          ),
+                                              alignment: Alignment.topRight,
+                                              child: Text(
+                                                "معلومات الجهاز",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              )),
                                           SizedBox(height: height * 0.01),
                                           Padding(
                                               padding: EdgeInsets.fromLTRB(
@@ -628,52 +628,49 @@ class AddDeviceState extends State<AddDevice> {
                                                   height * 0.01),
                                               child: Column(children: [
                                                 const Align(
-                                                  alignment: Alignment.topRight,
-                                                  child: Text(
-                                                    "الاسم",
-                                                    style: TextStyle(
-                                                        fontSize: 17,
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                                  ),
-                                                ),
+                                                    alignment:
+                                                        Alignment.topRight,
+                                                    child: Text(
+                                                      "الاسم",
+                                                      style: TextStyle(
+                                                          fontSize: 17,
+                                                          fontWeight:
+                                                              FontWeight.w600),
+                                                    )),
                                                 TextFormField(
-                                                  maxLength: 15,
-                                                  controller: nameController,
-                                                  decoration:
-                                                      const InputDecoration(
-                                                    labelText: 'اسم الجهاز',
-                                                  ),
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty ||
-                                                        (value.trim())
-                                                            .isEmpty) {
-                                                      return 'الرجاء ادخال اسم للجهاز';
-                                                    }
-                                                    return null;
-                                                  },
-                                                ),
+                                                    maxLength: 15,
+                                                    controller: nameController,
+                                                    decoration:
+                                                        const InputDecoration(
+                                                      labelText: 'اسم الجهاز',
+                                                    ),
+                                                    validator: (value) {
+                                                      if (value == null ||
+                                                          value.isEmpty ||
+                                                          (value.trim())
+                                                              .isEmpty) {
+                                                        return 'الرجاء ادخال اسم للجهاز';
+                                                      }
+                                                      return null;
+                                                    }),
                                                 SizedBox(
                                                     height: height * 0.025),
                                                 const Align(
                                                   alignment: Alignment.topRight,
-                                                  child: Text(
-                                                    "لون الجهاز",
-                                                    style: TextStyle(
-                                                        fontSize: 17,
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                                  ),
+                                                  child: Text("لون الجهاز",
+                                                      style: TextStyle(
+                                                          fontSize: 17,
+                                                          fontWeight:
+                                                              FontWeight.w600)),
                                                 ),
                                                 const Align(
-                                                  alignment: Alignment.topRight,
-                                                  child: Text(
-                                                    'الرجاء تحديد لون لتمييز الجهاز',
-                                                    style:
-                                                        TextStyle(fontSize: 16),
-                                                  ),
-                                                ),
+                                                    alignment:
+                                                        Alignment.topRight,
+                                                    child: Text(
+                                                      'الرجاء تحديد لون لتمييز الجهاز',
+                                                      style: TextStyle(
+                                                          fontSize: 16),
+                                                    )),
                                                 SizedBox(
                                                     height: height * 0.015),
                                                 ColorPicker(
@@ -693,7 +690,6 @@ class AddDeviceState extends State<AddDevice> {
                                                       (Color temp) =>
                                                           setState(() {
                                                     color = temp;
-                                                    print(color);
                                                   }),
                                                   width: 35,
                                                   height: 35,
@@ -783,8 +779,6 @@ class AddDeviceState extends State<AddDevice> {
                                                                     0xffe3d5ca)):
                                                         "0xffe3d5ca",
                                                   },
-                                                  padding:
-                                                      const EdgeInsets.all(0),
                                                 ),
                                                 Container(
                                                     margin: const EdgeInsets
@@ -859,7 +853,6 @@ class AddDeviceState extends State<AddDevice> {
                                                                 .validate()) {
                                                               var deviceID =
                                                                   'testDeviceID';
-
                                                               if (!TestWidgetsFlutterBinding
                                                                       .ensureInitialized()
                                                                   .inTest) {

@@ -233,11 +233,12 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
   }
 
   Future<void> setData() async {
-    CollectionReference houses = widget.firestore.collection('houseAccount');
+    CollectionReference houses =
+        FirebaseFirestore.instance.collection('houseAccount');
 
-    String houseId = '';
+    String houseId = '', dashId = '';
     DocumentReference docReference = await houses.add({
-      'OwnerID': widget.auth.currentUser!.uid,
+      'OwnerID': FirebaseAuth.instance.currentUser!.uid,
       'houseID': '',
       'houseName': houseName.text,
       'isNotificationSent': false,
@@ -250,18 +251,28 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
     houses.doc(houseId).update({'houseID': houseId});
 
     for (int i = 0; i <= num; i++) {
-      if (membersPhones[i].text != '') {
-        QuerySnapshot query = await widget.firestore
-            .collection('userAccount')
-            .where('phone_number', isEqualTo: membersPhones[i].text)
-            .get();
-        var userID = query.docs[0]['userId'];
-        houses.doc(houseId).collection('houseMember').add({
-          'memberPhoneNumber': membersPhones[i].text,
-          'privilege': roles[i],
-          'nickName': membersNames[i].text,
-          'memberID': userID
-        });
+      QuerySnapshot query = await FirebaseFirestore.instance
+          .collection('houseAccount')
+          .doc(houseId)
+          .collection('houseMember')
+          .where('memberPhoneNumber', isEqualTo: membersPhones[i].text)
+          .get();
+      if (query.docs.isEmpty) {
+        if (membersPhones[i].text != '') {
+          QuerySnapshot query = await FirebaseFirestore.instance
+              .collection('userAccount')
+              .where('phone_number', isEqualTo: membersPhones[i].text)
+              .get();
+          var userID = query.docs[0]['userId'];
+          houses.doc(houseId).collection('houseMember').add({
+            'memberPhoneNumber': membersPhones[i].text,
+            'privilege': roles[i],
+            'nickName': membersNames[i].text,
+            'memberID': userID
+          });
+        }
+      } else {
+        continue;
       }
     }
   }
@@ -356,7 +367,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                           child: Scrollbar(
                             thumbVisibility: true,
                             child: ListView(
-                              key: const Key("formScroll"),
+                                key: const Key("formScroll"),
                                 physics: const NeverScrollableScrollPhysics(),
                                 scrollDirection: Axis.vertical,
                                 shrinkWrap: true,

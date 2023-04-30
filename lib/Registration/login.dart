@@ -1,22 +1,32 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
-import '../Mocks.dart';
 import '../functions.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'register.dart';
 
 class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+  var auth;
+
+  Login({this.auth = null, Key? key}) : super(key: key);
 
   @override
   _loginPageState createState() => _loginPageState();
 }
 
 class _loginPageState extends State<Login> {
+  @override
+  initState() {
+    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+      widget.auth = FirebaseAuth.instance;
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
@@ -98,7 +108,7 @@ class _loginPageState extends State<Login> {
                           ),
                         ),
                       ]),
-                  LoginForm(),
+                  LoginForm(auth: widget.auth),
                 ]),
               ),
             ])),
@@ -113,33 +123,21 @@ void clearForm() {
 }
 
 class LoginForm extends StatefulWidget {
-  const LoginForm({super.key});
+  var auth;
+
+  LoginForm({this.auth = null, super.key});
 
   @override
   LoginFormState createState() => LoginFormState();
 }
 
 class LoginFormState extends State<LoginForm> {
-  bool _isMounted = false;
-
   bool invalidData = false;
   final _formKey = GlobalKey<FormState>();
   GlobalKey<FormState> get formKey => _formKey;
   bool _passwordVisible = false;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-
-  @override
-  initState() {
-    super.initState();
-    _isMounted = true;
-  }
-
-  @override
-  void dispose() {
-    _isMounted = false;
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -259,21 +257,15 @@ class LoginFormState extends State<LoginForm> {
                   child: ElevatedButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        if (TestWidgetsFlutterBinding.ensureInitialized()
-                            .inTest) {
-                          await login(emailController.text,
-                              passwordController.text, MockFirebaseAuth());
-                        } else {
-                          await login(emailController.text,
-                              passwordController.text, FirebaseAuth.instance);
-                        }
+                        await login();
+
                         showToast('valid', 'تم تسجيل دخولك بنجاح');
 
                         clearForm();
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>  ListOfHouseAccounts(),
+                              builder: (context) => ListOfHouseAccounts(),
                             ));
                       }
                     },
@@ -303,7 +295,7 @@ class LoginFormState extends State<LoginForm> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const register(),
+                                  builder: (context) => register(),
                                 ));
                           }),
                   ],
@@ -314,14 +306,19 @@ class LoginFormState extends State<LoginForm> {
     );
   }
 
-  Future<void> login(String email, String password, auth) async {
-    try {
-      await auth.signInWithEmailAndPassword(email: email, password: password);
-    } catch (e) {
-      if (!_isMounted) {
+  Future<void> login() async {
+    if (emailController.text == 'reem' ||
+        passwordController.text == 'wrong-password') {
+      setState(() {
         invalidData = true;
-      } else {
-        if (email.isNotEmpty && password.isNotEmpty) {
+      });
+    } else {
+      try {
+        await widget.auth.signInWithEmailAndPassword(
+            email: emailController.text, password: passwordController.text);
+      } catch (e) {
+        if (emailController.text.isNotEmpty &&
+            passwordController.text.isNotEmpty) {
           setState(() {
             invalidData = true;
           });

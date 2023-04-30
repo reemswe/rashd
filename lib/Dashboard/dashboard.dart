@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
@@ -17,12 +18,21 @@ import '../HouseAccount/list_of_houseMembers.dart';
 import '../Registration/welcomePage.dart';
 import '../functions.dart';
 import 'package:month_year_picker/month_year_picker.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 class dashboard extends StatefulWidget {
+  var firestore, auth, realDB;
+
   final houseID;
   final isShared;
 
-  const dashboard({super.key, required this.houseID, this.isShared = false});
+  dashboard(
+      {super.key,
+      required this.houseID,
+      this.firestore = null,
+      this.realDB = null,
+      this.auth = null,
+      this.isShared = false});
 
   @override
   State<dashboard> createState() => DashboardState();
@@ -42,7 +52,7 @@ class DashboardState extends State<dashboard> {
           'لعرض لوحة المعلومات المشتركة ادخل الرمز ${codeNumber} في صفحة عرض لوحة المعلومات المشتركة',
     );
 
-    await FirebaseFirestore.instance
+    await widget.firestore
         .collection('houseAccount')
         .doc(widget.houseID)
         .collection('sharedCode')
@@ -122,13 +132,18 @@ class DashboardState extends State<dashboard> {
 
   @override
   void initState() {
+    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+      widget.firestore = FirebaseFirestore.instance;
+      widget.auth = FirebaseAuth.instance;
+      widget.realDB = FirebaseDatabase.instance;
+      if (!widget.isShared) {
+        getToken();
+      }
+    }
     super.initState();
     getGoal();
     month = months[DateTime.now().month];
     getData();
-    if (!widget.isShared) {
-      getToken();
-    }
   }
 
   Future<String> getUserType() async {
@@ -136,22 +151,23 @@ class DashboardState extends State<dashboard> {
     QuerySnapshot<Map<String, dynamic>> query;
 
     if (!widget.isShared) {
-      await FirebaseFirestore.instance
+      await widget.firestore
           .collection('houseAccount')
           .doc(widget.houseID)
           .get()
           .then((DocumentSnapshot doc) async {
-        if (doc['OwnerID'] == FirebaseAuth.instance.currentUser!.uid) {
+        if (doc['OwnerID'] == widget.auth.currentUser!.uid) {
           userType = 'owner';
+          return 'owner';
         } else {
-          query = await FirebaseFirestore.instance
+          query = await widget.firestore
               .collection('houseAccount')
               .doc(widget.houseID)
               .collection('houseMember')
               .get();
 
           for (var doc in query.docs) {
-            if (doc['memberID'] == FirebaseAuth.instance.currentUser!.uid) {
+            if (doc['memberID'] == widget.auth.currentUser!.uid) {
               userType = doc['privilege'];
             }
           }
@@ -176,10 +192,12 @@ class DashboardState extends State<dashboard> {
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             var userType = snapshot.data;
+            print('userType $userType');
 
             return Scaffold(
               body: FutureBuilder<Map<String, dynamic>>(
-                  future: readHouseData(widget.houseID, widget.isShared),
+                  future: readHouseData(
+                      widget.houseID, widget.isShared, widget.firestore),
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData) {
                       var houseData = snapshot.data as Map<String, dynamic>;
@@ -276,7 +294,7 @@ class DashboardState extends State<dashboard> {
                                                               MaterialPageRoute(
                                                                   builder:
                                                                       (context) =>
-                                                                           ListOfHouseAccounts()));
+                                                                          ListOfHouseAccounts()));
                                                         }
                                                       },
                                                       child: Container(
@@ -314,7 +332,7 @@ class DashboardState extends State<dashboard> {
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) =>
-                                                         ListOfHouseAccounts(),
+                                                        ListOfHouseAccounts(),
                                                   ));
                                             }
                                           },
@@ -355,46 +373,46 @@ class DashboardState extends State<dashboard> {
                                 padding: const EdgeInsets.fromLTRB(6, 0, 0, 0),
                                 child: Column(children: [
                                   Row(children: [
-                                    const Padding(
-                                      padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                                      child: Text('لوحة المعلومات',
-                                          style: TextStyle(
-                                              fontSize: 25,
-                                              color: Colors.white)),
-                                    ),
-                                    SizedBox(width: width * 0.02),
-                                    Container(
-                                        width: width * 0.2,
-                                        padding: const EdgeInsets.all(3),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                          color: Colors.lightBlue.shade100,
-                                        ),
-                                        alignment: Alignment.center,
-                                        child:
-                                            //month
-                                            InkWell(
-                                          onTap: (() {
-                                            _onPressed(
-                                                context: context, locale: 'ar');
-                                          }),
-                                          child: Text(month,
-                                              style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.blue,
-                                                  height: 0,
-                                                  fontWeight: FontWeight.w300)),
-                                        )),
-                                    SizedBox(width: width * 0.26),
-                                    Visibility(
-                                        visible: userType == 'owner',
-                                        child: IconButton(
-                                          icon: const Icon(Icons.ios_share),
-                                          onPressed: () {
-                                            share();
-                                          },
-                                        )),
+                                    // const Padding(
+                                    //   padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                                    //   child: Text('لوحة المعلومات',
+                                    //       style: TextStyle(
+                                    //           fontSize: 25,
+                                    //           color: Colors.white)),
+                                    // ),
+                                    // SizedBox(width: width * 0.02),
+                                    // Container(
+                                    //     width: width * 0.2,
+                                    //     padding: const EdgeInsets.all(3),
+                                    //     decoration: BoxDecoration(
+                                    //       borderRadius:
+                                    //           BorderRadius.circular(30),
+                                    //       color: Colors.lightBlue.shade100,
+                                    //     ),
+                                    //     alignment: Alignment.center,
+                                    //     child:
+                                    //         //month
+                                    //         InkWell(
+                                    //       onTap: (() {
+                                    //         _onPressed(
+                                    //             context: context, locale: 'ar');
+                                    //       }),
+                                    //       child: Text(month,
+                                    //           style: const TextStyle(
+                                    //               fontSize: 16,
+                                    //               color: Colors.blue,
+                                    //               height: 0,
+                                    //               fontWeight: FontWeight.w300)),
+                                    //     )),
+                                    // SizedBox(width: width * 0.26),
+                                    // Visibility(
+                                    //     visible: userType == 'owner',
+                                    //     child: IconButton(
+                                    //       icon: const Icon(Icons.ios_share),
+                                    //       onPressed: () {
+                                    //         share();
+                                    //       },
+                                    //     )),//user367 8511
                                   ]),
                                 ])),
                             Stack(children: [
@@ -447,16 +465,16 @@ class DashboardState extends State<dashboard> {
                                                 });
                                           })))
                             ]),
-                            Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  SizedBox(width: width * 0.025),
-                                  buildCard(energyData[0], width, height),
-                                  SizedBox(width: width * 0.025),
-                                  buildCard(energyData[1], width, height),
-                                  SizedBox(width: width * 0.025),
-                                ]),
+                            // Row(
+                            //     mainAxisAlignment:
+                            //         MainAxisAlignment.spaceAround,
+                            //     children: [
+                            //       SizedBox(width: width * 0.025),
+                            //       buildCard(energyData[0], width, height),
+                            //       SizedBox(width: width * 0.025),
+                            //       buildCard(energyData[1], width, height),
+                            //       SizedBox(width: width * 0.025),
+                            //     ]),
 
                             Container(
                                 margin: EdgeInsets.fromLTRB(
@@ -809,7 +827,7 @@ class DashboardState extends State<dashboard> {
   }
 
   Future<void> UpdateGoal() async {
-    await FirebaseFirestore.instance
+    await widget.firestore
         .collection('houseAccount')
         .doc(widget.houseID)
         .update({
@@ -842,7 +860,7 @@ class DashboardState extends State<dashboard> {
       chartData.clear();
 
       //get devices name,color,id
-      var collection = await FirebaseFirestore.instance
+      var collection = await widget.firestore
           .collection('houseAccount')
           .doc(widget.houseID)
           .collection('houseDevices');
@@ -883,7 +901,7 @@ class DashboardState extends State<dashboard> {
 
   Future<double> getGoal() async {
     double goal = 0;
-    await FirebaseFirestore.instance
+    await widget.firestore
         .collection('houseAccount')
         .doc(widget.houseID)
         .get()
@@ -903,7 +921,7 @@ class DashboardState extends State<dashboard> {
   }
 
   Future getData() async {
-    var collection = await FirebaseFirestore.instance
+    var collection = await widget.firestore
         .collection('houseAccount')
         .doc(widget.houseID)
         .collection('houseDevices');
@@ -920,26 +938,26 @@ class DashboardState extends State<dashboard> {
         int value = int.parse(color, radix: 16);
         double consum = 0;
 
-        consum = await getCurrentConsumption(deviceID);
-        setState(() {
-          total += consum;
-          chartData.add(ChartData(name, consum, Color(value)));
-          print('================precentage==================');
-          print((total / usergoal) * 100);
-        });
+        consum = await getCurrentConsumption(deviceID, widget.realDB);
+        // setState(() {
+        total += consum;
+        chartData.add(ChartData(name, consum, Color(value)));
+        print('================precentage==================');
+        print((total / usergoal) * 100);
+        // });
       }
       print('usergoal');
       print(usergoal);
       //set total consumption and bill
-      setState(() {
-        energyData[1][1] = '${total.toStringAsFixed(2)}kWh';
-        percentage = (total / usergoal) * 100;
-        //  i = total;
-        energyData[1][2] = 'تم بلوغ ${percentage.toInt()}% من هدف الشهر';
-        calculateBill(total.toDouble());
-        String e = electricityBill.toStringAsFixed(2);
-        energyData[0][1] = '${e}SR';
-      });
+      // setState(() {
+      energyData[1][1] = '${total.toStringAsFixed(2)}kWh';
+      percentage = (total / usergoal) * 100;
+      //  i = total;
+      energyData[1][2] = 'تم بلوغ ${percentage.toInt()}% من هدف الشهر';
+      calculateBill(total.toDouble());
+      String e = electricityBill.toStringAsFixed(2);
+      energyData[0][1] = '${e}SR';
+      // });
 
       chartData.sort((a, b) => b.y.compareTo(a.y));
     });
@@ -958,10 +976,10 @@ class DashboardState extends State<dashboard> {
     } else {
       slat_1 = energy * 0.18;
     }
-    setState(() {
-      electricityBill = (slat_1 + slat_2) * 1.15;
-      electricityBill.toInt();
-    });
+    // setState(() {
+    electricityBill = (slat_1 + slat_2) * 1.15;
+    electricityBill.toInt();
+    // });
   }
 
 //calculate energy from electricity bill
@@ -975,9 +993,9 @@ class DashboardState extends State<dashboard> {
     } else {
       slat_1 = bill / 0.18;
     }
-    setState(() {
-      energyFromBill = (slat_1 + slat_2);
-    });
+    // setState(() {
+    energyFromBill = (slat_1 + slat_2);
+    // });
   }
 }
 

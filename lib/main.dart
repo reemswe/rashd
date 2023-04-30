@@ -60,8 +60,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/welcomePage': (ctx) => const welcomePage(),
         '/homePage': (ctx) => ListOfHouseAccounts(),
-        "/register": (ctx) => const register(),
-        "/login": (ctx) => const Login(),
+        "/register": (ctx) => register(),
+        "/login": (ctx) =>  Login(),
       },
       home: auth ? ListOfHouseAccounts() : welcomePage(),
       title: 'رشد',

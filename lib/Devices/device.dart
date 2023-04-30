@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../Dashboard/dashboard.dart';
 import '../functions.dart';
@@ -762,41 +761,4 @@ class DeviceState extends State<Device> {
         .update({'name': nameController.text, 'color': "$finalColor"});
     showToast("valid", 'تم حفظ التغييرات بنجاح.');
   }
-
-  // Future<void> getDeviceRealtimeData(houseID) async {
-  //   await getDeviceID();
-  //   var color = deviceColor.split('(0x')[1].split(')')[0];
-  //   int colorValue = int.parse(color, radix: 16);
-
-  //   final databaseRef =
-  //       FirebaseDatabase.instance.ref('devicesList/$deviceRealtimeID/');
-
-  //   databaseRef.onValue.listen((event) {
-  //     // Clear the existing chart data
-  //     chartData.clear();
-
-  //     // Convert the retrieved data to a list of ChartData objects
-  //     Map<dynamic, dynamic>? data =
-  //         event.snapshot.value as Map<dynamic, dynamic>?;
-  //     setState(() {});
-  //     if (data != null) {
-  //       data.forEach((key, values) {
-  //         if (key == 'status') {
-  //           deviceStatus = values;
-  //         } else if (key == 'consumption') {
-  //           currCons = values['currentConsumption'];
-  //           var monthlyConsumption = values['monthlyConsumption'];
-  //           monthlyConsumption.forEach((key, values) {
-  //             String name = key;
-  //             double cons = values.toDouble();
-  //             ChartData chart = ChartData(name, cons, Color(colorValue));
-  //             chartData.add(chart);
-  //           });
-  //         } else if (key == 'temperature') {
-  //           temperature = values;
-  //         }
-  //       });
-  //     }
-  //   });
-  // }
 }

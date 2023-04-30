@@ -292,9 +292,18 @@ class add_house_memberState extends State<add_house_member> {
                                 ),
                                 child: ElevatedButton(
                                   onPressed: () async {
+                                    bool flag_owner = true;
+                                    bool flag_notMember = true;
                                     if (_formKey.currentState!.validate()) {
-                                      if (await exists(membersPhoneNumber1.text,
-                                          widget.firestore, widget.auth)) {
+                                      if (!await exists(
+                                          membersPhoneNumber1.text,
+                                          widget.firestore,
+                                          widget.auth)) {
+                                        showToast('invalid',
+                                            'العضو غير موجود بالنطام');
+                                      } else if (!await notMember(
+                                          membersPhoneNumber1.text)) {
+                                      } else {
                                         await setData(widget.firestore);
                                         showToast('valid', 'تم الإضافة بنجاح');
                                         if (!TestWidgetsFlutterBinding
@@ -309,9 +318,6 @@ class add_house_memberState extends State<add_house_member> {
                                                             widget.houseID),
                                               ));
                                         }
-                                      } else {
-                                        showToast('invalid',
-                                            'العضو غير موجود بالنطام');
                                       }
                                     }
                                   },
@@ -349,6 +355,39 @@ class add_house_memberState extends State<add_house_member> {
       'privilege': privilege,
     });
   }
+
+  Future<bool> notMember(String number) async {
+    bool validPhone = false;
+    QuerySnapshot query = await FirebaseFirestore.instance
+        .collection('houseAccount')
+        .doc(widget.houseID)
+        .collection('houseMember')
+        .where('memberPhoneNumber', isEqualTo: number)
+        .get();
+    if (query.docs.isNotEmpty) {
+      print('member exist!!');
+      validPhone = false;
+    } else {
+      validPhone = true;
+    }
+    return validPhone;
+  }
+
+  // Future<bool> notOwner(String number) async {
+  //   bool validPhone = false;
+  //   QuerySnapshot query = await FirebaseFirestore.instance
+  //       .collection('userAccount')
+  //       .where('phone_number', isEqualTo: number)
+  //       .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+  //       .get();
+  //   if (query.docs.isNotEmpty) {
+  //     validPhone = false;
+  //   } else {
+  //     validPhone = true;
+  //   }
+  //   print(validPhone);
+  //   return validPhone;
+  // }
 
   int index = 2;
   Widget buildBottomNavigation(height) {
@@ -407,4 +446,5 @@ class add_house_memberState extends State<add_house_member> {
       ],
     );
   }
+
 }
