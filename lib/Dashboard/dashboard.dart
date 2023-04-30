@@ -276,7 +276,7 @@ class DashboardState extends State<dashboard> {
                                                               MaterialPageRoute(
                                                                   builder:
                                                                       (context) =>
-                                                                           ListOfHouseAccounts()));
+                                                                          ListOfHouseAccounts()));
                                                         }
                                                       },
                                                       child: Container(
@@ -314,7 +314,7 @@ class DashboardState extends State<dashboard> {
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) =>
-                                                         ListOfHouseAccounts(),
+                                                        ListOfHouseAccounts(),
                                                   ));
                                             }
                                           },
@@ -826,10 +826,6 @@ class DashboardState extends State<dashboard> {
 
   Future ubdateChart(String selectedYearMonth, String monthar) async {
     double total = 0;
-
-    print('(monthar = months[DateTime.now().month])');
-    print(monthar);
-    print(months[DateTime.now().month]);
     if (monthar == months[DateTime.now().month]) {
       setState(() {
         getData();
@@ -849,10 +845,7 @@ class DashboardState extends State<dashboard> {
 
       collection.snapshots().listen(((querySnapshot) async {
         for (var doc in querySnapshot.docs) {
-          print('==================hd=====================');
           Map<String, dynamic> data = doc.data();
-          print(data);
-          print(data['name']);
           name = data['name'];
           var color = data['color'].split('(0x')[1].split(')')[0];
           value = int.parse(color, radix: 16);
@@ -924,17 +917,12 @@ class DashboardState extends State<dashboard> {
         setState(() {
           total += consum;
           chartData.add(ChartData(name, consum, Color(value)));
-          print('================precentage==================');
-          print((total / usergoal) * 100);
         });
       }
-      print('usergoal');
-      print(usergoal);
       //set total consumption and bill
       setState(() {
         energyData[1][1] = '${total.toStringAsFixed(2)}kWh';
         percentage = (total / usergoal) * 100;
-        //  i = total;
         energyData[1][2] = 'تم بلوغ ${percentage.toInt()}% من هدف الشهر';
         calculateBill(total.toDouble());
         String e = electricityBill.toStringAsFixed(2);
@@ -943,8 +931,6 @@ class DashboardState extends State<dashboard> {
 
       chartData.sort((a, b) => b.y.compareTo(a.y));
     });
-    print('================precentage==================');
-    print((total / usergoal) * 100);
   }
 
   //calculate electricity bill for 30 days
