@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:flutter_test/flutter_test.dart';
+// import 'package:flutter_test/flutter_test.dart';
 import '../Dashboard/dashboard.dart';
 import '../Devices/listOfDevices.dart';
 import '../functions.dart';
@@ -29,10 +29,10 @@ class _houseMembersState extends State<HouseMembers> {
   List? membersList = [];
   @override
   void initState() {
-    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
-      widget.firestore = FirebaseFirestore.instance;
-      widget.auth = FirebaseAuth.instance;
-    }
+    // if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+    widget.firestore = FirebaseFirestore.instance;
+    widget.auth = FirebaseAuth.instance;
+    // }
     data = getData();
     membersList!.clear();
     super.initState();

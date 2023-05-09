@@ -7,7 +7,7 @@ import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import 'package:rashd/Mocks.dart';
 import '../functions.dart';
 import 'login.dart';
-import 'package:flutter_test/flutter_test.dart';
+// import 'package:flutter_test/flutter_test.dart';
 
 class register extends StatefulWidget {
   const register({
@@ -460,43 +460,43 @@ class registerFormState extends State<registerForm> {
                   child: ElevatedButton(
                     onPressed: () async {
                       if ((_formKey.currentState!.validate())) {
-                        if (TestWidgetsFlutterBinding.ensureInitialized()
-                            .inTest) {
-                          await checkEmail(
-                              emailController.text, MockFirebaseAuth());
-                          await isDuplicatePhoneNum(
-                              MockFirebaseFirestore(), PhoneNumController.text);
-                        } else {
-                          await checkEmail(
-                              emailController.text, FirebaseAuth.instance);
-                          await isDuplicatePhoneNum(FirebaseFirestore.instance,
-                              PhoneNumController.text);
-                        }
+                        // if (TestWidgetsFlutterBinding.ensureInitialized()
+                        //     .inTest) {
+                        //   await checkEmail(
+                        //       emailController.text, MockFirebaseAuth());
+                        //   await isDuplicatePhoneNum(
+                        //       MockFirebaseFirestore(), PhoneNumController.text);
+                        // } else {
+                        await checkEmail(
+                            emailController.text, FirebaseAuth.instance);
+                        await isDuplicatePhoneNum(FirebaseFirestore.instance,
+                            PhoneNumController.text);
+                        // }
                       }
                       if ((_formKey.currentState!.validate())) {
-                        if (TestWidgetsFlutterBinding.ensureInitialized()
-                            .inTest) {
-                          if (await checkEmail(
-                                  emailController.text, MockFirebaseAuth) &&
-                              await isDuplicatePhoneNum(MockFirebaseFirestore(),
-                                  PhoneNumController.text)) {
-                            await signUp(emailController.text,
-                                passwordController.text, MockFirebaseAuth());
-                            await saveUser(
-                                MockFirebaseFirestore(), MockFirebaseAuth());
-                          }
-                        } else {
-                          if (await checkEmail(emailController.text,
-                                  FirebaseAuth.instance) &&
-                              await isDuplicatePhoneNum(
-                                  FirebaseFirestore.instance,
-                                  PhoneNumController.text)) {
-                            await signUp(emailController.text,
-                                passwordController.text, FirebaseAuth.instance);
-                            await saveUser(FirebaseFirestore.instance,
-                                FirebaseAuth.instance);
-                          }
+                        // if (TestWidgetsFlutterBinding.ensureInitialized()
+                        //     .inTest) {
+                        //   if (await checkEmail(
+                        //           emailController.text, MockFirebaseAuth) &&
+                        //       await isDuplicatePhoneNum(MockFirebaseFirestore(),
+                        //           PhoneNumController.text)) {
+                        //     await signUp(emailController.text,
+                        //         passwordController.text, MockFirebaseAuth());
+                        //     await saveUser(
+                        //         MockFirebaseFirestore(), MockFirebaseAuth());
+                        //   }
+                        // } else {
+                        if (await checkEmail(
+                                emailController.text, FirebaseAuth.instance) &&
+                            await isDuplicatePhoneNum(
+                                FirebaseFirestore.instance,
+                                PhoneNumController.text)) {
+                          await signUp(emailController.text,
+                              passwordController.text, FirebaseAuth.instance);
+                          await saveUser(FirebaseFirestore.instance,
+                              FirebaseAuth.instance);
                         }
+                        // }
 
                         clearForm();
                         showToast('valid', 'مرحبًا بك في رشد');

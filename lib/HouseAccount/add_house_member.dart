@@ -8,7 +8,7 @@ import '../Devices/listOfDevices.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_test/flutter_test.dart';
+// import 'package:flutter_test/flutter_test.dart';
 
 import 'list_of_houseMembers.dart';
 
@@ -50,10 +50,10 @@ class add_house_memberState extends State<add_house_member> {
       privilege_edit = 'viewer';
       privilege = 'viewer';
     });
-    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
-      widget.firestore = FirebaseFirestore.instance;
-      widget.auth = FirebaseAuth.instance;
-    }
+    // if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+    widget.firestore = FirebaseFirestore.instance;
+    widget.auth = FirebaseAuth.instance;
+    // }
     super.initState();
   }
 
@@ -297,18 +297,17 @@ class add_house_memberState extends State<add_house_member> {
                                           widget.firestore, widget.auth)) {
                                         await setData(widget.firestore);
                                         showToast('valid', 'تم الإضافة بنجاح');
-                                        if (!TestWidgetsFlutterBinding
-                                                .ensureInitialized()
-                                            .inTest) {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    HouseMembers(
-                                                        houseId:
-                                                            widget.houseID),
-                                              ));
-                                        }
+                                        // if (!TestWidgetsFlutterBinding
+                                        //         .ensureInitialized()
+                                        //     .inTest) {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  HouseMembers(
+                                                      houseId: widget.houseID),
+                                            ));
+                                        // }
                                       } else {
                                         showToast('invalid',
                                             'العضو غير موجود بالنطام');

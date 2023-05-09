@@ -1,5 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
-import 'package:flutter_test/flutter_test.dart';
+// import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -25,9 +25,9 @@ class Satisfies extends State<AccessSharedDashboard> {
   void initState() {
     clearForm();
 
-    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
-      widget.firestore = FirebaseFirestore.instance;
-    }
+    // if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+    widget.firestore = FirebaseFirestore.instance;
+    // }
     super.initState();
   }
 
@@ -203,14 +203,14 @@ class Satisfies extends State<AccessSharedDashboard> {
 
                                       var collection = widget.firestore
                                           .collectionGroup('sharedCode');
-                                      if (TestWidgetsFlutterBinding
-                                              .ensureInitialized()
-                                          .inTest) {
-                                        collection = widget.firestore
-                                            .collection('houseAccount')
-                                            .doc('testHouseId')
-                                            .collection('sharedCode');
-                                      }
+                                      // if (TestWidgetsFlutterBinding
+                                      //         .ensureInitialized()
+                                      //     .inTest) {
+                                      //   collection = widget.firestore
+                                      //       .collection('houseAccount')
+                                      //       .doc('testHouseId')
+                                      //       .collection('sharedCode');
+                                      // }
 
                                       var sharedDashboard = await collection
                                           .where('code',
@@ -227,20 +227,20 @@ class Satisfies extends State<AccessSharedDashboard> {
                                           .doc(sharedDashboard.docs[0].id)
                                           .update({'isExpired': true});
 
-                                      if (!TestWidgetsFlutterBinding
-                                              .ensureInitialized()
-                                          .inTest) {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => dashboard(
-                                                houseID:
-                                                    sharedDashboard.docs[0].id,
-                                                isShared: true,
-                                              ),
-                                            ));
-                                      }
+                                      // if (!TestWidgetsFlutterBinding
+                                      //         .ensureInitialized()
+                                      //     .inTest) {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => dashboard(
+                                              houseID:
+                                                  sharedDashboard.docs[0].id,
+                                              isShared: true,
+                                            ),
+                                          ));
                                     }
+                                    // }
                                   },
                                   child: const Text('التالي'),
                                   style: ElevatedButton.styleFrom(
@@ -290,12 +290,12 @@ class Satisfies extends State<AccessSharedDashboard> {
 //Returns true if code satisfies the above.
   Future<bool> isCodeValid(firestore) async {
     var collection = firestore.collectionGroup('sharedCode');
-    if (TestWidgetsFlutterBinding.ensureInitialized().inTest) {
-      collection = firestore
-          .collection('houseAccount')
-          .doc('testHouseId')
-          .collection('sharedCode');
-    }
+    // if (TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+    //   collection = firestore
+    //       .collection('houseAccount')
+    //       .doc('testHouseId')
+    //       .collection('sharedCode');
+    // }
 
     QuerySnapshot codeExistQuery = await collection
         .where('code',

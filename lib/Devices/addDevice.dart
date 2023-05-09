@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 import 'package:hive/hive.dart';
-import 'package:flutter_test/flutter_test.dart';
+// import 'package:flutter_test/flutter_test.dart';
 import '../functions.dart';
 import 'listOfDevices.dart';
 
@@ -38,11 +38,11 @@ class AddDeviceState extends State<AddDevice> {
 
   @override
   initState() {
-    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
-      widget.firestore = FirebaseFirestore.instance;
-      widget.firebase = FirebaseDatabase.instance;
-      _index = 0;
-    }
+    // if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+    widget.firestore = FirebaseFirestore.instance;
+    widget.firebase = FirebaseDatabase.instance;
+    _index = 0;
+    // }
     WiFiForIoTPlugin.isEnabled().then((val) {
       _isEnabled = val;
     });
@@ -860,14 +860,13 @@ class AddDeviceState extends State<AddDevice> {
                                                               var deviceID =
                                                                   'testDeviceID';
 
-                                                              if (!TestWidgetsFlutterBinding
-                                                                      .ensureInitialized()
-                                                                  .inTest) {
-                                                                deviceID = Hive.box(
-                                                                        "devicesInfo")
-                                                                    .get(
-                                                                        "SSID");
-                                                              }
+                                                              // if (!TestWidgetsFlutterBinding
+                                                              //         .ensureInitialized()
+                                                              //     .inTest) {
+                                                              deviceID = Hive.box(
+                                                                      "devicesInfo")
+                                                                  .get("SSID");
+                                                              // }
                                                               await widget
                                                                   .firestore
                                                                   .collection(
@@ -887,21 +886,21 @@ class AddDeviceState extends State<AddDevice> {
                                                                 'status': false,
                                                               });
                                                               await updateRealtimeDB();
-                                                              if (!TestWidgetsFlutterBinding
-                                                                      .ensureInitialized()
-                                                                  .inTest) {
-                                                                Navigator.push(
-                                                                  context,
-                                                                  MaterialPageRoute(
-                                                                      builder:
-                                                                          (context) =>
-                                                                              ListOfDevices(
-                                                                                houseID: widget.ID,
-                                                                                userType: 'owner',
-                                                                              )),
-                                                                );
-                                                              }
+                                                              // if (!TestWidgetsFlutterBinding
+                                                              //         .ensureInitialized()
+                                                              //     .inTest) {
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                    builder:
+                                                                        (context) =>
+                                                                            ListOfDevices(
+                                                                              houseID: widget.ID,
+                                                                              userType: 'owner',
+                                                                            )),
+                                                              );
                                                             }
+                                                            // }
                                                           }),
                                                     )),
                                               ]))
@@ -916,9 +915,9 @@ class AddDeviceState extends State<AddDevice> {
 
   Future<void> updateRealtimeDB() async {
     var SSID = 'testDeviceID';
-    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
-      SSID = Hive.box("devicesInfo").get("SSID");
-    }
+    // if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+    SSID = Hive.box("devicesInfo").get("SSID");
+    // }
 
     DatabaseReference database = widget.firebase.ref('devicesList/${SSID}/');
     database.onValue.listen((DatabaseEvent event) {

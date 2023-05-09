@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import 'package:flutter_test/flutter_test.dart';
+// import 'package:flutter_test/flutter_test.dart';
 import '../functions.dart';
 import 'list_of_houseAccounts.dart';
 
@@ -53,10 +53,10 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
 
   @override
   void initState() {
-    if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
-      widget.firestore = FirebaseFirestore.instance;
-      widget.auth = FirebaseAuth.instance;
-    }
+    // if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
+    widget.firestore = FirebaseFirestore.instance;
+    widget.auth = FirebaseAuth.instance;
+    // }
     addMembers = [];
     setState(() {
       createList();
@@ -356,7 +356,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                           child: Scrollbar(
                             thumbVisibility: true,
                             child: ListView(
-                              key: const Key("formScroll"),
+                                key: const Key("formScroll"),
                                 physics: const NeverScrollableScrollPhysics(),
                                 scrollDirection: Axis.vertical,
                                 shrinkWrap: true,

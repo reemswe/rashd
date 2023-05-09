@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import '../Mocks.dart';
 import '../functions.dart';
-import 'package:flutter_test/flutter_test.dart';
+// import 'package:flutter_test/flutter_test.dart';
 import 'register.dart';
 
 class Login extends StatefulWidget {
@@ -259,21 +259,21 @@ class LoginFormState extends State<LoginForm> {
                   child: ElevatedButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        if (TestWidgetsFlutterBinding.ensureInitialized()
-                            .inTest) {
-                          await login(emailController.text,
-                              passwordController.text, MockFirebaseAuth());
-                        } else {
-                          await login(emailController.text,
-                              passwordController.text, FirebaseAuth.instance);
-                        }
+                        // if (TestWidgetsFlutterBinding.ensureInitialized()
+                        //     .inTest) {
+                        //   await login(emailController.text,
+                        //       passwordController.text, MockFirebaseAuth());
+                        // } else {
+                        await login(emailController.text,
+                            passwordController.text, FirebaseAuth.instance);
+                        // }
                         showToast('valid', 'تم تسجيل دخولك بنجاح');
 
                         clearForm();
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>  ListOfHouseAccounts(),
+                              builder: (context) => ListOfHouseAccounts(),
                             ));
                       }
                     },
