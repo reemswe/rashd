@@ -112,6 +112,8 @@ class DashboardState extends State<dashboard> {
   ];
   List<ChartData> chartData = [];
   int i = 0;
+  double total = 0;
+  double usergoal = 1;
 
   var month = '';
   TextEditingController goalController = TextEditingController();
@@ -123,9 +125,13 @@ class DashboardState extends State<dashboard> {
   @override
   void initState() {
     super.initState();
-    getGoal();
+
+    setState(() {
+      getGoal();
+      //getData();
+    });
     month = months[DateTime.now().month];
-    getData();
+    // getData();
     if (!widget.isShared) {
       getToken();
     }
@@ -160,9 +166,6 @@ class DashboardState extends State<dashboard> {
     }
     return userType;
   }
-
-  double total = 0;
-  double usergoal = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -892,6 +895,7 @@ class DashboardState extends State<dashboard> {
     });
     setState(() {
       usergoal = goal;
+      getData();
     });
     return goal;
   }
@@ -920,7 +924,11 @@ class DashboardState extends State<dashboard> {
           chartData.add(ChartData(name, consum, Color(value)));
         });
       }
-      //set total consumption and bill
+      print('================goal2==============');
+      print(total);
+      print(usergoal);
+      print((total / usergoal) * 100);
+
       setState(() {
         energyData[1][1] = '${total.toStringAsFixed(2)}kWh';
         percentage = (total / usergoal) * 100;
