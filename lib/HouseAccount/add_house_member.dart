@@ -310,7 +310,7 @@ class add_house_memberState extends State<add_house_member> {
                                         // }
                                       } else {
                                         showToast('invalid',
-                                            'العضو غير موجود بالنطام');
+                                            'العضو غير موجود بالنظام');
                                       }
                                     }
                                   },

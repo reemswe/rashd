@@ -33,7 +33,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
       });
       await FirebaseFirestore.instance
           .collection('userAccount')
-          .doc(widget.auth.currentUser!.uid)
+          .doc(FirebaseAuth.instance.currentUser!.uid)
           .set({'token': token}, SetOptions(merge: true));
     });
 
@@ -41,7 +41,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
       print("New token: $token");
       await FirebaseFirestore.instance
           .collection('userAccount')
-          .doc(widget.auth.currentUser!.uid)
+          .doc(FirebaseAuth.instance.currentUser!.uid)
           .set({'token': token}, SetOptions(merge: true));
     });
   }
@@ -53,6 +53,8 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
   @override
   void initState() {
+    // FirebaseFirestore.instance = FirebaseFirestore.instance;
+    // FirebaseAuth.instance = FirebaseAuth.instance;
     // if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
     warningNotification.initApp();
 
@@ -65,15 +67,14 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
     );
 
     getToken();
-    widget.firestore = FirebaseFirestore.instance;
-    widget.auth = FirebaseAuth.instance;
+
     // }
     super.initState();
   }
 
-  Future<String> getUsername() async => await widget.firestore
+  Future<String> getUsername() async => await FirebaseFirestore.instance
           .collection("userAccount")
-          .doc(widget.auth.currentUser!.uid)
+          .doc(FirebaseAuth.instance.currentUser!.uid)
           .get()
           .then((value) {
         return value.data()!["full_name"];
@@ -81,11 +82,11 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
   Future<bool> exists(String id) async {
     bool exists = false;
-    QuerySnapshot query = await widget.firestore
+    QuerySnapshot query = await FirebaseFirestore.instance
         .collection('houseAccount')
         .doc(id)
         .collection('houseMember')
-        .where('memberID', isEqualTo: widget.auth.currentUser!.uid)
+        .where('memberID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .get();
     if (query.docs.isNotEmpty) {
       exists = true;
@@ -98,11 +99,12 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
   Future<List> getOwner() async {
     List houseOwner = [];
-    widget.firestore
+
+    await FirebaseFirestore.instance
         .collection('houseAccount')
-        .where('OwnerID', isEqualTo: widget.auth.currentUser!.uid)
-        .snapshots()
-        .listen((querySnapshot) {
+        .where('OwnerID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((querySnapshot) {
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> data = doc.data(); // <-- Retrieving the value.
         houseOwner.add([
@@ -116,10 +118,10 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
 
   Future<List> getMember() async {
     List houseMember = [];
-    widget.firestore
+    await FirebaseFirestore.instance
         .collection('houseAccount')
-        .snapshots()
-        .listen((querySnapshot) async {
+        .get()
+        .then((querySnapshot) async {
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> data = doc.data(); // house account info
         if (await exists(doc.id)) {
@@ -338,7 +340,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                             TextButton(
                                               onPressed: () async {
                                                 Navigator.of(ctx).pop();
-                                                await widget.firestore
+                                                await FirebaseFirestore.instance
                                                     .collection('houseAccount')
                                                     .doc(dataList[index][0]
                                                         ["houseID"])
@@ -405,7 +407,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                 //if user is owner !
                                                 print("inside Owner");
                                                 //Delete house account
-                                                await widget.firestore
+                                                await FirebaseFirestore.instance
                                                     .collection('houseAccount')
                                                     .get()
                                                     .then((snapshot) async {
@@ -428,7 +430,8 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                       in filteredDocs) {
                                                     //**********************************************************************
                                                     //delete dashboard
-                                                    await widget.firestore
+                                                    await FirebaseFirestore
+                                                        .instance
                                                         .collection('dashboard')
                                                         .get()
                                                         .then((snapshot) async {
@@ -450,7 +453,8 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                       for (DocumentSnapshot dash_ds
                                                           in dash_filteredDocs) {
                                                         //delete dashboard_readings
-                                                        await widget.firestore
+                                                        await FirebaseFirestore
+                                                            .instance
                                                             .collection(
                                                                 'dashboard')
                                                             .doc(dash_ds[
@@ -470,7 +474,8 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                             "dashboard_readings deleted");
 
                                                         //delete sharedCode
-                                                        await widget.firestore
+                                                        await FirebaseFirestore
+                                                            .instance
                                                             .collection(
                                                                 'houseAccount')
                                                             .doc(dataList[index]
@@ -499,7 +504,8 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                     });
                                                     //**********************************************************************
                                                     //delete house account devices
-                                                    await widget.firestore
+                                                    await FirebaseFirestore
+                                                        .instance
                                                         .collection(
                                                             'houseAccount')
                                                         .doc(ds['houseID'])
@@ -516,7 +522,8 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                                                         "house account devices deleted");
 
                                                     //delete house account members
-                                                    await widget.firestore
+                                                    await FirebaseFirestore
+                                                        .instance
                                                         .collection(
                                                             'houseAccount')
                                                         .doc(ds['houseID'])
@@ -760,14 +767,14 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
                         await isCodeValid();
 
                         if (_formKey.currentState!.validate()) {
-                          var sharedDashboard = await widget.firestore
+                          var sharedDashboard = await FirebaseFirestore.instance
                               .collectionGroup('sharedCode')
                               .where('code',
                                   isEqualTo: int.parse(codeController.text))
                               .where('isExpired', isEqualTo: false)
                               .get();
 
-                          await widget.firestore
+                          await FirebaseFirestore.instance
                               .collection('houseAccount')
                               .doc(sharedDashboard.docs[0].data()["houseID"])
                               .collection('sharedCode')
@@ -803,7 +810,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
   //this function checks if dashboard exists and the code not expired (not used before)
 //Returns true if code satisfies the above.
   Future<bool> isCodeValid() async {
-    QuerySnapshot codeExistQuery = await widget.firestore
+    QuerySnapshot codeExistQuery = await FirebaseFirestore.instance
         .collectionGroup('sharedCode')
         .where('code',
             isEqualTo: int.parse(codeController
@@ -811,7 +818,7 @@ class _ListOfHouseAccountsState extends State<ListOfHouseAccounts>
         .get();
 
     if (codeExistQuery.docs.isNotEmpty) {
-      QuerySnapshot codeExpiredQuery = await widget.firestore
+      QuerySnapshot codeExpiredQuery = await FirebaseFirestore.instance
           .collectionGroup('sharedCode')
           .where('code', isEqualTo: int.parse(codeController.text))
           .where('isExpired', isEqualTo: false)

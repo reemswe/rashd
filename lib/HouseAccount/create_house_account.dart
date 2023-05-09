@@ -54,8 +54,8 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
   @override
   void initState() {
     // if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
-    widget.firestore = FirebaseFirestore.instance;
-    widget.auth = FirebaseAuth.instance;
+    // FirebaseFirestore.instance = FirebaseFirestore.instance;
+    // FirebaseAuth.instance = FirebaseAuth.instance;
     // }
     addMembers = [];
     setState(() {
@@ -233,11 +233,12 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
   }
 
   Future<void> setData() async {
-    CollectionReference houses = widget.firestore.collection('houseAccount');
+    CollectionReference houses =
+        FirebaseFirestore.instance.collection('houseAccount');
 
     String houseId = '';
     DocumentReference docReference = await houses.add({
-      'OwnerID': widget.auth.currentUser!.uid,
+      'OwnerID': FirebaseAuth.instance.currentUser!.uid,
       'houseID': '',
       'houseName': houseName.text,
       'isNotificationSent': false,
@@ -251,7 +252,7 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
 
     for (int i = 0; i <= num; i++) {
       if (membersPhones[i].text != '') {
-        QuerySnapshot query = await widget.firestore
+        QuerySnapshot query = await FirebaseFirestore.instance
             .collection('userAccount')
             .where('phone_number', isEqualTo: membersPhones[i].text)
             .get();
@@ -618,9 +619,10 @@ class _CreateHouseAccountState extends State<CreateHouseAccount> {
                                                             await exists(
                                                                 membersPhones[i]
                                                                     .text,
-                                                                widget
-                                                                    .firestore,
-                                                                widget.auth)) {
+                                                                FirebaseFirestore
+                                                                    .instance,
+                                                                FirebaseAuth
+                                                                    .instance)) {
                                                           duplicates[i] = true;
                                                         } else {
                                                           duplicates[i] = false;

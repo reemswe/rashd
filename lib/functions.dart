@@ -40,7 +40,7 @@ Future<bool> exists(
     showToast('invalid', 'العضو هو مالك المنزل');
     return false;
   } else {
-    showToast('invalid', 'العضو غير موجود بالنطام');
+    // showToast('invalid', 'العضو غير موجود بالنطام');
     return false;
   }
 }
