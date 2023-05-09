@@ -15,35 +15,35 @@ import 'package:path_provider/path_provider.dart';
 late Box box;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
 
-  var dir = await getApplicationDocumentsDirectory();
-  Hive.init(dir.path);
-  box = await Hive.openBox('devicesInfo');
+  // var dir = await getApplicationDocumentsDirectory();
+  // Hive.init(dir.path);
+  // box = await Hive.openBox('devicesInfo');
 
   //! FCM
-  FirebaseMessaging.instance.onTokenRefresh.listen((String token) async {
-    print("New token: $token");
-    if (FirebaseAuth.instance.currentUser!.uid != null) {
-      await FirebaseFirestore.instance
-          .collection('userAccount')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .set({'token': token}, SetOptions(merge: true));
-    }
-  });
+  // FirebaseMessaging.instance.onTokenRefresh.listen((String token) async {
+  //   print("New token: $token");
+  //   if (FirebaseAuth.instance.currentUser!.uid != null) {
+  //     await FirebaseFirestore.instance
+  //         .collection('userAccount')
+  //         .doc(FirebaseAuth.instance.currentUser!.uid)
+  //         .set({'token': token}, SetOptions(merge: true));
+  //   }
+  // });
 
-  FirebaseAuth.instance.authStateChanges().listen((User? user) {
-    bool auth = false;
-    if (user == null) {
-      auth = false;
-    } else {
-      auth = true;
-    }
-    runApp(MyApp(
-      auth: auth,
-    ));
-  });
+  // FirebaseAuth.instance.authStateChanges().listen((User? user) {
+  //   bool auth = false;
+  //   if (user == null) {
+  //     auth = false;
+  //   } else {
+  //     auth = true;
+  //   }
+  //   runApp(MyApp(
+  //     auth: auth,
+  //   ));
+  // });
 }
 
 class MyApp extends StatelessWidget {
@@ -57,13 +57,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      routes: {
-        '/welcomePage': (ctx) => const welcomePage(),
-        '/homePage': (ctx) => ListOfHouseAccounts(),
-        "/register": (ctx) => register(),
-        "/login": (ctx) =>  Login(),
-      },
-      home: auth ? ListOfHouseAccounts() : welcomePage(),
+      // routes: {
+      //   '/welcomePage': (ctx) => const welcomePage(),
+      //   '/homePage': (ctx) => ListOfHouseAccounts(),
+      //   "/register": (ctx) => register(),
+      //   "/login": (ctx) => Login(),
+      // },
+      home: welcomePage(), //auth ? ListOfHouseAccounts() : welcomePage(),
       title: 'رشد',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -115,10 +115,10 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class global {
-  static var index = 0;
-}
+// class global {
+//   static var index = 0;
+// }
 
-class GlobalContextService {
-  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-}
+// class GlobalContextService {
+//   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+// }

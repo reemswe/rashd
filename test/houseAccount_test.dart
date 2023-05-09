@@ -6,6 +6,7 @@ import 'package:rashd/HouseAccount/create_house_account.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
 import 'package:rashd/HouseAccount/list_of_houseMembers.dart';
+import 'package:rashd/main.dart';
 
 void main() {
   late MockUser user; //Data of the Current User
@@ -568,6 +569,11 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: HouseMembers(
             houseId: 'testHouseId', auth: firebaseAuth, firestore: firestore),
+      ));
+    });
+    testWidgets('Main Page F', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: MyApp(auth: false),
       ));
     });
   });

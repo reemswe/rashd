@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rashd/Devices/addDevice.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:rashd/Devices/device.dart';
+import 'package:rashd/Devices/listOfDevices.dart';
+import 'package:rashd/Registration/profile.dart';
 
 void main() {
   late MockUser user; //Data of the Current User
@@ -101,6 +104,31 @@ void main() {
               .controller!
               .text,
           'ريم ابراهيم موس');
+    });
+    testWidgets('Profile Page', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: profile(),
+      ));
+    });
+
+    testWidgets('Device Page', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Device(
+          deviceID: 'null',
+          houseID: 'null',
+          userType: 'null',
+        ),
+      ));
+    });
+
+    testWidgets('list of device Page', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: ListOfDevices(
+          firestore: firestore,
+          houseID: 'null',
+          userType: 'null',
+        ),
+      ));
     });
   });
 }

@@ -40,50 +40,50 @@ class dashboard extends StatefulWidget {
 
 class DashboardState extends State<dashboard> {
   var deviceRealtimeID = '';
-  Future<void> share() async {
-    var uuid = const Uuid();
-    uuid.v1();
-    var value = new Random();
-    var codeNumber = value.nextInt(900000) + 100000;
+  // Future<void> share() async {
+  //   var uuid = const Uuid();
+  //   uuid.v1();
+  //   var value = new Random();
+  //   var codeNumber = value.nextInt(900000) + 100000;
 
-    await FlutterShare.share(
-      title: 'مشاركة لوحة المعلومات',
-      text:
-          'لعرض لوحة المعلومات المشتركة ادخل الرمز ${codeNumber} في صفحة عرض لوحة المعلومات المشتركة',
-    );
+  //   await FlutterShare.share(
+  //     title: 'مشاركة لوحة المعلومات',
+  //     text:
+  //         'لعرض لوحة المعلومات المشتركة ادخل الرمز ${codeNumber} في صفحة عرض لوحة المعلومات المشتركة',
+  //   );
 
-    await widget.firestore
-        .collection('houseAccount')
-        .doc(widget.houseID)
-        .collection('sharedCode')
-        .add({
-      'houseID': widget.houseID,
-      'code': codeNumber,
-      'isExpired': false
-    });
-  }
+  //   await widget.firestore
+  //       .collection('houseAccount')
+  //       .doc(widget.houseID)
+  //       .collection('sharedCode')
+  //       .add({
+  //     'houseID': widget.houseID,
+  //     'code': codeNumber,
+  //     'isExpired': false
+  //   });
+  // }
 
   //! FCM
-  var fcmToken;
-  void getToken() async {
-    await FirebaseMessaging.instance.getToken().then((token) async {
-      setState(() {
-        fcmToken = token;
-      });
-      await FirebaseFirestore.instance
-          .collection('userAccount')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .set({'token': token}, SetOptions(merge: true));
-    });
+  // var fcmToken;
+  // void getToken() async {
+  //   await FirebaseMessaging.instance.getToken().then((token) async {
+  //     setState(() {
+  //       fcmToken = token;
+  //     });
+  //     await FirebaseFirestore.instance
+  //         .collection('userAccount')
+  //         .doc(FirebaseAuth.instance.currentUser!.uid)
+  //         .set({'token': token}, SetOptions(merge: true));
+  //   });
 
-    await FirebaseMessaging.instance.onTokenRefresh
-        .listen((String token) async {
-      await FirebaseFirestore.instance
-          .collection('userAccount')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .set({'token': token}, SetOptions(merge: true));
-    });
-  }
+  //   await FirebaseMessaging.instance.onTokenRefresh
+  //       .listen((String token) async {
+  //     await FirebaseFirestore.instance
+  //         .collection('userAccount')
+  //         .doc(FirebaseAuth.instance.currentUser!.uid)
+  //         .set({'token': token}, SetOptions(merge: true));
+  //   });
+  // }
 
   List months = [
     '',
@@ -136,9 +136,9 @@ class DashboardState extends State<dashboard> {
       widget.firestore = FirebaseFirestore.instance;
       widget.auth = FirebaseAuth.instance;
       widget.realDB = FirebaseDatabase.instance;
-      if (!widget.isShared) {
-        getToken();
-      }
+      // if (!widget.isShared) {
+      //   getToken();
+      // }
     }
     super.initState();
     getGoal();
@@ -192,7 +192,6 @@ class DashboardState extends State<dashboard> {
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             var userType = snapshot.data;
-            print('userType $userType');
 
             return Scaffold(
               body: FutureBuilder<Map<String, dynamic>>(
@@ -536,142 +535,142 @@ class DashboardState extends State<dashboard> {
                       return const Text("No data");
                     }
                   }),
-              bottomNavigationBar: buildBottomNavigation(height, userType),
+              // bottomNavigationBar: buildBottomNavigation(height, userType),
             );
           }
           return const Center(child: CircularProgressIndicator());
         });
   }
 
-  Widget buildBottomNavigation(
-    height,
-    userType,
-  ) {
-    var items = userType == 'owner'
-        ? <BottomNavyBarItem>[
-            BottomNavyBarItem(
-                icon: const Icon(Icons.bar_chart_rounded),
-                title: const Text(
-                  'لوحة المعلومات',
-                  textAlign: TextAlign.center,
-                ),
-                activeColor: Colors.lightBlue),
-            BottomNavyBarItem(
-              icon: const Icon(Icons.electrical_services_rounded),
-              title: const Text(
-                'الأجهزة',
-                textAlign: TextAlign.center,
-              ),
-              activeColor: Colors.lightBlue,
-            ),
-            BottomNavyBarItem(
-              icon: const Icon(Icons.people_alt_rounded),
-              title: const Text(
-                'اعضاء المنزل',
-                style: TextStyle(fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ]
-        : <BottomNavyBarItem>[
-            BottomNavyBarItem(
-                icon: const Icon(Icons.bar_chart_rounded),
-                title: const Text(
-                  'لوحة المعلومات',
-                  style: TextStyle(fontSize: 13),
-                  textAlign: TextAlign.center,
-                ),
-                activeColor: Colors.lightBlue),
-            BottomNavyBarItem(
-              icon: const Icon(Icons.electrical_services_rounded),
-              title: const Text(
-                'الأجهزة',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13),
-              ),
-              activeColor: Colors.lightBlue,
-            ),
-          ];
+  // Widget buildBottomNavigation(
+  //   height,
+  //   userType,
+  // ) {
+  //   var items = userType == 'owner'
+  //       ? <BottomNavyBarItem>[
+  //           BottomNavyBarItem(
+  //               icon: const Icon(Icons.bar_chart_rounded),
+  //               title: const Text(
+  //                 'لوحة المعلومات',
+  //                 textAlign: TextAlign.center,
+  //               ),
+  //               activeColor: Colors.lightBlue),
+  //           BottomNavyBarItem(
+  //             icon: const Icon(Icons.electrical_services_rounded),
+  //             title: const Text(
+  //               'الأجهزة',
+  //               textAlign: TextAlign.center,
+  //             ),
+  //             activeColor: Colors.lightBlue,
+  //           ),
+  //           BottomNavyBarItem(
+  //             icon: const Icon(Icons.people_alt_rounded),
+  //             title: const Text(
+  //               'اعضاء المنزل',
+  //               style: TextStyle(fontSize: 12),
+  //               textAlign: TextAlign.center,
+  //             ),
+  //           ),
+  //         ]
+  //       : <BottomNavyBarItem>[
+  //           BottomNavyBarItem(
+  //               icon: const Icon(Icons.bar_chart_rounded),
+  //               title: const Text(
+  //                 'لوحة المعلومات',
+  //                 style: TextStyle(fontSize: 13),
+  //                 textAlign: TextAlign.center,
+  //               ),
+  //               activeColor: Colors.lightBlue),
+  //           BottomNavyBarItem(
+  //             icon: const Icon(Icons.electrical_services_rounded),
+  //             title: const Text(
+  //               'الأجهزة',
+  //               textAlign: TextAlign.center,
+  //               style: TextStyle(fontSize: 13),
+  //             ),
+  //             activeColor: Colors.lightBlue,
+  //           ),
+  //         ];
 
-    return Visibility(
-        visible: !widget.isShared,
-        child: BottomNavyBar(
-            containerHeight: height * 0.07,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            selectedIndex: index,
-            iconSize: 28,
-            onItemSelected: (index) {
-              setState(
-                () => index = index,
-              );
-              if (index == 0) {
-              } else if (index == 1) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ListOfDevices(
-                          houseID: widget.houseID, userType: userType)),
-                );
-              } else if (index == 2) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HouseMembers(houseId: widget.houseID)),
-                );
-              }
-            },
-            items: items));
-  }
+  //   return Visibility(
+  //       visible: !widget.isShared,
+  //       child: BottomNavyBar(
+  //           containerHeight: height * 0.07,
+  //           mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //           selectedIndex: index,
+  //           iconSize: 28,
+  //           onItemSelected: (index) {
+  //             setState(
+  //               () => index = index,
+  //             );
+  //             if (index == 0) {
+  //             } else if (index == 1) {
+  //               Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                     builder: (context) => ListOfDevices(
+  //                         houseID: widget.houseID, userType: userType)),
+  //               );
+  //             } else if (index == 2) {
+  //               Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                     builder: (context) =>
+  //                         HouseMembers(houseId: widget.houseID)),
+  //               );
+  //             }
+  //           },
+  //           items: items));
+  // }
 
   int index = 0;
-  Widget buildCard(List content, width, height) {
-    return Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                stops: [0.1, 1.0],
-                colors: [content[3], content[5]]),
-            boxShadow: [
-              const BoxShadow(
-                  color: Colors.black26, offset: Offset(0, 4), blurRadius: 8.0)
-            ],
-            borderRadius: BorderRadius.circular(20)),
-        padding: EdgeInsets.fromLTRB(
-            width * 0.02, height * 0.01, width * 0.02, height * 0.01),
-        margin: const EdgeInsets.fromLTRB(0, 20, 0, 10),
-        child: GridTile(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-              Text(
-                content[0],
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                    color: content[4],
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500),
-              ),
-              Center(
-                  child: Text(
-                content[1],
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: content[4],
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600),
-              )),
-              Text(
-                content[2],
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                    color: content[4],
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400),
-              ),
-            ])));
-  }
+  // Widget buildCard(List content, width, height) {
+  //   return Container(
+  //       decoration: BoxDecoration(
+  //           gradient: LinearGradient(
+  //               begin: Alignment.topRight,
+  //               end: Alignment.bottomLeft,
+  //               stops: [0.1, 1.0],
+  //               colors: [content[3], content[5]]),
+  //           boxShadow: [
+  //             const BoxShadow(
+  //                 color: Colors.black26, offset: Offset(0, 4), blurRadius: 8.0)
+  //           ],
+  //           borderRadius: BorderRadius.circular(20)),
+  //       padding: EdgeInsets.fromLTRB(
+  //           width * 0.02, height * 0.01, width * 0.02, height * 0.01),
+  //       margin: const EdgeInsets.fromLTRB(0, 20, 0, 10),
+  //       child: GridTile(
+  //           child: Column(
+  //               mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //               children: [
+  //             Text(
+  //               content[0],
+  //               textAlign: TextAlign.right,
+  //               style: TextStyle(
+  //                   color: content[4],
+  //                   fontSize: 20,
+  //                   fontWeight: FontWeight.w500),
+  //             ),
+  //             Center(
+  //                 child: Text(
+  //               content[1],
+  //               textAlign: TextAlign.center,
+  //               style: TextStyle(
+  //                   color: content[4],
+  //                   fontSize: 20,
+  //                   fontWeight: FontWeight.w600),
+  //             )),
+  //             Text(
+  //               content[2],
+  //               textAlign: TextAlign.right,
+  //               style: TextStyle(
+  //                   color: content[4],
+  //                   fontSize: 14,
+  //                   fontWeight: FontWeight.w400),
+  //             ),
+  //           ])));
+  // }
 
   Widget dialogContentBox(context, formatted, height, width) {
     return Stack(
@@ -800,31 +799,31 @@ class DashboardState extends State<dashboard> {
     );
   }
 
-  Future<void> _onPressed({
-    required BuildContext context,
-    String? locale,
-  }) async {
-    final localeObj = locale != null ? Locale(locale) : null;
-    final selected = await showMonthYearPicker(
-      context: context,
-      initialDate: _selected ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(3000),
-      locale: localeObj,
-    );
+  // Future<void> _onPressed({
+  //   required BuildContext context,
+  //   String? locale,
+  // }) async {
+  //   final localeObj = locale != null ? Locale(locale) : null;
+  //   final selected = await showMonthYearPicker(
+  //     context: context,
+  //     initialDate: _selected ?? DateTime.now(),
+  //     firstDate: DateTime(2000),
+  //     lastDate: DateTime(3000),
+  //     locale: localeObj,
+  //   );
 
-    if (selected != null) {
-      setState(() {
-        _selected = selected;
-        print((DateFormat('yyyy-MMMM').format(selected)).toLowerCase());
-        String selectedYearMonth =
-            (DateFormat('yyyy-MMMM').format(selected)).toLowerCase();
-        print(DateFormat.MMMM('ar').format(selected));
-        month = DateFormat.MMMM('ar').format(selected);
-        ubdateChart(selectedYearMonth, month);
-      });
-    }
-  }
+  //   if (selected != null) {
+  //     setState(() {
+  //       _selected = selected;
+  //       print((DateFormat('yyyy-MMMM').format(selected)).toLowerCase());
+  //       String selectedYearMonth =
+  //           (DateFormat('yyyy-MMMM').format(selected)).toLowerCase();
+  //       print(DateFormat.MMMM('ar').format(selected));
+  //       month = DateFormat.MMMM('ar').format(selected);
+  //       ubdateChart(selectedYearMonth, month);
+  //     });
+  //   }
+  // }
 
   Future<void> UpdateGoal() async {
     await widget.firestore
@@ -842,62 +841,62 @@ class DashboardState extends State<dashboard> {
     goalController.clear();
   }
 
-  Future ubdateChart(String selectedYearMonth, String monthar) async {
-    double total = 0;
+  // Future ubdateChart(String selectedYearMonth, String monthar) async {
+  //   double total = 0;
 
-    print('(monthar = months[DateTime.now().month])');
-    print(monthar);
-    print(months[DateTime.now().month]);
-    if (monthar == months[DateTime.now().month]) {
-      setState(() {
-        getData();
-      });
-    } else {
-      int value = 0;
-      String name = '';
-      double monthlyCons = 0;
-      String deviceID = '';
-      chartData.clear();
+  //   print('(monthar = months[DateTime.now().month])');
+  //   print(monthar);
+  //   print(months[DateTime.now().month]);
+  //   if (monthar == months[DateTime.now().month]) {
+  //     setState(() {
+  //       getData();
+  //     });
+  //   } else {
+  //     int value = 0;
+  //     String name = '';
+  //     double monthlyCons = 0;
+  //     String deviceID = '';
+  //     chartData.clear();
 
-      //get devices name,color,id
-      var collection = await widget.firestore
-          .collection('houseAccount')
-          .doc(widget.houseID)
-          .collection('houseDevices');
+  //     //get devices name,color,id
+  //     var collection = await widget.firestore
+  //         .collection('houseAccount')
+  //         .doc(widget.houseID)
+  //         .collection('houseDevices');
 
-      collection.snapshots().listen(((querySnapshot) async {
-        for (var doc in querySnapshot.docs) {
-          print('==================hd=====================');
-          Map<String, dynamic> data = doc.data();
-          print(data);
-          print(data['name']);
-          name = data['name'];
-          var color = data['color'].split('(0x')[1].split(')')[0];
-          value = int.parse(color, radix: 16);
-          print(doc.id);
-          deviceID = data['ID'];
+  //     collection.snapshots().listen(((querySnapshot) async {
+  //       for (var doc in querySnapshot.docs) {
+  //         print('==================hd=====================');
+  //         Map<String, dynamic> data = doc.data();
+  //         print(data);
+  //         print(data['name']);
+  //         name = data['name'];
+  //         var color = data['color'].split('(0x')[1].split(')')[0];
+  //         value = int.parse(color, radix: 16);
+  //         print(doc.id);
+  //         deviceID = data['ID'];
 
-          monthlyCons = await getMonthlyConsumption(
-            deviceID,
-            selectedYearMonth,
-          );
+  //         monthlyCons = await getMonthlyConsumption(
+  //           deviceID,
+  //           selectedYearMonth,
+  //         );
 
-          setState(() {
-            total += monthlyCons;
-            chartData.add(ChartData(name, monthlyCons, Color(value)));
-          });
-        }
-        setState(() {
-          energyData[1][1] = '${total}kWh';
-          calculateBill(total.toDouble());
-          String e = electricityBill.toStringAsFixed(2);
-          energyData[0][1] = '${e}SR';
-          //remove precentae
-          energyData[1][2] = '';
-        });
-      }));
-    } //end of else
-  }
+  //         setState(() {
+  //           total += monthlyCons;
+  //           chartData.add(ChartData(name, monthlyCons, Color(value)));
+  //         });
+  //       }
+  //       setState(() {
+  //         energyData[1][1] = '${total}kWh';
+  //         calculateBill(total.toDouble());
+  //         String e = electricityBill.toStringAsFixed(2);
+  //         energyData[0][1] = '${e}SR';
+  //         //remove precentae
+  //         energyData[1][2] = '';
+  //       });
+  //     }));
+  //   } //end of else
+  // }
 
   Future<double> getGoal() async {
     double goal = 0;

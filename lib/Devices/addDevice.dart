@@ -30,7 +30,7 @@ class AddDeviceState extends State<AddDevice> {
   TextEditingController nameController = TextEditingController();
   bool _isEnabled = false;
   bool connected = false;
-  static int _index = 2;
+  static int _index = 0;
   int selectedNetwork = -1;
 
   List<WifiNetwork?>?
@@ -49,344 +49,344 @@ class AddDeviceState extends State<AddDevice> {
     super.initState();
   }
 
-  Widget getNetworks(height, width, formKey, type) {
-    if (_isEnabled) {
-      return Column(children: [
-        Align(
-          alignment: Alignment.topRight,
-          child: Text(
-            type == 'wifi' ? "شبكة الإنترنت" : "شبكة الجهاز",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
-        Align(
-            alignment: Alignment.topRight,
-            child: Text(
-              type == 'wifi'
-                  ? "الرجاء الاتصال بالشبكة"
-                  : "الرجاء تحديد اسم الشبكة الذي يطابق معرف جهازك.",
-              style: const TextStyle(fontSize: 17),
-            )),
-        FutureBuilder<dynamic>(
-          future: loadWifiList(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done &&
-                snapshot.hasData) {
-              _htResultNetwork = snapshot.data;
-              if (_htResultNetwork != null && _htResultNetwork!.isNotEmpty) {
-                final List<InkWell> htNetworks = <InkWell>[];
-                for (int i = 0; i < _htResultNetwork!.length; i++) {
-                  var oNetwork = _htResultNetwork![i];
-                  var condition = type == 'wifi'
-                      ? !(oNetwork!.ssid!).contains("Rashd")
-                      : (oNetwork!.ssid!).contains("Rashd");
-                  if (condition) {
-                    htNetworks.add(InkWell(
-                      onTap: () {
-                        passwordController.clear();
-                        showDialog<String>(
-                            context: context,
-                            builder: (BuildContext context) => Dialog(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(15.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: <Widget>[
-                                        const Align(
-                                            child: Text(
-                                          'كلمة المرور',
-                                          style: TextStyle(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.w600),
-                                        )),
-                                        SizedBox(height: height * 0.01),
-                                        const Text(
-                                          'الرجاء إدخال كلمة المرور المرتبطة بالجهاز',
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        SizedBox(height: height * 0.01),
-                                        Form(
-                                            key: formKey,
-                                            child: TextFormField(
-                                              controller: passwordController,
-                                              obscureText: true,
-                                              textAlign: TextAlign.center,
-                                              decoration: const InputDecoration(
-                                                  hintText: 'كلمة السر'),
-                                              validator: (value) {
-                                                if (value!.isEmpty ||
-                                                    value.length < 8) {
-                                                  return "الرجاء إدخال كلمة سر صالحة.";
-                                                }
-                                              },
-                                            )),
-                                        SizedBox(height: height * 0.025),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            ElevatedButton(
-                                                style: ButtonStyle(
-                                                    shape: MaterialStateProperty
-                                                        .all<
-                                                            RoundedRectangleBorder>(
-                                                      RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20.0),
-                                                      ),
-                                                    ),
-                                                    minimumSize:
-                                                        MaterialStateProperty
-                                                            .all(
-                                                      Size(width * 0.2,
-                                                          height * 0.05),
-                                                    ),
-                                                    backgroundColor:
-                                                        MaterialStateProperty
-                                                            .all(Colors.green
-                                                                .shade300)),
-                                                onPressed: () async {
-                                                  if (formKey.currentState!
-                                                      .validate()) {
-                                                    var pass =
-                                                        passwordController.text;
-                                                    bool isVaild = await WiFiForIoTPlugin
-                                                        .connect(
-                                                            //need a way to do validate the password to give the user a message, maybe try-catch will work
-                                                            "${oNetwork.ssid}",
-                                                            password: pass,
-                                                            joinOnce: true,
-                                                            security:
-                                                                STA_DEFAULT_SECURITY);
+  // Widget getNetworks(height, width, formKey, type) {
+  //   if (_isEnabled) {
+  //     return Column(children: [
+  //       Align(
+  //         alignment: Alignment.topRight,
+  //         child: Text(
+  //           type == 'wifi' ? "شبكة الإنترنت" : "شبكة الجهاز",
+  //           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+  //         ),
+  //       ),
+  //       Align(
+  //           alignment: Alignment.topRight,
+  //           child: Text(
+  //             type == 'wifi'
+  //                 ? "الرجاء الاتصال بالشبكة"
+  //                 : "الرجاء تحديد اسم الشبكة الذي يطابق معرف جهازك.",
+  //             style: const TextStyle(fontSize: 17),
+  //           )),
+  //       FutureBuilder<dynamic>(
+  //         future: loadWifiList(),
+  //         builder: (context, snapshot) {
+  //           if (snapshot.connectionState == ConnectionState.done &&
+  //               snapshot.hasData) {
+  //             _htResultNetwork = snapshot.data;
+  //             if (_htResultNetwork != null && _htResultNetwork!.isNotEmpty) {
+  //               final List<InkWell> htNetworks = <InkWell>[];
+  //               for (int i = 0; i < _htResultNetwork!.length; i++) {
+  //                 var oNetwork = _htResultNetwork![i];
+  //                 var condition = type == 'wifi'
+  //                     ? !(oNetwork!.ssid!).contains("Rashd")
+  //                     : (oNetwork!.ssid!).contains("Rashd");
+  //                 if (condition) {
+  //                   htNetworks.add(InkWell(
+  //                     onTap: () {
+  //                       passwordController.clear();
+  //                       showDialog<String>(
+  //                           context: context,
+  //                           builder: (BuildContext context) => Dialog(
+  //                                 child: Padding(
+  //                                   padding: const EdgeInsets.all(15.0),
+  //                                   child: Column(
+  //                                     mainAxisSize: MainAxisSize.min,
+  //                                     crossAxisAlignment:
+  //                                         CrossAxisAlignment.start,
+  //                                     mainAxisAlignment:
+  //                                         MainAxisAlignment.start,
+  //                                     children: <Widget>[
+  //                                       const Align(
+  //                                           child: Text(
+  //                                         'كلمة المرور',
+  //                                         style: TextStyle(
+  //                                             fontSize: 22,
+  //                                             fontWeight: FontWeight.w600),
+  //                                       )),
+  //                                       SizedBox(height: height * 0.01),
+  //                                       const Text(
+  //                                         'الرجاء إدخال كلمة المرور المرتبطة بالجهاز',
+  //                                         style: TextStyle(
+  //                                             fontSize: 18,
+  //                                             fontWeight: FontWeight.w500),
+  //                                       ),
+  //                                       SizedBox(height: height * 0.01),
+  //                                       Form(
+  //                                           key: formKey,
+  //                                           child: TextFormField(
+  //                                             controller: passwordController,
+  //                                             obscureText: true,
+  //                                             textAlign: TextAlign.center,
+  //                                             decoration: const InputDecoration(
+  //                                                 hintText: 'كلمة السر'),
+  //                                             validator: (value) {
+  //                                               if (value!.isEmpty ||
+  //                                                   value.length < 8) {
+  //                                                 return "الرجاء إدخال كلمة سر صالحة.";
+  //                                               }
+  //                                             },
+  //                                           )),
+  //                                       SizedBox(height: height * 0.025),
+  //                                       Row(
+  //                                         mainAxisAlignment:
+  //                                             MainAxisAlignment.center,
+  //                                         children: [
+  //                                           ElevatedButton(
+  //                                               style: ButtonStyle(
+  //                                                   shape: MaterialStateProperty
+  //                                                       .all<
+  //                                                           RoundedRectangleBorder>(
+  //                                                     RoundedRectangleBorder(
+  //                                                       borderRadius:
+  //                                                           BorderRadius
+  //                                                               .circular(20.0),
+  //                                                     ),
+  //                                                   ),
+  //                                                   minimumSize:
+  //                                                       MaterialStateProperty
+  //                                                           .all(
+  //                                                     Size(width * 0.2,
+  //                                                         height * 0.05),
+  //                                                   ),
+  //                                                   backgroundColor:
+  //                                                       MaterialStateProperty
+  //                                                           .all(Colors.green
+  //                                                               .shade300)),
+  //                                               onPressed: () async {
+  //                                                 if (formKey.currentState!
+  //                                                     .validate()) {
+  //                                                   var pass =
+  //                                                       passwordController.text;
+  //                                                   bool isVaild = await WiFiForIoTPlugin
+  //                                                       .connect(
+  //                                                           //need a way to do validate the password to give the user a message, maybe try-catch will work
+  //                                                           "${oNetwork.ssid}",
+  //                                                           password: pass,
+  //                                                           joinOnce: true,
+  //                                                           security:
+  //                                                               STA_DEFAULT_SECURITY);
 
-                                                    if (isVaild) {
-                                                      setState(() {
-                                                        connected = true;
-                                                        selectedNetwork = i;
-                                                        passwordController
-                                                            .clear();
-                                                      });
-                                                      Hive.box("devicesInfo").put(
-                                                          "SSID",
-                                                          oNetwork
-                                                              .ssid); //Hive.box("devicesInfo").get("SSID")
+  //                                                   if (isVaild) {
+  //                                                     setState(() {
+  //                                                       connected = true;
+  //                                                       selectedNetwork = i;
+  //                                                       passwordController
+  //                                                           .clear();
+  //                                                     });
+  //                                                     Hive.box("devicesInfo").put(
+  //                                                         "SSID",
+  //                                                         oNetwork
+  //                                                             .ssid); //Hive.box("devicesInfo").get("SSID")
 
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                      showToast('valid',
-                                                          "تم الاتصال بالشبكة بنجاح");
-                                                    } else {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                      showToast('invalid',
-                                                          "كلمة مرور غير صالحة ، الرجاء المحاولة مرة أخرى.");
-                                                    }
-                                                  }
-                                                },
-                                                child: const Text(
-                                                  'اتصال',
-                                                  style:
-                                                      TextStyle(fontSize: 18),
-                                                )),
-                                            SizedBox(
-                                              height: 10,
-                                              width: width * 0.1,
-                                            ),
-                                            ElevatedButton(
-                                                style: ButtonStyle(
-                                                    shape: MaterialStateProperty
-                                                        .all<
-                                                            RoundedRectangleBorder>(
-                                                      RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20.0),
-                                                      ),
-                                                    ),
-                                                    minimumSize:
-                                                        MaterialStateProperty
-                                                            .all(
-                                                      Size(width * 0.2,
-                                                          height * 0.05),
-                                                    ),
-                                                    backgroundColor:
-                                                        MaterialStateProperty
-                                                            .all(Colors
-                                                                .red.shade400)),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: const Text(
-                                                  'إلغاء',
-                                                  style:
-                                                      TextStyle(fontSize: 18),
-                                                )),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ));
-                      },
-                      child: Container(
-                          margin: EdgeInsets.fromLTRB(0, height * 0.01, 0, 1),
-                          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
-                          width: width * 0.9,
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                color: selectedNetwork == i
-                                    ? Colors.green.shade200
-                                    : Colors.white,
-                                width: 3,
-                              ),
-                              color: Colors.white,
-                              boxShadow: const [
-                                BoxShadow(
-                                    blurRadius: 20,
-                                    color: Colors.black45,
-                                    spreadRadius: -10)
-                              ],
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(oNetwork.ssid!),
-                                Visibility(
-                                    visible: selectedNetwork == i,
-                                    child: Icon(Icons.task_alt,
-                                        size: 28, color: Colors.green.shade300))
-                              ])),
-                    ));
-                  }
-                }
-                return Column(
-                  children: htNetworks.isNotEmpty
-                      ? htNetworks
-                      : [
-                          Padding(
-                              padding: EdgeInsets.fromLTRB(width * 0.01,
-                                  height * 0.03, width * 0.01, height * 0.03),
-                              child: Container(
-                                  margin: EdgeInsets.fromLTRB(
-                                      0, height * 0.01, 0, 1),
-                                  padding:
-                                      const EdgeInsets.fromLTRB(20, 15, 20, 15),
-                                  width: width * 0.9,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 3,
-                                      ),
-                                      color: Colors.white, //Colors.white,
-                                      boxShadow: const [
-                                        BoxShadow(
-                                            blurRadius: 20,
-                                            color: Colors.black45,
-                                            spreadRadius: -10)
-                                      ],
-                                      borderRadius: BorderRadius.circular(20)),
-                                  child: Text(type != 'wifi'
-                                      ? "لم يتم العثور على الأجهزة ، يرجى التأكد من أن جهازك متصل بالطاقة وقريب من الهاتف."
-                                      : "لم يتم العثور على الشبكات ، يرجى التأكد من وجود شبكة قريبة قيد التشغيل.")))
-                        ], //Display list of networks
-                );
-              } else {
-                return const Text("");
-              }
-            } else {
-              return const Text("");
-            }
-          },
-        ),
-      ]);
-    } else {
-      // main widget, shows wifi info and disable, disconnect wifi
-      WiFiForIoTPlugin.isEnabled().then((val) {
-        setState(() {
-          _isEnabled = val;
-        });
-      });
-      //in case the wifi is disabled
-      return Column(children: [
-        Align(
-          alignment: Alignment.topRight,
-          child: Text(
-            type == 'wifi' ? "شبكة الإنترنت" : "شبكة الجهاز",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
-        SizedBox(height: height * 0.03),
-        const Text(
-            "تم تعطيل شبكة الإنترنت اللاسلكية، يرجى تفعيلها لأضافة الجهاز.",
-            style: TextStyle(fontSize: 17, color: Colors.red)),
-        SizedBox(height: height * 0.03),
-        Container(
-            margin: EdgeInsets.fromLTRB(width * 0.2, 0, width * 0.2, 0),
-            decoration: BoxDecoration(
-              boxShadow: const [
-                BoxShadow(
-                    color: Colors.black26,
-                    offset: Offset(0, 4),
-                    blurRadius: 5.0)
-              ],
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                stops: [0.1, 1.0],
-                colors: [
-                  Colors.blue.shade200,
-                  Color(0xFF42A5F5),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Center(
-              child: ElevatedButton(
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                    ),
-                    minimumSize: MaterialStateProperty.all(const Size(100, 50)),
-                    backgroundColor:
-                        MaterialStateProperty.all(Colors.transparent),
-                    shadowColor: MaterialStateProperty.all(Colors.transparent),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    child: Text(
-                      "تفعيل",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      WiFiForIoTPlugin.setEnabled(true,
-                          shouldOpenSettings: true);
-                    });
-                  }),
-            ))
-      ]);
-    }
-  }
+  //                                                     Navigator.of(context)
+  //                                                         .pop();
+  //                                                     showToast('valid',
+  //                                                         "تم الاتصال بالشبكة بنجاح");
+  //                                                   } else {
+  //                                                     Navigator.of(context)
+  //                                                         .pop();
+  //                                                     showToast('invalid',
+  //                                                         "كلمة مرور غير صالحة ، الرجاء المحاولة مرة أخرى.");
+  //                                                   }
+  //                                                 }
+  //                                               },
+  //                                               child: const Text(
+  //                                                 'اتصال',
+  //                                                 style:
+  //                                                     TextStyle(fontSize: 18),
+  //                                               )),
+  //                                           SizedBox(
+  //                                             height: 10,
+  //                                             width: width * 0.1,
+  //                                           ),
+  //                                           ElevatedButton(
+  //                                               style: ButtonStyle(
+  //                                                   shape: MaterialStateProperty
+  //                                                       .all<
+  //                                                           RoundedRectangleBorder>(
+  //                                                     RoundedRectangleBorder(
+  //                                                       borderRadius:
+  //                                                           BorderRadius
+  //                                                               .circular(20.0),
+  //                                                     ),
+  //                                                   ),
+  //                                                   minimumSize:
+  //                                                       MaterialStateProperty
+  //                                                           .all(
+  //                                                     Size(width * 0.2,
+  //                                                         height * 0.05),
+  //                                                   ),
+  //                                                   backgroundColor:
+  //                                                       MaterialStateProperty
+  //                                                           .all(Colors
+  //                                                               .red.shade400)),
+  //                                               onPressed: () {
+  //                                                 Navigator.of(context).pop();
+  //                                               },
+  //                                               child: const Text(
+  //                                                 'إلغاء',
+  //                                                 style:
+  //                                                     TextStyle(fontSize: 18),
+  //                                               )),
+  //                                         ],
+  //                                       ),
+  //                                     ],
+  //                                   ),
+  //                                 ),
+  //                               ));
+  //                     },
+  //                     child: Container(
+  //                         margin: EdgeInsets.fromLTRB(0, height * 0.01, 0, 1),
+  //                         padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+  //                         width: width * 0.9,
+  //                         decoration: BoxDecoration(
+  //                             border: Border.all(
+  //                               color: selectedNetwork == i
+  //                                   ? Colors.green.shade200
+  //                                   : Colors.white,
+  //                               width: 3,
+  //                             ),
+  //                             color: Colors.white,
+  //                             boxShadow: const [
+  //                               BoxShadow(
+  //                                   blurRadius: 20,
+  //                                   color: Colors.black45,
+  //                                   spreadRadius: -10)
+  //                             ],
+  //                             borderRadius: BorderRadius.circular(20)),
+  //                         child: Row(
+  //                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                             children: [
+  //                               Text(oNetwork.ssid!),
+  //                               Visibility(
+  //                                   visible: selectedNetwork == i,
+  //                                   child: Icon(Icons.task_alt,
+  //                                       size: 28, color: Colors.green.shade300))
+  //                             ])),
+  //                   ));
+  //                 }
+  //               }
+  //               return Column(
+  //                 children: htNetworks.isNotEmpty
+  //                     ? htNetworks
+  //                     : [
+  //                         Padding(
+  //                             padding: EdgeInsets.fromLTRB(width * 0.01,
+  //                                 height * 0.03, width * 0.01, height * 0.03),
+  //                             child: Container(
+  //                                 margin: EdgeInsets.fromLTRB(
+  //                                     0, height * 0.01, 0, 1),
+  //                                 padding:
+  //                                     const EdgeInsets.fromLTRB(20, 15, 20, 15),
+  //                                 width: width * 0.9,
+  //                                 decoration: BoxDecoration(
+  //                                     border: Border.all(
+  //                                       color: Colors.white,
+  //                                       width: 3,
+  //                                     ),
+  //                                     color: Colors.white, //Colors.white,
+  //                                     boxShadow: const [
+  //                                       BoxShadow(
+  //                                           blurRadius: 20,
+  //                                           color: Colors.black45,
+  //                                           spreadRadius: -10)
+  //                                     ],
+  //                                     borderRadius: BorderRadius.circular(20)),
+  //                                 child: Text(type != 'wifi'
+  //                                     ? "لم يتم العثور على الأجهزة ، يرجى التأكد من أن جهازك متصل بالطاقة وقريب من الهاتف."
+  //                                     : "لم يتم العثور على الشبكات ، يرجى التأكد من وجود شبكة قريبة قيد التشغيل.")))
+  //                       ], //Display list of networks
+  //               );
+  //             } else {
+  //               return const Text("");
+  //             }
+  //           } else {
+  //             return const Text("");
+  //           }
+  //         },
+  //       ),
+  //     ]);
+  //   } else {
+  //     // main widget, shows wifi info and disable, disconnect wifi
+  //     WiFiForIoTPlugin.isEnabled().then((val) {
+  //       setState(() {
+  //         _isEnabled = val;
+  //       });
+  //     });
+  //     //in case the wifi is disabled
+  //     return Column(children: [
+  //       Align(
+  //         alignment: Alignment.topRight,
+  //         child: Text(
+  //           type == 'wifi' ? "شبكة الإنترنت" : "شبكة الجهاز",
+  //           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+  //         ),
+  //       ),
+  //       SizedBox(height: height * 0.03),
+  //       const Text(
+  //           "تم تعطيل شبكة الإنترنت اللاسلكية، يرجى تفعيلها لأضافة الجهاز.",
+  //           style: TextStyle(fontSize: 17, color: Colors.red)),
+  //       SizedBox(height: height * 0.03),
+  //       Container(
+  //           margin: EdgeInsets.fromLTRB(width * 0.2, 0, width * 0.2, 0),
+  //           decoration: BoxDecoration(
+  //             boxShadow: const [
+  //               BoxShadow(
+  //                   color: Colors.black26,
+  //                   offset: Offset(0, 4),
+  //                   blurRadius: 5.0)
+  //             ],
+  //             gradient: LinearGradient(
+  //               begin: Alignment.topLeft,
+  //               end: Alignment.bottomRight,
+  //               stops: [0.1, 1.0],
+  //               colors: [
+  //                 Colors.blue.shade200,
+  //                 Color(0xFF42A5F5),
+  //               ],
+  //             ),
+  //             borderRadius: BorderRadius.circular(30),
+  //           ),
+  //           child: Center(
+  //             child: ElevatedButton(
+  //                 style: ButtonStyle(
+  //                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+  //                     RoundedRectangleBorder(
+  //                       borderRadius: BorderRadius.circular(30.0),
+  //                     ),
+  //                   ),
+  //                   minimumSize: MaterialStateProperty.all(const Size(100, 50)),
+  //                   backgroundColor:
+  //                       MaterialStateProperty.all(Colors.transparent),
+  //                   shadowColor: MaterialStateProperty.all(Colors.transparent),
+  //                 ),
+  //                 child: const Padding(
+  //                   padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+  //                   child: Text(
+  //                     "تفعيل",
+  //                     style: TextStyle(fontSize: 18, color: Colors.white),
+  //                   ),
+  //                 ),
+  //                 onPressed: () {
+  //                   setState(() {
+  //                     WiFiForIoTPlugin.setEnabled(true,
+  //                         shouldOpenSettings: true);
+  //                   });
+  //                 }),
+  //           ))
+  //     ]);
+  //   }
+  // }
 
-  Future<List<WifiNetwork>> loadWifiList() async {
-    List<WifiNetwork> htResultNetwork;
-    try {
-      htResultNetwork = await WiFiForIoTPlugin.loadWifiList();
-    } on PlatformException {
-      htResultNetwork = <WifiNetwork>[];
-    }
-    return htResultNetwork;
-  }
+  // Future<List<WifiNetwork>> loadWifiList() async {
+  //   List<WifiNetwork> htResultNetwork;
+  //   try {
+  //     htResultNetwork = await WiFiForIoTPlugin.loadWifiList();
+  //   } on PlatformException {
+  //     htResultNetwork = <WifiNetwork>[];
+  //   }
+  //   return htResultNetwork;
+  // }
 
   final formKey1 = GlobalKey<FormState>();
   var color = Colors.white;
@@ -448,18 +448,18 @@ class AddDeviceState extends State<AddDevice> {
                             ]),
                       ),
                     ),
-                    Positioned(
-                        width: 50,
-                        height: 50,
-                        top: height * 0.01,
-                        right: width * 0.05,
-                        child: IconButton(
-                          iconSize: 30,
-                          icon: const Icon(Icons.keyboard_arrow_down, size: 60),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        )),
+                    // Positioned(
+                    //     width: 50,
+                    //     height: 50,
+                    //     top: height * 0.01,
+                    //     right: width * 0.05,
+                    //     child: IconButton(
+                    //       iconSize: 30,
+                    //       icon: const Icon(Icons.keyboard_arrow_down, size: 60),
+                    //       onPressed: () {
+                    //         Navigator.of(context).pop();
+                    //       },
+                    //     )),
                     Positioned(
                         width: width,
                         height: 50,
@@ -482,117 +482,118 @@ class AddDeviceState extends State<AddDevice> {
                               elevation: 1,
                               currentStep: _index,
                               type: StepperType.horizontal,
-                              controlsBuilder: (BuildContext context,
-                                  ControlsDetails controls) {
-                                return _index != 2 && _isEnabled
-                                    ? Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                            10, 30, 10, 0),
-                                        decoration: BoxDecoration(
-                                          boxShadow: const [
-                                            BoxShadow(
-                                                color: Colors.black26,
-                                                offset: Offset(0, 4),
-                                                blurRadius: 5.0)
-                                          ],
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                            stops: [0.1, 1.0],
-                                            colors: [
-                                              Colors.blue.shade200,
-                                              Colors.blue.shade400,
-                                            ],
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                        ),
-                                        child: Center(
-                                          child: ElevatedButton(
-                                              style: ButtonStyle(
-                                                shape:
-                                                    MaterialStateProperty.all<
-                                                        RoundedRectangleBorder>(
-                                                  RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30.0),
-                                                  ),
-                                                ),
-                                                minimumSize:
-                                                    MaterialStateProperty.all(
-                                                        const Size(350, 50)),
-                                                backgroundColor:
-                                                    MaterialStateProperty.all(
-                                                        Colors.transparent),
-                                                shadowColor:
-                                                    MaterialStateProperty.all(
-                                                        Colors.transparent),
-                                              ),
-                                              child: const Padding(
-                                                padding: EdgeInsets.fromLTRB(
-                                                    50, 10, 50, 10),
-                                                child: Text(
-                                                  'التالي',
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                              onPressed: () {
-                                                controls.onStepContinue!();
-                                              }),
-                                        ))
-                                    : const Text('');
-                              },
+                              // controlsBuilder: (BuildContext context,
+                              //     ControlsDetails controls) {
+                              //   return _index != 2 && _isEnabled
+                              //       ? Container(
+                              //           margin: const EdgeInsets.fromLTRB(
+                              //               10, 30, 10, 0),
+                              //           decoration: BoxDecoration(
+                              //             boxShadow: const [
+                              //               BoxShadow(
+                              //                   color: Colors.black26,
+                              //                   offset: Offset(0, 4),
+                              //                   blurRadius: 5.0)
+                              //             ],
+                              //             gradient: LinearGradient(
+                              //               begin: Alignment.topLeft,
+                              //               end: Alignment.bottomRight,
+                              //               stops: [0.1, 1.0],
+                              //               colors: [
+                              //                 Colors.blue.shade200,
+                              //                 Colors.blue.shade400,
+                              //               ],
+                              //             ),
+                              //             borderRadius:
+                              //                 BorderRadius.circular(30),
+                              //           ),
+                              //           child: Center(
+                              //             child: ElevatedButton(
+                              //                 style: ButtonStyle(
+                              //                   shape:
+                              //                       MaterialStateProperty.all<
+                              //                           RoundedRectangleBorder>(
+                              //                     RoundedRectangleBorder(
+                              //                       borderRadius:
+                              //                           BorderRadius.circular(
+                              //                               30.0),
+                              //                     ),
+                              //                   ),
+                              //                   minimumSize:
+                              //                       MaterialStateProperty.all(
+                              //                           const Size(350, 50)),
+                              //                   backgroundColor:
+                              //                       MaterialStateProperty.all(
+                              //                           Colors.transparent),
+                              //                   shadowColor:
+                              //                       MaterialStateProperty.all(
+                              //                           Colors.transparent),
+                              //                 ),
+                              //                 child: const Padding(
+                              //                   padding: EdgeInsets.fromLTRB(
+                              //                       50, 10, 50, 10),
+                              //                   child: Text(
+                              //                     'التالي',
+                              //                     style: TextStyle(
+                              //                         fontSize: 18,
+                              //                         color: Colors.white),
+                              //                   ),
+                              //                 ),
+                              //                 onPressed: () {
+                              //                   controls.onStepContinue!();
+                              //                 }),
+                              //           ))
+                              //       : const Text('');
+                              // },
                               onStepContinue: () {
-                                if (connected) {
-                                  setState(() {
-                                    _index += 1;
-                                  });
-                                } else {
-                                  showToast('invalid',
-                                      "الرجاء الاتصال بالشبكة للمتابعة.");
-                                }
+                                // if (connected) {
+                                //   setState(() {
+                                //     _index += 1;
+                                //   });
+                                // } else {
+                                //   showToast('invalid',
+                                //       "الرجاء الاتصال بالشبكة للمتابعة.");
+                                // }
                               },
                               onStepTapped: (int index) {
-                                if (connected) {
-                                  setState(() {
-                                    _index = index;
-                                  });
-                                } else {
-                                  showToast("invalid",
-                                      "الرجاء الاتصال بالجهاز للمتابعة.");
-                                }
+                                // if (connected) {
+                                //   setState(() {
+                                //     _index = index;
+                                //   });
+                                // } else {
+                                //   showToast("invalid",
+                                //       "الرجاء الاتصال بالجهاز للمتابعة.");
+                                // }
                               },
                               steps: <Step>[
-                                Step(
-                                    state: _index != 0
-                                        ? StepState.complete
-                                        : StepState.indexed,
-                                    isActive: true,
-                                    title: Text('الاتصال بالجهاز',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: _index == 0
-                                                ? FontWeight.w700
-                                                : FontWeight.w500)),
-                                    content: getNetworks(
-                                        height, width, formKey2, 'devices')),
-                                Step(
-                                  state: _index > 1
-                                      ? StepState.complete
-                                      : StepState.indexed,
-                                  isActive: _index != 0 ? true : false,
-                                  title: Text('الاتصال بالشبكة',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: _index == 1
-                                              ? FontWeight.w700
-                                              : FontWeight.w500)),
-                                  content: getNetworks(
-                                      height, width, formKey2, 'wifi'),
-                                ),
+                                // Step(
+                                //     state: _index != 0
+                                //         ? StepState.complete
+                                //         : StepState.indexed,
+                                //     isActive: true,
+                                //     title: Text('الاتصال بالجهاز',
+                                //         style: TextStyle(
+                                //             fontSize: 14,
+                                //             fontWeight: _index == 0
+                                //                 ? FontWeight.w700
+                                //                 : FontWeight.w500)),
+                                //     content: getNetworks(
+                                //         height, width, formKey2, 'devices')),
+                                // Step(
+                                //   state: _index > 1
+                                //       ? StepState.complete
+                                //       : StepState.indexed,
+                                //   isActive: _index != 0 ? true : false,
+                                //   title: Text('الاتصال بالشبكة',
+                                //       style: TextStyle(
+                                //           fontSize: 14,
+                                //           fontWeight: _index == 1
+                                //               ? FontWeight.w700
+                                //               : FontWeight.w500)),
+                                //   content: getNetworks(
+                                //       height, width, formKey2, 'wifi'),
+                                // ),
+
                                 Step(
                                   state: _index > 2
                                       ? StepState.complete

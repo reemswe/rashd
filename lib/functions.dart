@@ -59,103 +59,103 @@ Future<bool> exists(
 }
 
 //! Device functions
-Future<void> updateDeviceStatus(value, deviceID) async {
-  final database = FirebaseDatabase.instance.ref('devicesList/${deviceID}');
-  await database.update({'status': value});
-}
+// Future<void> updateDeviceStatus(value, deviceID) async {
+//   final database = FirebaseDatabase.instance.ref('devicesList/${deviceID}');
+//   await database.update({'status': value});
+// }
 
-Widget controlDeviceStatus(
-  deviceStatus,
-  deviceRealtimeID,
-) {
-  return LiteRollingSwitch(
-    value: deviceStatus != 'disconnected'
-        ? (deviceStatus == 'ON' ? true : false)
-        : false,
-    textOn: deviceStatus == 'disconnected' ? "غير متصل" : 'On',
-    textOff: deviceStatus != 'disconnected' ? 'Off' : "غير متصل",
-    colorOn: deviceStatus == 'disconnected'
-        ? Colors.grey.shade600
-        : Colors.green.shade400,
-    colorOff: deviceStatus != 'disconnected'
-        ? Colors.red.shade400
-        : Colors.grey.shade600,
-    iconOn: deviceStatus == 'disconnected' ? Icons.cancel : Icons.done,
-    iconOff: deviceStatus == 'disconnected'
-        ? Icons.cancel
-        : Icons.remove_circle_outline,
-    textOnColor: Colors.white,
-    textSize: 16,
-    width: 130,
-    onChanged: (bool state) async {
-      if (deviceStatus != 'disconnected') {
-        await updateDeviceStatus(state ? "ON" : "OFF", deviceRealtimeID);
-      }
-    },
-    onTap: () {},
-    onSwipe: () {},
-    onDoubleTap: () {},
-  );
-}
+// Widget controlDeviceStatus(
+//   deviceStatus,
+//   deviceRealtimeID,
+// ) {
+//   return LiteRollingSwitch(
+//     value: deviceStatus != 'disconnected'
+//         ? (deviceStatus == 'ON' ? true : false)
+//         : false,
+//     textOn: deviceStatus == 'disconnected' ? "غير متصل" : 'On',
+//     textOff: deviceStatus != 'disconnected' ? 'Off' : "غير متصل",
+//     colorOn: deviceStatus == 'disconnected'
+//         ? Colors.grey.shade600
+//         : Colors.green.shade400,
+//     colorOff: deviceStatus != 'disconnected'
+//         ? Colors.red.shade400
+//         : Colors.grey.shade600,
+//     iconOn: deviceStatus == 'disconnected' ? Icons.cancel : Icons.done,
+//     iconOff: deviceStatus == 'disconnected'
+//         ? Icons.cancel
+//         : Icons.remove_circle_outline,
+//     textOnColor: Colors.white,
+//     textSize: 16,
+//     width: 130,
+//     onChanged: (bool state) async {
+//       if (deviceStatus != 'disconnected') {
+//         await updateDeviceStatus(state ? "ON" : "OFF", deviceRealtimeID);
+//       }
+//     },
+//     onTap: () {},
+//     onSwipe: () {},
+//     onDoubleTap: () {},
+//   );
+// }
 
-Future<Map<String, dynamic>> getDeviceRealtimeData(houseID, deviceID) async {
-  List<ChartData> chartData = [];
-  Map<String, dynamic> deviceData = {};
-  Completer<Map<String, dynamic>> completer = Completer();
+// Future<Map<String, dynamic>> getDeviceRealtimeData(houseID, deviceID) async {
+//   List<ChartData> chartData = [];
+//   Map<String, dynamic> deviceData = {};
+//   Completer<Map<String, dynamic>> completer = Completer();
 
-  await FirebaseFirestore.instance //retrieve id and color from firestore
-      .collection('houseAccount')
-      .doc(houseID)
-      .collection('houseDevices')
-      .doc(deviceID)
-      .get()
-      .then((DocumentSnapshot doc) async {
-    var finalColor =
-        Color(int.parse(doc['color'].split('(0x')[1].split(')')[0], radix: 16));
-    deviceData = {
-      'RealtimeID': doc['ID'],
-      'color': finalColor,
-      'name': doc['name']
-    };
-    final databaseRef =
-        FirebaseDatabase.instance.ref('devicesList/${doc["ID"]}/');
+//   await FirebaseFirestore.instance //retrieve id and color from firestore
+//       .collection('houseAccount')
+//       .doc(houseID)
+//       .collection('houseDevices')
+//       .doc(deviceID)
+//       .get()
+//       .then((DocumentSnapshot doc) async {
+//     var finalColor =
+//         Color(int.parse(doc['color'].split('(0x')[1].split(')')[0], radix: 16));
+//     deviceData = {
+//       'RealtimeID': doc['ID'],
+//       'color': finalColor,
+//       'name': doc['name']
+//     };
+//     final databaseRef =
+//         FirebaseDatabase.instance.ref('devicesList/${doc["ID"]}/');
 
-    await databaseRef.onValue.listen((event) {
-      chartData.clear();
+//     await databaseRef.onValue.listen((event) {
+//       chartData.clear();
 
-      // Convert the retrieved data to a list of ChartData objects
-      Map<dynamic, dynamic>? data =
-          event.snapshot.value as Map<dynamic, dynamic>?;
-      if (data != null) {
-        data.forEach((key, values) {
-          if (key == 'status') {
-            deviceData['status'] = values;
-          } else if (key == 'consumption') {
-            deviceData['currCons'] = values['currentConsumption'];
-            var monthlyConsumption = values['monthlyConsumption'];
-            monthlyConsumption.forEach((key, values) {
-              String name = key;
-              double cons = values.toDouble();
-              ChartData chart = ChartData(
-                  name,
-                  cons,
-                  Color(int.parse(doc['color'].split('(0x')[1].split(')')[0],
-                      radix: 16)));
-              chartData.add(chart);
-            });
-            deviceData['monthlyConsumption'] = chartData;
-          } else if (key == 'temperature') {
-            deviceData['temperature'] = values;
-          }
-        });
-      }
-      // Resolve the completer when the variables have been updated
-      completer.complete(deviceData);
-    });
-  });
-  // Return the completer's future to wait for the variables to be updated
-  return completer.future;
-}
+//       // Convert the retrieved data to a list of ChartData objects
+//       Map<dynamic, dynamic>? data =
+//           event.snapshot.value as Map<dynamic, dynamic>?;
+//       if (data != null) {
+//         data.forEach((key, values) {
+//           if (key == 'status') {
+//             deviceData['status'] = values;
+//           } else if (key == 'consumption') {
+//             deviceData['currCons'] = values['currentConsumption'];
+//             var monthlyConsumption = values['monthlyConsumption'];
+//             monthlyConsumption.forEach((key, values) {
+//               String name = key;
+//               double cons = values.toDouble();
+//               ChartData chart = ChartData(
+//                   name,
+//                   cons,
+//                   Color(int.parse(doc['color'].split('(0x')[1].split(')')[0],
+//                       radix: 16)));
+//               chartData.add(chart);
+//             });
+//             deviceData['monthlyConsumption'] = chartData;
+//           } else if (key == 'temperature') {
+//             deviceData['temperature'] = values;
+//           }
+//         });
+//       }
+//       // Resolve the completer when the variables have been updated
+//       completer.complete(deviceData);
+//     });
+//   });
+//   // Return the completer's future to wait for the variables to be updated
+//   return completer.future;
+// }
 
 getCurrentConsumption(deviceID, realDB) {
   Completer<double> completer = Completer();
@@ -178,44 +178,44 @@ getCurrentConsumption(deviceID, realDB) {
   return completer.future;
 }
 
-getMonthlyConsumption(deviceID, selectedYearMonth) {
-  Completer<double> completer = Completer();
-  double consum = 0;
-  //get currentConsumption from realtime
-  final databaseRef = FirebaseDatabase.instance.ref('devicesList/${deviceID}/');
-  databaseRef.onValue.listen((DatabaseEvent event) {
-    Map<dynamic, dynamic>? data =
-        event.snapshot.value as Map<dynamic, dynamic>?;
-    if (data != null) {
-      data.forEach((key, values) {
-        if (key == 'consumption') {
-          var monthlyConsumption = values['monthlyConsumption'];
-          monthlyConsumption.forEach((key, values) {
-            if (key == selectedYearMonth) {
-              consum = values.toDouble();
-            }
-          });
-        }
-      });
-    }
-    completer.complete(consum);
-  });
-  return completer.future;
-}
+// getMonthlyConsumption(deviceID, selectedYearMonth) {
+//   Completer<double> completer = Completer();
+//   double consum = 0;
+//   //get currentConsumption from realtime
+//   final databaseRef = FirebaseDatabase.instance.ref('devicesList/${deviceID}/');
+//   databaseRef.onValue.listen((DatabaseEvent event) {
+//     Map<dynamic, dynamic>? data =
+//         event.snapshot.value as Map<dynamic, dynamic>?;
+//     if (data != null) {
+//       data.forEach((key, values) {
+//         if (key == 'consumption') {
+//           var monthlyConsumption = values['monthlyConsumption'];
+//           monthlyConsumption.forEach((key, values) {
+//             if (key == selectedYearMonth) {
+//               consum = values.toDouble();
+//             }
+//           });
+//         }
+//       });
+//     }
+//     completer.complete(consum);
+//   });
+//   return completer.future;
+// }
 
-//! tapping local notification
-void listenToNotificationStream(notificationService) =>
-    notificationService.behaviorSubject.listen((payload) {
-      if (payload != null && payload.isNotEmpty) {
-        Navigator.pushReplacement(
-          GlobalContextService.navigatorKey.currentState!.context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => dashboard(
-              houseID: payload,
-            ),
-            transitionDuration: const Duration(seconds: 1),
-            reverseTransitionDuration: Duration.zero,
-          ),
-        );
-      }
-    });
+// //! tapping local notification
+// void listenToNotificationStream(notificationService) =>
+//     notificationService.behaviorSubject.listen((payload) {
+//       if (payload != null && payload.isNotEmpty) {
+//         Navigator.pushReplacement(
+//           GlobalContextService.navigatorKey.currentState!.context,
+//           PageRouteBuilder(
+//             pageBuilder: (context, animation1, animation2) => dashboard(
+//               houseID: payload,
+//             ),
+//             transitionDuration: const Duration(seconds: 1),
+//             reverseTransitionDuration: Duration.zero,
+//           ),
+//         );
+//       }
+//     });
