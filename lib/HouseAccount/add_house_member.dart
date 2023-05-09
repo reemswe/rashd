@@ -51,8 +51,8 @@ class add_house_memberState extends State<add_house_member> {
       privilege = 'viewer';
     });
     // if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
-    widget.firestore = FirebaseFirestore.instance;
-    widget.auth = FirebaseAuth.instance;
+    // widget.firestore = FirebaseFirestore.instance;
+    // widget.auth = FirebaseAuth.instance;
     // }
     super.initState();
   }
@@ -293,9 +293,12 @@ class add_house_memberState extends State<add_house_member> {
                                 child: ElevatedButton(
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
-                                      if (await exists(membersPhoneNumber1.text,
-                                          widget.firestore, widget.auth)) {
-                                        await setData(widget.firestore);
+                                      if (await exists(
+                                          membersPhoneNumber1.text,
+                                          FirebaseFirestore.instance,
+                                          FirebaseAuth.instance)) {
+                                        await setData(
+                                            FirebaseFirestore.instance);
                                         showToast('valid', 'تم الإضافة بنجاح');
                                         // if (!TestWidgetsFlutterBinding
                                         //         .ensureInitialized()
