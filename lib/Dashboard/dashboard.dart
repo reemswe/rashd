@@ -521,7 +521,8 @@ class DashboardState extends State<dashboard> {
               bottomNavigationBar: buildBottomNavigation(height, userType),
             );
           }
-          return const Center(child: CircularProgressIndicator());
+          return Scaffold(
+              body: const Center(child: CircularProgressIndicator()));
         });
   }
 

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:rashd/HouseAccount/list_of_houseAccounts.dart';
+import 'package:rashd/Registration/welcomePage.dart';
 import '../Mocks.dart';
 import '../functions.dart';
 // import 'package:flutter_test/flutter_test.dart';
@@ -71,7 +72,12 @@ class _loginPageState extends State<Login> {
                                       ),
                                       onPressed: () {
                                         clearForm();
-                                        Navigator.of(context).pop();
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  welcomePage(),
+                                            ));
                                       },
                                     ),
                                     const Text(

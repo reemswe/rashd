@@ -39,8 +39,8 @@ class AddDeviceState extends State<AddDevice> {
   @override
   initState() {
     // if (!TestWidgetsFlutterBinding.ensureInitialized().inTest) {
-    widget.firestore = FirebaseFirestore.instance;
-    widget.firebase = FirebaseDatabase.instance;
+    // FirebaseFirestore.instance = FirebaseFirestore.instance;
+    // FirebaseDatabase.instance = FirebaseDatabase.instance;
     _index = 0;
     // }
     WiFiForIoTPlugin.isEnabled().then((val) {
@@ -577,8 +577,9 @@ class AddDeviceState extends State<AddDevice> {
                                             fontWeight: _index == 0
                                                 ? FontWeight.w700
                                                 : FontWeight.w500)),
-                                    content: getNetworks(
-                                        height, width, formKey2, 'devices')),
+                                    content: SingleChildScrollView(
+                                        child: getNetworks(height, width,
+                                            formKey2, 'devices'))),
                                 Step(
                                   state: _index > 1
                                       ? StepState.complete
@@ -590,8 +591,9 @@ class AddDeviceState extends State<AddDevice> {
                                           fontWeight: _index == 1
                                               ? FontWeight.w700
                                               : FontWeight.w500)),
-                                  content: getNetworks(
-                                      height, width, formKey2, 'wifi'),
+                                  content: SingleChildScrollView(
+                                      child: getNetworks(
+                                          height, width, formKey2, 'wifi')),
                                 ),
                                 Step(
                                   state: _index > 2
@@ -867,8 +869,8 @@ class AddDeviceState extends State<AddDevice> {
                                                                       "devicesInfo")
                                                                   .get("SSID");
                                                               // }
-                                                              await widget
-                                                                  .firestore
+                                                              await FirebaseFirestore
+                                                                  .instance
                                                                   .collection(
                                                                       'houseAccount')
                                                                   .doc(
@@ -919,7 +921,8 @@ class AddDeviceState extends State<AddDevice> {
     SSID = Hive.box("devicesInfo").get("SSID");
     // }
 
-    DatabaseReference database = widget.firebase.ref('devicesList/${SSID}/');
+    DatabaseReference database =
+        FirebaseDatabase.instance.ref('devicesList/${SSID}/');
     database.onValue.listen((DatabaseEvent event) {
       final data = event.snapshot.value;
       print(data);

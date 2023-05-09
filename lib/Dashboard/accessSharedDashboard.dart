@@ -193,7 +193,8 @@ class Satisfies extends State<AccessSharedDashboard> {
                                       inProgress = true;
                                     });
                                     if (_formKey.currentState!.validate()) {
-                                      await isCodeValid(widget.firestore);
+                                      await isCodeValid(
+                                          FirebaseFirestore.instance);
                                     }
 
                                     if (_formKey.currentState!.validate()) {
@@ -201,7 +202,8 @@ class Satisfies extends State<AccessSharedDashboard> {
                                         inProgress = false;
                                       });
 
-                                      var collection = widget.firestore
+                                      var collection = FirebaseFirestore
+                                          .instance
                                           .collectionGroup('sharedCode');
                                       // if (TestWidgetsFlutterBinding
                                       //         .ensureInitialized()
@@ -219,7 +221,7 @@ class Satisfies extends State<AccessSharedDashboard> {
                                           .where('isExpired', isEqualTo: false)
                                           .get();
 
-                                      await widget.firestore
+                                      await FirebaseFirestore.instance
                                           .collection('houseAccount')
                                           .doc(sharedDashboard.docs[0]
                                               ['houseID'])
@@ -234,8 +236,8 @@ class Satisfies extends State<AccessSharedDashboard> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => dashboard(
-                                              houseID:
-                                                  sharedDashboard.docs[0].id,
+                                              houseID: sharedDashboard.docs[0]
+                                                  ['houseID'],
                                               isShared: true,
                                             ),
                                           ));
