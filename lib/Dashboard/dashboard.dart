@@ -791,7 +791,7 @@ class DashboardState extends State<dashboard> {
       context: context,
       initialDate: _selected ?? DateTime.now(),
       firstDate: DateTime(2000),
-      lastDate: DateTime(3000),
+      lastDate: DateTime.now(),
       locale: localeObj,
     );
 
