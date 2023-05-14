@@ -78,8 +78,8 @@ class AddDeviceState extends State<AddDevice> {
                 for (int i = 0; i < _htResultNetwork!.length; i++) {
                   var oNetwork = _htResultNetwork![i];
                   var condition = type == 'wifi'
-                      ? !(oNetwork!.ssid!).contains("R")
-                      : (oNetwork!.ssid!).contains("Abo");
+                      ? !(oNetwork!.ssid!).contains("HUAWEI")
+                      : (oNetwork!.ssid!).contains("Rashd");
                   if (condition) {
                     htNetworks.add(InkWell(
                       onTap: () {
@@ -173,11 +173,15 @@ class AddDeviceState extends State<AddDevice> {
                                                         passwordController
                                                             .clear();
                                                       });
-                                                      Hive.box("devicesInfo").put(
-                                                          "SSID",
-                                                          oNetwork
-                                                              .ssid); //Hive.box("devicesInfo").get("SSID")
+                                                      if (type != 'wifi') {
+                                                        Hive.box("devicesInfo")
+                                                            .put("SSID",
+                                                                oNetwork.ssid);
+                                                      } //Hive.box("devicesInfo").get("SSID")
+                                                      print(
+                                                          '==================ssid================');
 
+                                                      print(oNetwork.ssid);
                                                       Navigator.of(context)
                                                           .pop();
                                                       showToast('valid',
@@ -866,9 +870,16 @@ class AddDeviceState extends State<AddDevice> {
                                                               // if (!TestWidgetsFlutterBinding
                                                               //         .ensureInitialized()
                                                               //     .inTest) {
+
                                                               deviceID = Hive.box(
-                                                                      "devicesInfo")
-                                                                  .get("SSID");
+                                                                          "devicesInfo")
+                                                                      .get(
+                                                                          "SSID") ??
+                                                                  '';
+
+                                                              print(
+                                                                  '==================ssid2================');
+                                                              print(deviceID);
                                                               // }
                                                               await FirebaseFirestore
                                                                   .instance
