@@ -682,7 +682,8 @@ class AddDeviceState extends State<AddDevice> {
                                                   hasBorder: true,
                                                   borderColor:
                                                       Colors.grey.shade200,
-                                                  color: color,
+                                                  color:
+                                                      const Color(0xfffffffc),
                                                   pickersEnabled: const {
                                                     ColorPickerType.accent:
                                                         false,
